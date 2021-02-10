@@ -1,4 +1,4 @@
 # Project overview
 
 # Contributors
-Peter Ramirez
+Peter Ramirez, Aley Chaing
