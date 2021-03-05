@@ -1,25 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        #container{
-            border: 2px solid black;
-        }
-    </style>
-</head>
-<body>
-    <div id = "container">
-        <h1>Start of the test section</h1>
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <br>
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. <br>
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. <br>
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-    </div>
-
-    <script src = "{{ url_for('static',filename = 'script.js') }}"></script>
-</body>
-</html>
+{% extends "layout.html" %}
+{% block title %} - Home{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+  <h1>Home</h1>
+  <p class="greeting">
+    Welcome to TapTune!
+  </p>
+{% endblock %}

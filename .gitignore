@@ -1,0 +1,5 @@
+#pycharm vscode project files
+/venv/
+.idea/
+.DS_Store
+.vscode
