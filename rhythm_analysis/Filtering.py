@@ -4,6 +4,9 @@
 # Class with fields result_artist result_lyrics, result_genre representing potential songs (Song Class or Strings)
 # Do I need a recording ID?
 
+import lyricsgenius
+
+
 class Filtering:
     result_artist = []
     result_genre = []
@@ -20,7 +23,7 @@ class Filtering:
     Lyrics : String
     parameters set to none if not provided by user
     """
-    def __innit__(self, Artist = None, Genre = None, Lyrics = None):
+    def __init__(self, Artist = None, Genre = None, Lyrics = None):
         self.input_artist = Artist
         self.input_genre = Genre
         self.input_lyrics = Lyrics
@@ -68,7 +71,22 @@ class Filtering:
     def filterLyrics(self):
 
         #checks that field is valid
-        if(self.input_):
+        if(self.input_lyrics):
+
+            #START of POC
+            client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
+
+            genius = lyricsgenius.Genius(client_access_token)
+
+            for x in range (1,10):
+                request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1*x))
+                for hit in request['sections'][0]['hits']:
+                    artist_name = hit['result']['primary_artist']['name']
+                    song_title = hit['result']['title']
+
+                    print(artist_name + " - " + song_title)
+            
+            #END of cPOC
 
             return 1
 
@@ -83,3 +101,8 @@ class Filtering:
         filterArtist(self)
         filterGenre(self)
         filterLyrics(self)
+
+if __name__ == ("__main__"):
+    obj = Filtering(Lyrics = "We Will Rock You")
+    success = obj.filterLyrics()
+    print("\n"+success)
