@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from Database import db
-from User import User
+from flask import Flask, render_template
+from models.Database import db
+from models.User import User
 
 app = Flask(__name__)
 
@@ -18,5 +18,5 @@ def hello_world():
 
 
 if __name__ == '__main__':
-    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3' # required to use session
+    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
     app.run(debug=True)

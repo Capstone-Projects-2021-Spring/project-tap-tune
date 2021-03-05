@@ -1,4 +1,4 @@
-from Database import db, get_cursor
+from models.Database import db, get_cursor
 from passlib.context import CryptContext
 from flask import session
 
