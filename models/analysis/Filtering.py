@@ -1,6 +1,6 @@
 # Filtering class
 # Accepts RhythmRecording Array
-# Makes SQL Queries to the Database (ours or Fingerprint Db) For Artist and Genre, Calls Web Scraper for Lyrics
+# Makes SQL Queries to the Database (ours or ACR Cloud) For Artist and Genre, Calls Web Scraper for Lyrics
 # Class with fields result_artist result_lyrics, result_genre representing potential songs (Song Class or Strings)
 # Do I need a recording ID?
 
@@ -8,14 +8,6 @@ import lyricsgenius
 
 
 class Filtering:
-    result_artist = []
-    result_genre = []
-    result_lyrics = []
-
-    input_artist = ""
-    input_lyrics = ""
-    input_genre = ""
-
     """
     constructor Filtering class constructor
     Artist : String
