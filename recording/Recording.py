@@ -28,10 +28,6 @@ class Recording(ABC):
     """
     def __innit__(self, recordType,  userID):
         self.record_type = recordType
-
-        #recordingID should be generated here
-        self.recordingID = recordingID
-
         self.userID = userID
 
     """
