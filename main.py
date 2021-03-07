@@ -17,6 +17,11 @@ def hello_world():
     return render_template('index.html')
 
 
+@app.route('/service-worker.js')
+def sw():
+    return app.send_static_file('service-worker.js')
+
+
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
     app.run(debug=True)
