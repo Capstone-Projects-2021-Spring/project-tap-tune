@@ -2,13 +2,18 @@
 <html>
   <head>
     {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <title>TapTune {% block title %}{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% endblock %}
   </head>
   <body>
+    <div class="topnav">
+      <a class="active" href="#home">HOME</a>
+      <a href="#news">USER PROFILE</a>
+      <a href="#contact">SEARCH HISTORY</a>
+    </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
       {% block footer %}
