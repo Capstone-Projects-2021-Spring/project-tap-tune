@@ -13,8 +13,20 @@ mysql = MySQL(app)
 
 
 @app.route('/')
-def hello_world():
+def home_page():
     return render_template('index.html')
+
+@app.route('/#recordingRhythm')
+def rhythm_page():
+    return render_template('recordingRhythm.html')
+
+@app.route('/#filter')
+def filter_page():
+    return render_template('filtering.html')
+
+@app.route('/#results')
+def result_page():
+    return render_template('results.html')
 
 
 if __name__ == '__main__':
