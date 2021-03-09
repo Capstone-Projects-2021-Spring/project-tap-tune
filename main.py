@@ -16,17 +16,21 @@ mysql = MySQL(app)
 def home_page():
     return render_template('index.html')
 
-@app.route('/#recordingRhythm')
+@app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
     return render_template('recordingRhythm.html')
 
-@app.route('/#filter')
+@app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
     return render_template('filtering.html')
 
-@app.route('/#results')
+@app.route('/results', methods=['GET', 'POST'])
 def result_page():
     return render_template('results.html')
+
+@app.route('/user', methods=['GET', 'POST'])
+def user_page():
+    return render_template('user.html')
 
 
 if __name__ == '__main__':

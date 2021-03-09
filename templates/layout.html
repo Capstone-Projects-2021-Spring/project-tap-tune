@@ -10,9 +10,9 @@
   </head>
   <body>
     <div class="topnav">
-      <a class="active" href="#home">HOME</a>
-      <a href="#news">USER PROFILE</a>
-      <a href="#contact">SEARCH HISTORY</a>
+      <a id = "homepage" href="{{ url_for('home_page') }}">HOME</a>
+      <a id = "userpage" href="{{ url_for('user_page') }}">USER PROFILE</a>
+      <a id = "resultpage" href="{{ url_for('result_page') }}">RESULTS</a>
     </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
