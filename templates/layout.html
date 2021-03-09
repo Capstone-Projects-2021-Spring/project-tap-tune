@@ -2,7 +2,7 @@
 <html>
   <head>
     {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <title>TapTune {% block title %}{% endblock %}</title>
 
     <!-- Android PWA -->
@@ -19,6 +19,11 @@
     {% endblock %}
   </head>
   <body>
+    <div class="topnav">
+      <a id = "homepage" href="{{ url_for('home_page') }}">HOME</a>
+      <a id = "userpage" href="{{ url_for('user_page') }}">USER PROFILE</a>
+      <a id = "resultpage" href="{{ url_for('result_page') }}">RESULTS</a>
+    </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
       {% block footer %}

@@ -13,8 +13,24 @@ db.init_app(app)
 
 
 @app.route('/')
-def hello_world():
+def home_page():
     return render_template('index.html')
+
+@app.route('/recordingRhythm', methods=['GET', 'POST'])
+def rhythm_page():
+    return render_template('recordingRhythm.html')
+
+@app.route('/filtering', methods=['GET', 'POST'])
+def filter_page():
+    return render_template('filtering.html')
+
+@app.route('/results', methods=['GET', 'POST'])
+def result_page():
+    return render_template('results.html')
+
+@app.route('/user', methods=['GET', 'POST'])
+def user_page():
+    return render_template('user.html')
 
 
 @app.route('/service-worker.js')
