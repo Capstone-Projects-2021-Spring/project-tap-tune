@@ -14,13 +14,31 @@ db.init_app(app)
 
 
 @app.route('/')
-def hello_world():
-
-    # obj is used to test the filtering class
-    # obj = Filtering(Artist="Queen", Genre="Rock", Lyrics="We Will Rock You")
-    # obj.filterRecording()
-
+def home_page():
     return render_template('index.html')
+
+@app.route('/recordingRhythm', methods=['GET', 'POST'])
+def rhythm_page():
+    return render_template('recordingRhythm.html')
+
+@app.route('/filtering', methods=['GET', 'POST'])
+def filter_page():
+    return render_template('filtering.html')
+
+@app.route('/results', methods=['GET', 'POST'])
+def result_page():
+    return render_template('results.html')
+
+@app.route('/user', methods=['GET', 'POST'])
+def user_page():
+    return render_template('user.html')
+
+@app.route('/service-worker.js')
+def sw():
+    return app.send_static_file('service-worker.js')
+"""
+FILES JUST FOR PETER :)
+"""
 # practice page using POST and GET to send info to server
 @app.route('/post', methods=["POST", "GET"])
 def post_func():
@@ -35,6 +53,7 @@ def post_func():
 @app.route('/<res>')
 def results(res):
     return('<h1>{%s}</h1>'% res)
+
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
