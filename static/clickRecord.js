@@ -13,7 +13,7 @@ startButton.onclick = function () {
     startTime = new Date();
     console.log(startTime);
 
-	startButton.disabled = false;
+	startButton.disabled = true;
 	tapButton.disabled = false;
 	stopButton.disabled = false;
 }
