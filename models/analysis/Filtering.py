@@ -5,6 +5,12 @@
 # Do I need a recording ID?
 
 import lyricsgenius
+import sys
+import os
+
+# sys.path.append(os.getcwd())
+
+# from models.testDatabase import db, get_cursor
 from models.Database import db, get_cursor
 
 class Filtering:
@@ -36,7 +42,10 @@ class Filtering:
                 cursor.execute('SELECT * FROM song WHERE artist = %s', (self.input_artist, ))
                 #fetch al results and save in song_data list
                 song_data = cursor.fetchall()
-                return song_data
+                print("Artist:\n")
+                print(song_data)
+                print("\n")
+                return 1
                 
             except Exception as e:
                  print(e)
@@ -56,12 +65,24 @@ class Filtering:
 
         #checks that field is valid
         if(self.input_genre):
-
-            return 1
-
+            try:
+                #retrieves cursor from Database.py
+                cursor = get_cursor()
+                cursor.execute(('SELECT * FROM song WHERE genre LIKE "%{0}%"').format(self.input_genre))
+                #fetch al results and save in song_data list
+                song_data = cursor.fetchall()
+                print("GENRE:\n")
+                print(song_data)
+                print("\n")
+                return 1
+                
+            except Exception as e:
+                 print(e)
+                 return None
+        
         else:
 
-            return 0
+            return None
 
     """
     use lyricsgenius package to webscrape the Genius song collection based on input_lyrics
@@ -80,7 +101,7 @@ class Filtering:
             genius = lyricsgenius.Genius(client_access_token)
             song_data = []
             #for loop to increase number of results (current:500)
-            for x in range (1,10):
+            for x in range (1,2):
 
                 #makes request to genius API and wrapper to search through lyrics 
                 request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1*x))
@@ -90,6 +111,9 @@ class Filtering:
                     song_title = hit['result']['title']
 
                     song_data.append( (artist_name + "-" + song_title) )
+            print("Lyrics:\n")
+            print(song_data)
+            print("\n")
             return song_data
 
         else:
@@ -100,12 +124,6 @@ class Filtering:
     Execution function, ordered so that most specific field is followed by least specific
     """
     def filterRecording(self):
-        filterArtist(self)
-        filterGenre(self)
-        filterLyrics(self)
-
-# do any testing in here
-if __name__ == ("__main__"):
-    obj = Filtering(Lyrics = "We Will Rock You")
-    success = obj.filterLyrics()
-    print("\n"+success)
+        self.filterArtist()
+        self.filterGenre()
+        self.filterLyrics()

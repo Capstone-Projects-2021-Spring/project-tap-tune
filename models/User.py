@@ -178,3 +178,7 @@ class User:
     def get_song_log(self):
         # TODO IMPLEMENT GET SONG LOG
         return []
+
+if __name__ == ("__main__"):
+    print("HELLO WORLD")
+    
