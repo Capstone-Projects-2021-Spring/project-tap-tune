@@ -7,8 +7,20 @@
   </style>
 {% endblock %}
 {% block content %}
-  <h1>Home</h1>
-  <p class="greeting">
-    Recording Page
-  </p>
+
+  <div id = "Buttons">
+	 <button id="container">Start</button>
+  	 <button id="recordTap" disabled>Tap</button>
+  	 <button id="recordStop" disabled>Stop</button>
+  </div> </br></br>
+
+<p> To start press any key except the space and enter key<br/>
+  To Tap press the space<br/>
+  To Stop press the enter<br/>
+</p>
+  <div id = "KeyElements">
+	 <button id="keyContainer">keyStart</button>
+  	 <button id="keyTap" disabled>keyTap</button>
+  	 <button id="keyStop" disabled>keyStop</button>
+  </div>
 {% endblock %}

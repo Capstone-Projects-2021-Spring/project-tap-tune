@@ -32,6 +32,9 @@ def result_page():
 def user_page():
     return render_template('user.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    return render_template('register.html')
 
 @app.route('/service-worker.js')
 def sw():
