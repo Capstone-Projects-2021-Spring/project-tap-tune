@@ -3,27 +3,72 @@
 {% block head %}
   {{ super() }}
   <style type="text/css">
-    .important { color: #336699; }
+    .important { color: #ac1a00; }
   </style>
 {% endblock %}
 {% block content %}
+
   <h1>Home</h1>
   <p class="greeting">
     Welcome to TapTune!
   </p>
-  <div id = "Buttons">
-	 <button id="container">Start</button>
-  	 <button id="recordTap" disabled>Tap</button>
-  	 <button id="recordStop" disabled>Stop</button>
-  </div>
 
-<p>To start the key feature press any key that's not space or enter to start <br />
-    Press the space bar to tap to the beat of the song <br />
-    Once you're finished, press enter.</p>
-  <div id = "KeyElements">
-	 <button id="keyContainer">keyStart</button>
-  	 <button id="keyTap" disabled>keyTap</button>
-  	 <button id="keyStop" disabled>keyStop</button>
-  </div>
+  <!-- Masthead-->
+  <header class="masthead bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+        <!-- Masthead Avatar Image-->
+        <img class="masthead-avatar mb-5" src="{{ url_for('static', filename='assets/images/taptune_icon.png') }}" alt="" />
+        <!-- Masthead Heading-->
+        <h1 class="masthead-heading text-uppercase mb-0">Start Tapping The Tune!</h1>
+        <!-- Icon Divider-->
+        <div class="divider-custom divider-light">
+            <div class="divider-custom-line"></div>
+        </div>
+        <!-- Masthead Subheading-->
+        <p class="masthead-subheading font-weight-light mb-0">Fingerprint - Audio Analysis - Song Suggestion</p>
+    </div>
+</header>
+<!-- Portfolio Section-->
+<section class="page-section portfolio" id="portfolio">
+    <div class="container-fluid">
+        <!-- Portfolio Section Heading-->
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Features</h2>
+        <!-- Icon Divider-->
+        <div class="divider-custom">
+            <div class="divider-custom-line"></div>
+        </div>
+        <!-- Portfolio Grid Items-->
+        <div class="row justify-content-center">
+            <!-- Portfolio Item 1-->
+            <div class="col-xl-2 col-xl-4 mb-5e3" onclick="goToRhythm()" >
+                <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1" >
+                    <div class="portfolio-item-caption-rhythm d-flex align-items-center justify-content-center h-100 w-100" >
+                        <div class="portfolio-item-caption-rhythm-content text-center text-white text-uppercase mb-0"  >
+                          <div class="row">Rhythm Recording</div>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">
+                            <path d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                          </svg>
+                        </div>
+                    </div>
+                    <img class="img-fluid" src="{{ url_for('static', filename='assets/images/rhythmIcon.png') }}"  alt="" />
+                </div>
+              </div>
+            <!-- Portfolio Item 2-->
+            <div class="col-xl-2 col-xl-4 mb-5" >
+                <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
+                    <div class="portfolio-item-caption-melody d-flex align-items-center justify-content-center h-100 w-100">
+                        <div class="portfolio-item-caption-melody-content text-center text-white text-uppercase mb-0">
+                          <div class="row">Melody Recording</div>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">
+                            <path d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                          </svg>
+                        </div>
+                    </div>
+                    <img class="img-fluid" src="{{ url_for('static', filename='assets/images/melodyIcon.png') }}" alt="" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock %}
