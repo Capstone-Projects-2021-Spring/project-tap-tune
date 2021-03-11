@@ -1,6 +1,6 @@
 var startTime;
 var instanceTime;
-var times = new Array(50);
+var times = new Array();
 var timeArray = [];
 var dif;
 
@@ -16,7 +16,8 @@ startButton.onclick = function () {
 	startButton.disabled = true;
 	tapButton.disabled = false;
 	stopButton.disabled = false;
-}
+
+}//end of startButton
 
 /*************************************************************************/
 
@@ -28,23 +29,18 @@ startButton.onclick = function () {
         instanceTime = new Date();
         dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 
+	   times.push(dif);
 	   console.log("TAP TIME: "+dif);
-
-
-
+	   console.log(times);
     }//end of if
+
     else{
         alert("time has not started");
 
-    }
+    }//end of else
 
-
-	//console.log(timeArray);
-
-	   //console.log(timeArray);
-	   console.log("END OF TAP: "+dif);
 	return dif;
-}
+}//end of tapButton
 
 /*************************************************************************/
 stopButton.onclick = function () {
@@ -52,30 +48,21 @@ stopButton.onclick = function () {
     if (startTime){
 
     console.log("Time Stop");
-
-
 	console.log("Stop: "+dif);
-	//console.log("Array: "+timeArray);
-	console.log("END ARRAY: "+returnTimes(dif));
-    }
+	console.log("END ARRAY: "+returnTimes());
+
+    }//enf of if
 
     else{
-
-
     console.log("time has not started");
-
-
     }//end of else
-}
+}//end of stopButton
 /************************************************************************/
- function returnTimes(value){
+ function returnTimes(){
 
-		   for(var i = 0; i < times.length; i++){
-		   timeArray[i] = value;
-
-	   }
+	for(var i = 0; i < times.length; i++){
+		   timeArray[i] = times[i];
+	   }//end of for
 
 	   return timeArray;
-
-
-}
+}//end of returnTimes
