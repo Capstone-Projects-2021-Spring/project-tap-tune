@@ -1,7 +1,7 @@
 var startTime;
 var instanceTime;
 
-var timesTap = new Array(10);
+var timesTap = new Array();
 var timeTapArray = [];
 
 var dif;
@@ -16,7 +16,7 @@ document.addEventListener("keydown", function(){
 	start();
 });
 
-document.addEventListener("keyup", function(){
+document.addEventListener("keydown", function(){
 	record();
 });
 
@@ -60,6 +60,10 @@ function recordTime(){
 
 	dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 				console.log(dif);
+
+	   timesTap.push(dif);
+	   console.log("TAP TIME: "+dif);
+	   console.log(timesTap);
 	}//end of if
 
 	else{
@@ -79,10 +83,10 @@ function recordTime(){
 
 /***************************************************************************/
 function stopTime(){
-	if (startTime){
 
+	if (startTime){
 		console.log("Time Stop");
-		console.log("END ARRAY: "+returnTapTimes(dif));
+		console.log("END ARRAY: "+returnTapTimes());
 	}//end of if
 
 	else{
@@ -91,10 +95,10 @@ function stopTime(){
 }//end of stopTime
 
 /***************************************************************************/
- function returnTapTimes(value){
+ function returnTapTimes(){
 
 	for(var i = 0; i < timesTap.length; i++){
-		   timeTapArray[i] = value;
+		   timeTapArray[i] = timesTap[i];
 
 	   }//end of for
 
