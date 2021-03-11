@@ -21,3 +21,7 @@ $('.greeting').on('click',function(e){
 function goToRhythm() {
       window.location.href= "/recordingRhythm"; //link from rhythm button
 }
+
+function userLogin() {
+      window.location.href= "/login"; 
+}
