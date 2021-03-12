@@ -1,6 +1,9 @@
 from models.Database import db, get_cursor
+from models.Mail import mail
+from flask_mail import Message
 from passlib.context import CryptContext
 from flask import session
+import secrets
 
 """
 User class models and contains information about a user.
@@ -121,8 +124,62 @@ class User:
     """
     @staticmethod
     def send_reset_password_email(email):
-        # TODO IMPLEMENT RESET PASSWORD EMAIL
+        # check if user is valid
+        cursor = get_cursor()
+        cursor.execute('SELECT * FROM user WHERE email = %s', (email,))
+        data = cursor.fetchone()
+
+        # user is valid
+        if data:
+            # generate reset token
+            reset_token = User.__generate_reset_token()
+
+            # add token to database
+            if User.__set_reset_token(data['id'], reset_token):
+                # send email if token added successfully
+                html_body = '''
+                        <p>
+                            Hello, %s<br>
+                            Follow the link below to reset your password.
+                        </p>
+                        <a href="taptune.live/reset-password?token=%s">Reset Password</a>''' % (data['name'], reset_token)
+                msg = Message()
+                msg.add_recipient(data['email'])
+                msg.subject = "TapTune - Reset Password Link"
+                msg.html = html_body
+                mail.send(msg)
+                print('sending email to %s' % email)
+                return True
+            return False
+
         return False
+
+    """
+    generate secure token that is url safe
+    """
+    @staticmethod
+    def __generate_reset_token():
+        return secrets.token_urlsafe(32)
+
+    """
+    add reset token to database
+    """
+    @staticmethod
+    def __set_reset_token(user_id, reset_token):
+        try:
+            # insert user reset_token into database
+            cursor = get_cursor()
+            cursor.execute('UPDATE user set reset_token = %s WHERE id = %s',
+                           (reset_token, user_id))
+            db.connection.commit()
+
+            if cursor.rowcount < 1:
+                return False
+        except Exception as e:
+            print(e)
+            return False
+
+        return True
 
     """
     Used to check that the given reset_token is valid. 

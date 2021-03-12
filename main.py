@@ -1,6 +1,8 @@
 from flask import Flask, render_template
 from models.Database import db
+from models.Mail import mail
 from models.User import User
+from flask_mail import Message
 
 app = Flask(__name__)
 
@@ -9,24 +11,38 @@ app.config['MYSQL_USER'] = 'ttapp'
 app.config['MYSQL_PASSWORD'] = '7tV9qEMc3!3Bp8M$zBSt9'
 app.config['MYSQL_DB'] = 'taptune'
 
+# configuration of mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = 'noreply.taptune@gmail.com'
+app.config['MAIL_PASSWORD'] = 'kvIcIHR1r9tyLvdc&P**Q'
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
+
 db.init_app(app)
+mail.init_app(app)
 
 
 @app.route('/')
 def home_page():
     return render_template('index.html')
 
+
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
     return render_template('recordingRhythm.html')
+
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
     return render_template('filtering.html')
 
+
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     return render_template('results.html')
+
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
