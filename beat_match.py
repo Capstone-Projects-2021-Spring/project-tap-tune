@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import sys
 import matplotlib
 from flask import Flask, render_template, request, json
-
+import soundfile as sf
 
 # process music file
 def process_music(filename):
@@ -29,6 +29,12 @@ def process_music(filename):
     beat_times = librosa.frames_to_time(beat_frames, sr=sr)
     return beat_times
 
+def process_music_split(filename):
+    y, sr = librosa.load(filename)
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0,5.0))
+
+    sf.write('sample_harmonic.wav', y_harm, sr)
+    sf.write('sample_percussive.wav', y_harm, sr)
 
 # process beat by finding predominant local pulse
 def process_music_plp(filename):
@@ -63,7 +69,7 @@ def process_timestamp2(timestamp):
         beat_diff.append(temp)
         diff += temp
     avg_diff = diff / len(timestamp)
-    for i in range * len(timestamp):
+    for i in range (len(timestamp)):
         timestamp[i] = timestamp[i] / avg_diff
     return timestamp, beat_diff
 
@@ -113,7 +119,7 @@ def showBeatOnALine(timestamp, songName):
 
 # function to synchronize two pattern
 def synchronize(originalPattern):
-    syncedPattern = {}
+    syncedPattern = []
     base = min(originalPattern)
     for i in originalPattern:
         syncedPattern.append(i / base)
@@ -130,12 +136,14 @@ def print_long(list):
 
 
 if __name__ == "__main__":
-    filepath = 'sampleMusic/birthdaySong.wav'
-    songName = filepath[12:-4]
-    songTimestamp = process_music(filepath)
-    showBeatOnALine(songTimestamp, songName)
+    filepath = 'sampleMusic/backInBlack.wav'
+    songName = "Back In Black Harmonic"
+    songTimestamp = process_music_onset(filepath)
+    # showBeatOnALine(songTimestamp, songName)
     songP1, songP2 = process_timestamp2(songTimestamp)
-    print_long()
+    print_long(songP2)
+
+
     # get input from front end
     # userInput =  ...
     # userInput = {1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072}
