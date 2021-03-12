@@ -33,7 +33,7 @@ class User:
     # encrypt password
     @staticmethod
     def __encrypt_password(password):
-        return User.pwd_context.encrypt(password)
+        return User.pwd_context.hash(password)
 
     """
     Used to create an instance of a new user and add them to the database. 
@@ -53,7 +53,7 @@ class User:
     def signup(username, email, name, password):
         try:
             # encrypt password
-            enc_password = User.__encrypt_password
+            enc_password = User.__encrypt_password(password)
 
             # insert user into database
             cursor = get_cursor()
@@ -91,14 +91,13 @@ class User:
             if user_data:
                 if User.pwd_context.verify(password, user_data['password']):
                     user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+                    # add to session
+                    session['user_id'] = user.id
+                    session['username'] = user.username
+                    session['email'] = user.email
+                    session['name'] = user.name
         except Exception as e:
             print(e)
-
-        # add to session
-        session['user_id'] = user.id
-        session['username'] = user.username
-        session['email'] = user.email
-        session['name'] = user.name
 
         return user
 
