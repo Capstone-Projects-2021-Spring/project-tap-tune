@@ -32,20 +32,39 @@ class Filtering:
     Return : Data retrieved from db from filtering (success)
     Return : None (failure)
     """
-    def filterArtist(self):
-
-        #checks that field is valid
+    def filterArtist(self, song_results):
+        # checks that field is valid
+        match = 0
         if(self.input_artist):
             try:
-                #retrieves cursor from Database.py
+                # retrieves cursor from Database.py
                 cursor = get_cursor()
                 cursor.execute('SELECT * FROM song WHERE artist = %s', (self.input_artist, ))
-                #fetch al results and save in song_data list
+                # fetch al results and save in song_data list
                 song_data = cursor.fetchall()
-                print("Artist:\n")
-                print(song_data)
-                print("\n")
-                return 1
+                return_data = []
+                result_data = []
+                for track in song_data:
+                    title = track["title"]
+                    artist = track["artist"]
+                    genres = track["genre"]
+
+                    result_data.append({"title": title, "artist": artist, "genres": genres})
+                # if there was a valid list of songs passed through
+                if(song_results != None):
+                    # go through song_results and look for a song match
+                    for artist_track in result_data:
+                        for genre_track in song_results:
+                            if (genre_track["title"] == artist_track["title"]):
+                                return_data.append(artist_track)
+                                match = match+1
+                    if match > 0:
+                        return return_data
+                    else:
+                        return song_results
+                # if no valid song_results is passed
+                else:
+                    return result_data
                 
             except Exception as e:
                  print(e)
@@ -66,15 +85,21 @@ class Filtering:
         #checks that field is valid
         if(self.input_genre):
             try:
-                #retrieves cursor from Database.py
+                # retrieves cursor from Database.py
                 cursor = get_cursor()
                 cursor.execute(('SELECT * FROM song WHERE genre LIKE "%{0}%"').format(self.input_genre))
-                #fetch al results and save in song_data list
+                # fetch al results and save in song_data list
                 song_data = cursor.fetchall()
-                print("GENRE:\n")
-                print(song_data)
-                print("\n")
-                return 1
+
+                result_data = []
+                for track in song_data:
+                    title = track["title"]
+                    artist = track["artist"]
+                    genres = track["genre"]
+
+                    result_data.append({"title": title, "artist": artist, "genres": genres})
+
+                return result_data
                 
             except Exception as e:
                  print(e)
@@ -90,30 +115,42 @@ class Filtering:
     Return : List of artist/title pairs found from the lyric filtering (success)
     Return : None (failure)
     """
-    def filterLyrics(self):
-
-        #checks that field is valid
+    def filterLyrics(self, song_results):
+        match = 0
+        # checks that field is valid
         if(self.input_lyrics):
 
-            #START of POC
+            # START of POC
             client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
 
             genius = lyricsgenius.Genius(client_access_token)
-            song_data = []
-            #for loop to increase number of results (current:500)
-            for x in range (1,2):
+            result_data = []
 
-                #makes request to genius API and wrapper to search through lyrics 
-                request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1*x))
-                #goes through 50 songs and inserts data in song_data list
-                for hit in request['sections'][0]['hits']:
-                    artist_name = hit['result']['primary_artist']['name']
-                    song_title = hit['result']['title']
+            # makes request to genius API and wrapper to search through lyrics
+            request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1))
+            # goes through 50 songs and inserts data in song_data list
+            for hit in request['sections'][0]['hits']:
+                artist_name = hit['result']['primary_artist']['name']
+                song_title = hit['result']['title']
 
-                    song_data.append( (artist_name + "-" + song_title) )
-            print("Lyrics:\n")
-            print(song_data)
-            print("\n")
+                result_data.append({"title": song_title, "artist": artist_name})
+
+            if (song_results != None):
+                return_data = []
+                # go through song_results and look for a song match
+                for lyric_track in result_data:
+                    for res_track in song_results:
+                        if (lyric_track["title"] == res_track["title"]):
+                            return_data.append(res_track)
+                            match = match+1
+                if match > 0:
+                    return return_data
+                else:
+                    return song_results
+                # if no valid song_results is passed
+            else:
+                return result_data
+
             return song_data
 
         else:
@@ -124,6 +161,8 @@ class Filtering:
     Execution function, ordered so that most specific field is followed by least specific
     """
     def filterRecording(self):
-        self.filterArtist()
-        self.filterGenre()
-        self.filterLyrics()
+        result = self.filterGenre()
+        result = self.filterArtist(result)
+        result = self.filterLyrics(result)
+        print(result)
+        return result

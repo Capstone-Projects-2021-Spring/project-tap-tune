@@ -15,6 +15,8 @@ db.init_app(app)
 
 @app.route('/')
 def home_page():
+    obj = Filtering(Genre="Rock", Artist="Queen", Lyrics="We Will Rock You")
+    obj.filterRecording()
     return render_template('index.html')
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
