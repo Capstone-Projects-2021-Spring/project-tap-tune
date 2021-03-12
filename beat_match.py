@@ -76,9 +76,12 @@ def process_timestamp2(timestamp):
 # return 1, meaning it is a match if more than XX%(70%) of the pattern note is matched
 def compare(userPattern, songPattern):
     # synchronize two pattern
-    userSynced = synchronize(userPattern)
-    songSynced = synchronize(songPattern)
-    error = 0.3
+    base = min(min(userPattern), min(songPattern)) # use the min in two pattern as base for synchronization
+    userSynced = synchronize(userPattern, base)
+    songSynced = synchronize(songPattern, base)
+
+    # error range
+    error = 0.5
 
     # how many notes need to match to pass
     mark = math.floor(len(userSynced) * 0.7)
@@ -114,9 +117,8 @@ def showBeatOnALine(timestamp, songName):
 
 
 # function to synchronize two pattern
-def synchronize(originalPattern):
+def synchronize(originalPattern, base):
     syncedPattern = []
-    base = min(originalPattern)
     for i in originalPattern:
         syncedPattern.append(i / base)
     return syncedPattern
@@ -132,7 +134,8 @@ def print_long(list):
 
 
 if __name__ == "__main__":
-    filepath = 'sampleMusic/birthdaySong.wav'
+    # ---song file processing---
+    filepath = 'sampleMusic/twinkleStar.wav'
     songName = filepath[12:-4]
     songTimestamp = process_music_onset(filepath)
     # showBeatOnALine(songTimestamp, songName)
@@ -142,23 +145,29 @@ if __name__ == "__main__":
     # print(songTimestamp)
     # print("songP1")
     # print_long(songP1)
-    print("synSongP1")
-    synSongP1 = synchronize(songP1)
-    print_long(synSongP1)
+    # print("synSongP1")
+    # synSongP1 = synchronize(songP1)
+    # print_long(synSongP1)
     # print("songP2")
     # print_long(songP2)
     # print("synSongP2")
     # synSongP2 = synchronize(songP2)
     # print_long(synSongP2)
 
+    # ---input processing---
     # get input from front end
     # userInput =  ...
-    userInput = [1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072]
+    # userInput = [1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072]
+    userInput = [1.923,2.517,3.108,3.728,4.337,4.931,5.554,6.770,7.397,7.970,8.631,9.273,9.884, 10.541,11.286]
     inputP1, inputP2 = process_timestamp2(userInput)
-    print("synInputP1")
-    synInputP1 = synchronize(inputP1)
-    print_long(synInputP1)
+    print("inputP1")
+    print(inputP1)
+    # print("synInputP1")
+    # synInputP1 = synchronize(inputP1)
+    # print_long(synInputP1)
+    # showBeatOnALine(userInput, "user jinglebell")
 
+    # ---Decision making---
     if compare(inputP1, songP1) == 1:
         print("we have a match!")
     else:
