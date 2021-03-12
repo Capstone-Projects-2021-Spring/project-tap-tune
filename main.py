@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from models.Database import db
 from models.User import User
+from models.analysis.Filtering import Filtering
 
 app = Flask(__name__)
 
@@ -26,11 +27,22 @@ def filter_page():
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
+    #obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    #filterResults = obj.filterRecording()
     return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     return render_template('user.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    return render_template('login.html')
+
 
 
 @app.route('/service-worker.js')

@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
-  <div class="material-click">
+  <div id="tapScreenButton" class="material-click">
     <div class="container d-flex align-items-center flex-column">
       <!-- Masthead Heading-->
       <h1 class="masthead-heading text-uppercase mb-0 mt-4">Recording the Rhythm</h1>
@@ -17,9 +17,9 @@
         <div class="divider-custom-line"></div>
       </div>
       <div class="row justify-content-center">    
-        <button id="startRecordingBtn" type="button" class="btn btn-lg btn-primary" onclick="setCounterActive()">Start Recording</button>     
-        <button id="resetRecordingBtn" type="button" class="btn btn-lg btn-secondary disabled ml-3" onclick="setCounterInactive()">Reset</button>
-        <button id="finishRecordingBtn" type="button" class="btn btn-lg btn-success disabled ml-3" onclick="goToFiltering()">Finish</button>
+        <button id="startRecordingBtn" type="button" class="btn btn-lg btn-primary">Start Recording</button>     
+        <button id="resetRecordingBtn" type="button" class="btn btn-lg btn-secondary disabled ml-3">Reset</button>
+        <button id="finishRecordingBtn" type="button" class="btn btn-lg btn-success disabled ml-3">Finish</button>
       </div>
       <div class="container d-flex align-items-center flex-column">
         <h1 id="counter-number" class="py-5 counter-text">0</h1>

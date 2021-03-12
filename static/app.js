@@ -31,22 +31,6 @@ function goToResult() {
 }
 
 
-function setCounterActive() {
-    document.getElementById("counter-number").className = "py-5 counter-text-active";
-    document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success ml-3";
-    document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary disabled ml-3";
-    document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary ml-3";
-    
-}
-
-function setCounterInactive() {
-    document.getElementById("counter-number").className = "py-5 counter-text";
-    document.getElementById("counter-number").innerHTML = 0;
-    document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success disabled ml-3";
-    document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary ml-3";
-    document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary disabled ml-3";
-}
-
 $('.material-click').on('click', function(e) { 
     if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
         var element, circle, d, x, y;
@@ -62,6 +46,7 @@ $('.material-click').on('click', function(e) {
         }
         x = e.pageX - element.offset().left - circle.width()/2;
         y = e.pageY - element.offset().top - circle.height()/2;
+        
         circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
         
         var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
@@ -69,3 +54,12 @@ $('.material-click').on('click', function(e) {
     }
 
   });
+
+function goToRegister() {
+      window.location.href= "/register";
+}
+
+function userLogin() {
+      window.location.href= "/login";
+
+}

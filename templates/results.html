@@ -15,7 +15,94 @@
     <div class="divider-custom divider-dark">
       <div class="divider-custom-line"></div>
     </div>
-    <p>{{artist}}  {{genre}}  {{lyrics}}</p>
+
+    <p>practice post form : {{artist}}  {{genre}}  {{lyrics}}</p>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Main Search</h1>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>
+        </div>
+        <img class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+        <div class="row">
+          <div class="col">
+            <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
+              <span>
+                Aunt Leslie
+              </span>
+            </h3>
+          </div>
+          <div class="col">
+            <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
+              <span class="text-right" style="color: rgb(0, 145, 0)">
+                98%
+              </span>
+            </h3>
+          </div>
+        </div>
+        <h4 class="masthead-subheading text-uppercase font-weight-light mb-1">{{artist}}</h4> 
+        <!-- its going to be Filtering results if artist is empty from filtering form-->
+        <p class="masthead-subheading font-weight-light pb-5 multiline">
+      You were the lens I used to see 
+      Sharpen the view, the news, the color TV
+      Filter the truth through you to me
+      What's not to trust it's just your family
+      Ring the phone, my dear Aunt Leslie
+      Let's have a word, a talk
+      In the dark room, you were the light, yeah yeah
+      Ohhh-over exposed, I blew out, and tried to make it right
+      That's when Leone came into frame, yeah
+      A shadow cloaked the danger of your high stakes game
+      Ring the phone, my dear Aunt Leslie
+      Let's have a word, a talk
+      What have you sold
+      What have you done with Leone
+      (Film knows all)
+      Ring the phone, my dear Aunt Leslie
+      Let's have a word, a talk
+      What have you sold
+      What have you done with Leone</p>
+      </div>
+
+      <div class="col-md">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Song Title</th>
+              <th scope="col">Song Artist</th>
+              <th scope="col">Match Percentage</th>
+              <th scope="col">Sample Audio Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mark</td>
+              <td>{{artist}}</td> <!-- its going to be Filtering results if artist is empty from filtering form-->
+              <td>96%</td>
+              <td>audio sample from spotify</td>
+            </tr>
+            <tr>
+              <td>Jacob</td>
+              <td>{{artist}}</td> <!-- its going to be Filtering results if artist is empty from filtering form-->
+              <td>96%</td>
+              <td>audio sample from spotify</td>
+            </tr>
+            <tr>
+              <td>Larry</td>
+              <td>{{artist}}</td> <!-- its going to be Filtering results if artist is empty from filtering form-->
+              <td>92%</td>
+              <td>audio sample from spotify</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
