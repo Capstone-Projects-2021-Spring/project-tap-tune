@@ -4,6 +4,14 @@
 # process array
 # process input array
 # comparison and matching
+
+# TODO:
+#     - Another method from librosa to process music
+#     - Method to decide synchronize rate C
+#     - Decide acceptable error when comparing beat
+#     - Better way to compare two pattern
+#     - Sperate song into different layer using librosa, such as : harmonic, precaussion...
+
 import math
 import librosa
 import numpy as np
@@ -11,6 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import sys
 import matplotlib
+from flask import Flask, render_template, request, json
 
 
 # process music file
@@ -21,8 +30,22 @@ def process_music(filename):
     return beat_times
 
 
+# process beat by finding predominant local pulse
+def process_music_plp(filename):
+    y, sr = librosa.load(filename)
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    pulse = librosa.beat.plp(onset_envelope=onset_env, sr=sr)
+    tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env)
+    beats_plp = np.flatnonzero(librosa.util.localmax(pulse))
+
+
+# detect beat by onset detection
+def process_music_onset(filename):
+    y, sr = librosa.load(filename)
+    return librosa.onset.onset_detect(y=y, sr=sr, units='time')
+
+
 # First approach of time stamp processing for pattern
-#
 def process_timestamp(timestamp):
     return 0
 
@@ -31,19 +54,18 @@ def process_timestamp(timestamp):
 # 1. compute time differences between each beat
 # 2. get even time difference
 # 3. time difference/avg time difference as relative difference(pattern)
+# 4. returns two patterns, first one: time_diff/avg_diff second one: time_diff
 def process_timestamp2(timestamp):
-    beat_num = [0]
     beat_diff = []
     diff = 0
     for i in range(len(timestamp) - 1):
-        beat_num.append(0)
         temp = timestamp[i + 1] - timestamp[i]
         beat_diff.append(temp)
         diff += temp
     avg_diff = diff / len(timestamp)
     for i in range * len(timestamp):
         timestamp[i] = timestamp[i] / avg_diff
-    return timestamp
+    return timestamp, beat_diff
 
 
 # compare input array to song
@@ -52,21 +74,20 @@ def process_timestamp2(timestamp):
 # a pattern note is a match if the error after multiplying c is smaller than XX
 # return 1, meaning it is a match if more than XX%(70%) of the pattern note is matched
 def compare(userPattern, songPattern):
-    # Decide multiple c to synchronize two pattern
-    # C =
-    c = 2
-
+    # synchronize two pattern
+    userSynced = synchronize(userPattern)
+    songSynced = synchronize(songPattern)
     error = 0.5
 
     # how many notes need to match to pass
-    mark = math.floor(len(userPattern) * 0.7)
+    mark = math.floor(len(userSynced) * 0.7)
 
     # keep track of how many match appears
     numOfHit = 0
 
-    for i in range(len(songPattern) - len(userPattern)):
-        for j in range(len(userPattern)):
-            if songPattern - error <= userPattern[i] * c == songPattern + error:
+    for i in range(len(songSynced) - len(userSynced)):
+        for j in range(len(userSynced)):
+            if songSynced - error <= userSynced[i] * c == songSynced + error:
                 numOfHit = numOfHit + 1
         if numOfHit >= mark:
             return 1
@@ -89,6 +110,16 @@ def showBeatOnALine(timestamp, songName):
     plt.title(songName)
     plt.show()
 
+
+# function to synchronize two pattern
+def synchronize(originalPattern):
+    syncedPattern = {}
+    base = min(originalPattern)
+    for i in originalPattern:
+        syncedPattern.append(i / base)
+    return syncedPattern
+
+
 # print array 5 items each line
 def print_long(list):
     i = j = 0
@@ -99,18 +130,17 @@ def print_long(list):
 
 
 if __name__ == "__main__":
-    filepath = 'sampleMusic/WeWillRockYou_short.wav'
+    filepath = 'sampleMusic/birthdaySong.wav'
     songName = filepath[12:-4]
     songTimestamp = process_music(filepath)
-    showBeatOnALine(songTimestamp,songName)
-    # patternOfSong = process_timestamp2(songTimestamp)
-
+    showBeatOnALine(songTimestamp, songName)
+    songP1, songP2 = process_timestamp2(songTimestamp)
+    print_long()
     # get input from front end
     # userInput =  ...
-    # userInput = []
-    # patternOfInput = process_timestamp2(userInput)
-    
-    
+    # userInput = {1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072}
+    # inputP1, inputP2 = process_timestamp2(userInput)
+
     # if compare(patternOfInput, patternOfSong) == 1:
     #     print("we have a match!")
     # else:
