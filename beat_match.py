@@ -54,18 +54,19 @@ def process_timestamp(timestamp):
 # 1. compute time differences between each beat
 # 2. get even time difference
 # 3. time difference/avg time difference as relative difference(pattern)
-# 4. returns two patterns, first one: time_diff/avg_diff second one: time_diff
+# 4. returns two patterns, first one: time_diff second one: time_diff/avg_diff
 def process_timestamp2(timestamp):
     beat_diff = []
+    beat_diff_over_avg = []
     diff = 0
     for i in range(len(timestamp) - 1):
         temp = timestamp[i + 1] - timestamp[i]
         beat_diff.append(temp)
         diff += temp
     avg_diff = diff / len(timestamp)
-    for i in range * len(timestamp):
-        timestamp[i] = timestamp[i] / avg_diff
-    return timestamp, beat_diff
+    for i in range(len(timestamp)):
+        beat_diff_over_avg.append(timestamp[i] / avg_diff)
+    return beat_diff, beat_diff_over_avg
 
 
 # compare input array to song
@@ -77,7 +78,7 @@ def compare(userPattern, songPattern):
     # synchronize two pattern
     userSynced = synchronize(userPattern)
     songSynced = synchronize(songPattern)
-    error = 0.5
+    error = 0.3
 
     # how many notes need to match to pass
     mark = math.floor(len(userSynced) * 0.7)
@@ -87,13 +88,14 @@ def compare(userPattern, songPattern):
 
     for i in range(len(songSynced) - len(userSynced)):
         for j in range(len(userSynced)):
-            if songSynced - error <= userSynced[i] * c == songSynced + error:
-                numOfHit = numOfHit + 1
+            if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
+                numOfHit += 1
+        print("# of hit : {}".format(numOfHit))
         if numOfHit >= mark:
             return 1
         else:
             numOfHit = 0
-
+    print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
         return 1
     else:
@@ -113,7 +115,7 @@ def showBeatOnALine(timestamp, songName):
 
 # function to synchronize two pattern
 def synchronize(originalPattern):
-    syncedPattern = {}
+    syncedPattern = []
     base = min(originalPattern)
     for i in originalPattern:
         syncedPattern.append(i / base)
@@ -132,19 +134,35 @@ def print_long(list):
 if __name__ == "__main__":
     filepath = 'sampleMusic/birthdaySong.wav'
     songName = filepath[12:-4]
-    songTimestamp = process_music(filepath)
-    showBeatOnALine(songTimestamp, songName)
+    songTimestamp = process_music_onset(filepath)
+    # showBeatOnALine(songTimestamp, songName)
     songP1, songP2 = process_timestamp2(songTimestamp)
-    print_long()
+
+    # print("songTimeStamp")
+    # print(songTimestamp)
+    # print("songP1")
+    # print_long(songP1)
+    print("synSongP1")
+    synSongP1 = synchronize(songP1)
+    print_long(synSongP1)
+    # print("songP2")
+    # print_long(songP2)
+    # print("synSongP2")
+    # synSongP2 = synchronize(songP2)
+    # print_long(synSongP2)
+
     # get input from front end
     # userInput =  ...
-    # userInput = {1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072}
-    # inputP1, inputP2 = process_timestamp2(userInput)
+    userInput = [1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072]
+    inputP1, inputP2 = process_timestamp2(userInput)
+    print("synInputP1")
+    synInputP1 = synchronize(inputP1)
+    print_long(synInputP1)
 
-    # if compare(patternOfInput, patternOfSong) == 1:
-    #     print("we have a match!")
-    # else:
-    #     print("no match found")
+    if compare(inputP1, songP1) == 1:
+        print("we have a match!")
+    else:
+        print("no match found")
 
 ############################ Testing area ############################
 # beat_num = [0]
