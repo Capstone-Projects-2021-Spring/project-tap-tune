@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from models.Database import db
 from models.User import User
 
@@ -26,7 +26,7 @@ def filter_page():
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
-    return render_template('results.html')
+    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():

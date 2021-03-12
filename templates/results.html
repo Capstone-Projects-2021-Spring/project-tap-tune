@@ -7,10 +7,15 @@
   </style>
 {% endblock %}
 {% block content %}
-  <h1>Home</h1>
-  <p class="greeting">
-    Result Page
-  </p>
-
-  
+<div class="recording-bg h-100">
+  <div class="container d-flex align-items-center flex-column">
+    <!-- Masthead Heading-->
+    <h1 class="masthead-heading text-uppercase mb-0 mt-4">Results</h1>
+    <!-- Icon Divider-->
+    <div class="divider-custom divider-dark">
+      <div class="divider-custom-line"></div>
+    </div>
+    <p>{{artist}}  {{genre}}  {{lyrics}}</p>
+  </div>
+</div>
 {% endblock %}

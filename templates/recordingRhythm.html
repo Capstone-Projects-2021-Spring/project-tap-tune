@@ -7,8 +7,26 @@
   </style>
 {% endblock %}
 {% block content %}
-  <h1>Home</h1>
-  <p class="greeting">
-    Recording Page
-  </p>
+<div class="recording-bg h-100">
+  <div class="material-click">
+    <div class="container d-flex align-items-center flex-column">
+      <!-- Masthead Heading-->
+      <h1 class="masthead-heading text-uppercase mb-0 mt-4">Recording the Rhythm</h1>
+      <!-- Icon Divider-->
+      <div class="divider-custom divider-dark">
+        <div class="divider-custom-line"></div>
+      </div>
+      <div class="row justify-content-center">    
+        <button id="startRecordingBtn" type="button" class="btn btn-lg btn-primary" onclick="setCounterActive()">Start Recording</button>     
+        <button id="resetRecordingBtn" type="button" class="btn btn-lg btn-secondary disabled ml-3" onclick="setCounterInactive()">Reset</button>
+        <button id="finishRecordingBtn" type="button" class="btn btn-lg btn-success disabled ml-3" onclick="goToFiltering()">Finish</button>
+      </div>
+      <div class="container d-flex align-items-center flex-column">
+        <h1 id="counter-number" class="py-5 counter-text">0</h1>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footer %}
 {% endblock %}
