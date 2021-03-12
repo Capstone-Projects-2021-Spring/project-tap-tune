@@ -156,17 +156,16 @@ def print_long(list):
 
 
 if __name__ == "__main__":
-    #Never Gonna Give You Up - 0gxyHStUsqpMadRV0Di1Qt
-    #Back in Black - 08mG3Y1vljYA6bvDt4Wqkj
-    #We Will Rock You - 54flyrjcdnQdco7300avMJ
+    # Never Gonna Give You Up - 0gxyHStUsqpMadRV0Di1Qt
+    # Back in Black - 08mG3Y1vljYA6bvDt4Wqkj
+    # We Will Rock You - 54flyrjcdnQdco7300avMJ
     data = get_spotify_analysis("54flyrjcdnQdco7300avMJ")
     dataP1, dataP2 = process_timestamp2(data)
     print_long(dataP2)
 
     print("\n")
     print(len(dataP2))
-    print(len(songP2))
-	
+
     # ---song file processing---
     filepath = 'sampleMusic/twinkleStar.wav'
     songName = filepath[12:-4]
@@ -206,7 +205,7 @@ if __name__ == "__main__":
     else:
         print("no match found")
 
-############################ Testing area ############################
+# ########################### Testing area ############################
 # beat_num = [0]
 # beat_diff = []
 # diff = 0
