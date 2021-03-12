@@ -24,9 +24,10 @@ function goToRhythm() {
 
 
 function goToRegister() {
-      window.location.href= "/register"; //link from rhythm button
+      window.location.href= "/register";
+}
 
 function userLogin() {
-      window.location.href= "/login"; 
+      window.location.href= "/login";
 
 }
