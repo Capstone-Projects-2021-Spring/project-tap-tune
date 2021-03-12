@@ -21,6 +21,22 @@ import sys
 import matplotlib
 from flask import Flask, render_template, request, json
 import soundfile as sf
+import spotipy
+
+
+def get_spotify_analysis(id):
+    creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef",
+                                                    client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
+    spotify = spotipy.Spotify(client_credentials_manager=creds)
+
+    results_4 = spotify.audio_analysis(track_id=id)
+    print("\n*****Spotify*****")
+    analysis_data = []
+    for res in results_4["tatums"]:
+        analysis_data.append(res["start"])
+
+    return analysis_data
+
 
 # process music file
 def process_music(filename):
@@ -136,13 +152,24 @@ def print_long(list):
 
 
 if __name__ == "__main__":
-    filepath = 'sampleMusic/backInBlack.wav'
+    #Never Gonna Give You Up - 0gxyHStUsqpMadRV0Di1Qt
+    #Back in Black - 08mG3Y1vljYA6bvDt4Wqkj
+    #We Will Rock You - 54flyrjcdnQdco7300avMJ
+    filepath = 'sampleMusic/WeWillRockYou_Queen.wav'
     songName = "Back In Black Harmonic"
     songTimestamp = process_music_onset(filepath)
     # showBeatOnALine(songTimestamp, songName)
     songP1, songP2 = process_timestamp2(songTimestamp)
     print_long(songP2)
+    print("\n")
 
+    data = get_spotify_analysis("54flyrjcdnQdco7300avMJ")
+    dataP1, dataP2 = process_timestamp2(data)
+    print_long(dataP2)
+
+    print("\n")
+    print(len(dataP2))
+    print(len(songP2))
 
     # get input from front end
     # userInput =  ...
