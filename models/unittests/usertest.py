@@ -9,6 +9,8 @@ from models.User import User
 class UserTestCase(flask_unittest.AppClientTestCase):
     """
     Create and setup flask app instance
+
+    REQUIRED - local mysql server with specified login
     """
     def create_app(self):
         # setup flask app for testing
