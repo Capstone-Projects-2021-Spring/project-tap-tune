@@ -43,7 +43,7 @@ startButton.onclick = function () {
 /*************************************************************************/
 resetButton.onclick = function () {
 
-
+    document.getElementById("finishRecordingBtn").innerHTML = "Stop";
     document.getElementById("counter-number").className = "py-5 counter-text";
     document.getElementById("counter-number").innerHTML = 0;
     document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success disabled ml-3";
@@ -84,7 +84,12 @@ finishButton.onclick = function () {
     console.log("time has not started");
     }//end of else
 
-    goToFiltering();
+    if (finishButton.innerHTML == "Submit")
+        goToFiltering();
+    else {
+        document.getElementById("counter-number").className = "py-5 counter-text";
+        finishButton.innerHTML = "Submit";
+    }
 
 
 }//end of stopButton
@@ -98,3 +103,5 @@ finishButton.onclick = function () {
 
 	   return timeArray;
 }//end of returnTimes
+
+

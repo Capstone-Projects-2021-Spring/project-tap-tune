@@ -10038,8 +10038,8 @@ h3 {
 }
 .divider-custom2 .divider-custom2-line {
   width: 100%;
-  max-width: 15rem;
-  height: 0.25rem;
+  max-width: 20rem;
+  height: 0.15rem;
   background-color: #2c3e50;
   border-radius: 1rem;
   border-color: #2c3e50 !important;
@@ -10319,7 +10319,6 @@ form .row:first-child .floating-label-form-group {
 .md-click-circle {
   display: block;
   position: absolute;
-  background: rgba(65, 225, 225, 0.33);
   border-radius: 50%;
   opacity: 0;
   -webkit-animation: scale(0);
@@ -10327,7 +10326,29 @@ form .row:first-child .floating-label-form-group {
   transform: scale(0);
 }
 
+.md-click-circle.md-click-animate-red {
+  background: rgba(250, 41, 41, 0.33);
+  -webkit-animation: mdClickEffect .65s linear;
+  -moz-animation: mdClickEffect .65s linear;
+  animation: mdClickEffect .65s linear;
+}
+
+.md-click-circle.md-click-animate-green {
+  background: rgba(41, 250, 86, 0.33);
+  -webkit-animation: mdClickEffect .65s linear;
+  -moz-animation: mdClickEffect .65s linear;
+  animation: mdClickEffect .65s linear;
+}
+
+.md-click-circle.md-click-animate-gray {
+  background: rgba(75, 75, 75, 0.33);
+  -webkit-animation: mdClickEffect .65s linear;
+  -moz-animation: mdClickEffect .65s linear;
+  animation: mdClickEffect .65s linear;
+}
+
 .md-click-circle.md-click-animate {
+  background: rgba(65, 225, 225, 0.33);
   -webkit-animation: mdClickEffect .65s linear;
   -moz-animation: mdClickEffect .65s linear;
   animation: mdClickEffect .65s linear;

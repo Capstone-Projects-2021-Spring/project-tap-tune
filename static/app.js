@@ -32,13 +32,18 @@ function goToResult() {
 
 
 $('.material-click').on('click', function(e) { 
-    if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
+    var colorBox = getColor(e);
+    console.log("color was " + colorBox);   
+    if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
         var element, circle, d, x, y;
         element = $(this);
         if(element.find(".md-click-circle").length == 0) {
             element.prepend("<span class='md-click-circle'></span>");
         }
         circle = element.find(".md-click-circle");
+        circle.removeClass("md-click-animate-red");
+        circle.removeClass("md-click-animate-green");
+        circle.removeClass("md-click-animate-gray");
         circle.removeClass("md-click-animate");
         if(!circle.height() && !circle.width()) {
             d = Math.max(element.outerWidth(), element.outerHeight());
@@ -47,10 +52,29 @@ $('.material-click').on('click', function(e) {
         x = e.pageX - element.offset().left - circle.width()/2;
         y = e.pageY - element.offset().top - circle.height()/2;
         
-        circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
+        switch (colorBox) {
+            case -1:
+                break; 
+
+            case 1:
+                console.log("you pressed red")
+                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
+                break;
+            case 2:
+                console.log("you pressed gray")
+                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
+                break;
+            case 3:
+                console.log("you pressed green")
+                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
+                break;
         
-        var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-        document.getElementById("counter-number").innerHTML = incrementBeatCount;
+            default:
+                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
+                var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
+                document.getElementById("counter-number").innerHTML = incrementBeatCount;
+                break;
+        }
     }
 
   });
@@ -62,4 +86,32 @@ function goToRegister() {
 function userLogin() {
       window.location.href= "/login";
 
+}
+
+function getColor(e) {
+    //well first of all are we even in button territory
+    var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
+    var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
+    var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
+    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
+
+    if (finishButton.innerHTML == "Submit") return -1;
+    if (e.pageY > startButtonRect.top && e.pageY < startButtonRect.bottom) {
+        if (e.pageX > startButtonRect.left) {
+            if (e.pageX < startButtonRect.right && incrementBeatCount == 0) { //red
+                if (incrementBeatCount == 0)
+                    return 1;
+            }
+
+            else if ((e.pageX < resetButtonRect.right) && (e.pageX > resetButtonRect.left) && (incrementBeatCount > 0)) { //gray
+                return 2;
+            }
+
+            else if ((e.pageX < finishButtonRect.right) && (e.pageX > finishButtonRect.left) && (incrementBeatCount > 0)) { //green
+                
+                return 3;
+            }
+        }
+    }
+    return 0;
 }
