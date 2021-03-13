@@ -15,7 +15,7 @@ db.init_app(app)
 
 @app.route('/')
 def home_page():
-    obj = Filtering(Genre="Rock", Artist="Queen", Lyrics="We Will Rock You")
+    obj = Filtering(Genre="Rock", Artist="ACDC", Lyrics="Sound of the drums beating in my heart")
     obj.filterRecording()
     return render_template('index.html')
 

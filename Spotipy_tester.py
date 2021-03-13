@@ -10,14 +10,14 @@ lz_uri = 'spotify:artist:36QJpDe2go2KgaRleHCDTp'
 creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
 spotify = spotipy.Spotify(client_credentials_manager=creds)
 
-results_4 = spotify.audio_analysis(track_id="08mG3Y1vljYA6bvDt4Wqkj")
+# results_4 = spotify.audio_analysis(track_id="08mG3Y1vljYA6bvDt4Wqkj")
 # print("\n*****BARS*****")
 # print(len(results_4["bars"]))
 # print(results_4["bars"][0]["start"])
 # print(results_4["bars"][1]["start"])
-print("\n*****BEATS*****")
-for res in results_4["beats"]:
-    print(res)
+# print("\n*****BEATS*****")
+# for res in results_4["beats"]:
+#     print(res)
 # print(results_4["beats"])
 #
 # print("\n*****Tatum*****")
@@ -53,5 +53,21 @@ for res in results_4["beats"]:
 #     for genre in artist["genres"]:
 #         print(genre)
 
+"""GET ARTIST ID"""
+target_artist = "Daft Punk"
+artist_result = spotify.search(q=target_artist, type="artist")
+genres = artist_result["artists"]["items"][0]["genres"]
+target = artist_result["artists"]["items"][0]["id"]
+"""GET TOP 5 TRACKS"""
+tracks = spotify.artist_top_tracks(artist_id=target)
+
+for x in range (5):
+    song = tracks["tracks"][x]["name"]
+    release_date = tracks["tracks"][x]["album"]["release_date"]
+    print("*************")
+    print(genres)
+    print(target_artist)
+    print(release_date)
+    print(song)
 
 
