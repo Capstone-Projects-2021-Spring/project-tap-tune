@@ -2,13 +2,28 @@
 <html>
   <head>
     {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <title>TapTune {% block title %}{% endblock %}</title>
+
+    <!-- Android PWA -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <!-- IOS PWA -->
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
+    <meta name="apple-mobile-web-app-title" content="Tap Tune">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
     <link rel="icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% endblock %}
   </head>
   <body>
+    <div class="topnav">
+      <a id = "homepage" href="{{ url_for('home_page') }}">HOME</a>
+      <a id = "userpage" href="{{ url_for('user_page') }}">USER PROFILE</a>
+      <a id = "resultpage" href="{{ url_for('result_page') }}">RESULTS</a>
+    </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
       {% block footer %}
