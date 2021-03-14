@@ -141,6 +141,9 @@ def logout():
 def sw():
     return app.send_static_file('service-worker.js')
 
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgotPass_page():
+    return render_template('forgotPass.html')
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session

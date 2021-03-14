@@ -85,8 +85,21 @@ function goToRegister() {
 
 function userLogin() {
       window.location.href= "/login";
-
 }
+
+function forgotPass() {
+	window.location.href= "/forgot"
+}
+$(document).ready(function() {
+  $('#olvidado').click(function(e) {
+    e.preventDefault();
+    $('div#form-olvidado').toggle('500');
+  });
+  $('#acceso').click(function(e) {
+    e.preventDefault();
+    $('div#form-olvidado').toggle('500');
+  });
+});
 
 function getColor(e) {
     //well first of all are we even in button territory
