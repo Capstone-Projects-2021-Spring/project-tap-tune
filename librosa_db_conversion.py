@@ -100,6 +100,14 @@ def hash_array(bin_array):
     check = 0
     for frame in bin_array:
         # if the current frame is a 1
+
+        """
+        LOGIC ERROR:
+        - RESULT BINARY ARRAY ENDING IN 1 WHEN SHOULD BE 0
+        - HASH ENDS IN  'F' NOT 'G'
+        - LAST 0 OF ORIGINAL BINARY ARRAY NOT BEING READ
+        """
+
         if(frame == 1) or (check == len(bin_array)-1):
             char_val = countToVal(run_count)
             if(run_count > 0):
