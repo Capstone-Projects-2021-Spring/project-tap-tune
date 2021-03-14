@@ -5,22 +5,22 @@
   "background_color": "#F1F7C6",
   "icons": [
     {
-        "src": "/static/assets/images/icon-64.png",
+        "src": "/static/assets/images/tapTune-64.png",
         "type": "image/png",
         "sizes": "64x64"
       },
       {
-        "src": "/static/assets/images/icon-96.png",
+        "src": "/static/assets/images/tapTune-96.png",
         "type": "image/png",
         "sizes": "96x96"
       },
       {
-        "src": "/static/assets/images/icon-192.png",
+        "src": "/static/assets/images/tapTune-192.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/static/assets/images/icon-512.png",
+        "src": "/static/assets/images/tapTune-512.png",
         "type": "image/png",
         "sizes": "512x512"
       }
