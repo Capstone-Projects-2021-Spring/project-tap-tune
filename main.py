@@ -46,8 +46,8 @@ def result_page():
     #Audio Analysis
 
     #Filter
-    obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
+    # obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    # filterResults = obj.filterRecording()
 
     #After getting results, store in user_log
     return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
@@ -57,14 +57,17 @@ def result_page():
 def user_page():
     return render_template('user.html')
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     return render_template('login.html')
-	
+
+
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
