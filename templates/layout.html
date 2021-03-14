@@ -3,7 +3,8 @@
   <head>
     {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
-    <title>TapTune {% block title %}{% endblock %}</title>
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    --><title>TapTune {% block title %}{% endblock %}</title>
 
     <!-- Android PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -14,16 +15,43 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
+
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+
     <link rel="icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     {% endblock %}
   </head>
   <body>
-    <div class="topnav">
-      <a id = "homepage" href="{{ url_for('home_page') }}">HOME</a>
-      <a id = "userpage" href="{{ url_for('user_page') }}">USER PROFILE</a>
-      <a id = "resultpage" href="{{ url_for('result_page') }}">RESULTS</a>
-    </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="{{ url_for('home_page') }}">
+        <img src="{{ url_for('static', filename='assets/images/taptune_icon.png') }}" width="30" height="30" class="d-inline-block align-top" alt="">
+        Taptune
+      </a>
+    
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('user_page') }}">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">History</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+
+          <input type="button" class="btn btn-outline-success my-2 my-sm-0" value="Log In" onclick="userLogin()">
+
+        </form>
+      </div>
+    </nav>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
       {% block footer %}
@@ -32,6 +60,8 @@
     </div>
     {% block js %}
     <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='clickRecord.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='keyTap.js') }}"></script> -->
     {% endblock %}
   </body>
 </html>
