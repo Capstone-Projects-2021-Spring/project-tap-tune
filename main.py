@@ -61,22 +61,16 @@ def beatMatch():
     print('WHAT DID I GET: ')
     print(data)
 
-    stuff = []
     print('Input list: ')
-    stuff.append(data)
+    for i in range(len(data)):
+        print(data[i])
 
-    for i in range(len(stuff)):
-        print(i)
-        print(stuff[i])
-    # list = [1,2,3]
-    # for x in len(list):
-    #     print('Input list: ')
-        #print(list[x])
 
-    # filepath = 'sampleMusic/twinkleStar.wav'
-    # songName = filepath[12:-4]
-    # songTimestamp = process_music_onset(filepath)
-    # songP1, songP2 = process_timestamp2(songTimestamp)
+
+     filepath = 'sampleMusic/twinkleStar.wav'
+     songName = filepath[12:-4]
+     songTimestamp = process_music_onset(filepath)
+     songP1, songP2 = process_timestamp2(songTimestamp)
     # userInput = receiveRhythm()
     # inputP1, inputP2 = process_timestamp2(userInput)
     # print("inputP1")
