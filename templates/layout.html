@@ -2,9 +2,13 @@
 <html>
   <head>
     {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    --><title>TapTune {% block title %}{% endblock %}</title>
+    -->
+    <!-- Meta -->
+    <title>TapTune {% block title %}{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Android PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -15,6 +19,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+    <!-- JQUERY -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <!-- Font Awesome icons (free version)-->
     <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
 
@@ -22,8 +29,13 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
 
-    <link rel="icon" href="{{ url_for('static', filename='assets/images/taptune_icon.png') }}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap-->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+    <!-- Custom CSS Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+
     {% endblock %}
   </head>
   <body>
@@ -45,11 +57,15 @@
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">History</a>
           </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0">
+        {% if user %}
+          <a href="/logout">Logout</a>
+        {% else %}
+          <form class="form-inline my-2 my-lg-0">
 
-          <input type="button" class="btn btn-outline-success my-2 my-sm-0" value="Log In" onclick="userLogin()">
+            <input type="button" class="btn btn-outline-success my-2 my-sm-0" value="Log In" onclick="userLogin()">
 
-        </form>
+          </form>
+        {% endif %}
       </div>
     </nav>
     <div id="content">{% block content %}{% endblock %}</div>
@@ -60,9 +76,7 @@
     </div>
     {% block js %}
     <script src="{{ url_for('static', filename='app.js') }}"></script>
-    <script src="{{ url_for('static', filename='clickRecord.js') }}"></script>
-    <!--<script src="{{ url_for('static', filename='result.js') }}"></script> -->
-    <!--<script src="{{ url_for('static', filename='keyTap.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='ajax-form.js') }}"></script>
     {% endblock %}
   </body>
 </html>

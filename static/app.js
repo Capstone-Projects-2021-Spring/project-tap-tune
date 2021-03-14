@@ -42,8 +42,6 @@ $('.material-click').on('click', function(e) {
         }
         circle = element.find(".md-click-circle");
         circle.removeClass("md-click-animate-red");
-        circle.removeClass("md-click-animate-green");
-        circle.removeClass("md-click-animate-gray");
         circle.removeClass("md-click-animate");
         if(!circle.height() && !circle.width()) {
             d = Math.max(element.outerWidth(), element.outerHeight());
@@ -59,25 +57,47 @@ $('.material-click').on('click', function(e) {
             case 1:
                 console.log("you pressed red")
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                break;
-            case 2:
-                console.log("you pressed gray")
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
-                break;
-            case 3:
-                console.log("you pressed green")
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
+                var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
+                document.getElementById("counter-number").innerHTML = incrementBeatCount;
+                var healthCountg = Math.floor((incrementBeatCount / 10) * 153);
+                var healthCountb = Math.floor((incrementBeatCount / 10) * 255);
+                document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
                 break;
         
             default:
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                 var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
                 document.getElementById("counter-number").innerHTML = incrementBeatCount;
+                var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
+                var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
+                if (incrementBeatCount >= 12) {
+                    document.getElementById("counter-number").style.color = RGBToHex(0, 153, 255);
+                    document.getElementById("counter-number").style.textShadow = "0 0 16px var(--blue)";
+                }
+                else {
+                    document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
+                }
                 break;
         }
+        
     }
 
   });
+
+  function RGBToHex(r,g,b) {
+    r = r.toString(16);
+    g = g.toString(16);
+    b = b.toString(16);
+  
+    if (r.length == 1)
+      r = "0" + r;
+    if (g.length == 1)
+      g = "0" + g;
+    if (b.length == 1)
+      b = "0" + b;
+  
+    return "#" + r + g + b;
+  }
 
 function goToRegister() {
       window.location.href= "/register";
@@ -101,15 +121,6 @@ function getColor(e) {
             if (e.pageX < startButtonRect.right && incrementBeatCount == 0) { //red
                 if (incrementBeatCount == 0)
                     return 1;
-            }
-
-            else if ((e.pageX < resetButtonRect.right) && (e.pageX > resetButtonRect.left) && (incrementBeatCount > 0)) { //gray
-                return 2;
-            }
-
-            else if ((e.pageX < finishButtonRect.right) && (e.pageX > finishButtonRect.left) && (incrementBeatCount > 0)) { //green
-                
-                return 3;
             }
         }
     }

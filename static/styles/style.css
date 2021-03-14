@@ -2468,6 +2468,12 @@ fieldset:disabled a.btn {
   border-color: #ff7575;
   pointer-events: none;
 }
+.btn-primary.hover, .btn-primary:hover {
+  color: #fff;
+  background-color: #ff7575;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.5);
+}
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle {
   color: #fff;
   background-color: #ff7575;
@@ -10313,7 +10319,7 @@ form .row:first-child .floating-label-form-group {
 
 .counter-text-active {
   font-size: 10.5rem;
-  color:rgb(197, 1, 1);
+  color:rgb(0, 0, 0);
 }
 
 .md-click-circle {
@@ -10327,7 +10333,7 @@ form .row:first-child .floating-label-form-group {
 }
 
 .md-click-circle.md-click-animate-red {
-  background: rgba(250, 41, 41, 0.33);
+  background: rgba(250, 41, 41, 0.467);
   -webkit-animation: mdClickEffect .65s linear;
   -moz-animation: mdClickEffect .65s linear;
   animation: mdClickEffect .65s linear;
