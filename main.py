@@ -1,109 +1,66 @@
+''' Stuff for jupyter lab. not required
+%matplotlib inline
+import IPython.display as ipd
+from ipywidgets import interact
+'''
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
-from models.Database import db
-from models.Mail import mail
-from models.User import User
-from models.analysis.Filtering import Filtering
-from flask_mail import Message
+import numpy as np, scipy, matplotlib.pyplot as plt
+import librosa, librosa.display
+import soundfile as sf
 
-app = Flask(__name__)
+# Loads waveform of song into x
+x, sr = librosa.load('khasma.wav')
 
-app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
-app.config['MYSQL_USER'] = 'ttapp'
-app.config['MYSQL_PASSWORD'] = '7tV9qEMc3!3Bp8M$zBSt9'
-app.config['MYSQL_DB'] = 'taptune'
+# Changes audio into harmonic/percussive wave forms
+y_harmonic, y_percussive = librosa.effects.hpss(x, margin = (1.0, 10.0))
 
-# configuration of mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = 'noreply.taptune@gmail.com'
-app.config['MAIL_PASSWORD'] = 'kvIcIHR1r9tyLvdc&P**Q'
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
+''' Not required as well to create new audio files
+# Creates and saves in a file
+sf.write('ex1.wav', y_harmonic,sr) #Melody Audio
+sf.write('ex2.wav', y_percussive, sr) #Beat Audio
 
-db.init_app(app)
-mail.init_app(app)
+# Overwrite/load the percussive beat audio
+x, sr = librosa.load('ex2.wav')
+'''
 
+# Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
+tempo, beat_times = librosa.beat.beat_track(y_percussive, sr=sr, units = 'time') # Time in seconds
+tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
 
-@app.route('/')
-def home_page():
-    # get logged in user or None
-    user = User.current_user()
-    return render_template('index.html', user=user)
+# beat_times = array<Time>, frames = array
+print("\n*******************beat_times, frames***************************\n")
+print(len(beat_times))
+print(len(frames))
 
+# Convert the beat tracked arrays
+framesToSeconds = librosa.frames_to_time(frames, sr=sr) # Frames to Seconds array
+secondsToFrames = librosa.time_to_frames(beat_times, sr=sr) # Seconds to Frames
 
-@app.route('/recordingRhythm', methods=['GET', 'POST'])
-def rhythm_page():
-    user = User.current_user()
-    return render_template('recordingRhythm.html', user=user)
+print("\n*******************framesToSeconds, secondToFrames***************************\n")
+# framesToSeconds =  array<Time>, secondsToFrames = array<Frames>
+print(len(framesToSeconds))
+print(len(secondsToFrames))
 
+print("\n*******************framesToSeconds = beat_times***************************\n")
+# Compare Converted Arrays with original
+# print(framesToSeconds == beat_times)
+# print("\n*******************secondsToFrames == frames***************************\n")
+# print(secondsToFrames == frames)
 
-@app.route('/filtering', methods=['GET', 'POST'])
-def filter_page():
-    user = User.current_user()
-    return render_template('filtering.html', user=user)
-
-
-@app.route('/results', methods=['GET', 'POST'])
-def result_page():
-    user = User.current_user()
-
-    #Audio Analysis
-
-    #Filter
-    obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
-
-    #After getting results, store in user_log
-    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre']
-                           , lyrics=request.form['input_lyrics'], user=user)
+# Conversion of SecondsToFrames returned some false values
+# for x in range(0,len(secondsToFrames)):
+#     if (secondsToFrames[x] != frames[x]):
+#         print(secondsToFrames[x] - frames[x])
 
 
-@app.route('/user', methods=['GET', 'POST'])
-def user_page():
-    user = User.current_user()
-    return render_template('user.html', user=user)
 
-@app.route('/register', methods=['GET', 'POST'])
-def register_page():
-    user = User.current_user()
-    return render_template('register.html', user=user)
-
-@app.route('/login', methods=['GET', 'POST'])
-def login_page():
-    # handle login form submission
-    if request.method == 'POST':
-        redirect_url = '/'
-        user = User.login(request.form['email'], request.form['password'])
-        if user:
-            msg = "Login successful."
-            category = "success"
-
-        else:
-            msg = str("Invalid Credentials")
-            category = "danger"
-
-        resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
-        return make_response(jsonify(resp), 200)
+# Short Algorithm to create array of 0's and 1's on frame indicies
+array = []
+increment = 0
+for x in range(0, frames[len(frames) - 1]):
+    if (frames[increment] == x):
+        array.append(1)
+        increment += 1
     else:
-        # load login page
-        if User.is_logged_in():
-            return redirect(url_for('home_page'))
-        return render_template('login.html')
-
-
-@app.route('/logout', methods=['GET', 'POST'])
-def logout():
-    User.logout()
-    return redirect(url_for('home_page'))
-
-	
-@app.route('/service-worker.js')
-def sw():
-    return app.send_static_file('service-worker.js')
-
-
-if __name__ == '__main__':
-    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
-    app.run(debug=True)
+        array.append(0)
+print(array)
