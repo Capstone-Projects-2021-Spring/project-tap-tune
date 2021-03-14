@@ -107,14 +107,28 @@ def hash_array(bin_array):
         - HASH ENDS IN  'F' NOT 'G'
         - LAST 0 OF ORIGINAL BINARY ARRAY NOT BEING READ
         """
+        # Bandaid fixed. Can be cleaned up/refactored/optimized
+
 
         if(frame == 1) or (check == len(bin_array)-1):
-            char_val = countToVal(run_count)
-            if(run_count > 0):
-                run_count = 0
-                res_string = res_string+char_val+"*"
+
+            # Extra Checks to correctly deal with last element in the bin_array
+            # Doesn't look pretty, but it functions at the very least
+            if (check == len(bin_array)-1):
+                if (frame == 1):
+                    char_val = countToVal(run_count)
+                    res_string = res_string + char_val + '*'
+                else:
+                    char_val = countToVal(run_count + 1)
+                    res_string = res_string + char_val
+            ########################################################################
             else:
-                res_string = res_string+char_val
+                char_val = countToVal(run_count)
+                if(run_count > 0):
+                    run_count = 0
+                    res_string = res_string+char_val+'*'
+                else:
+                    res_string = res_string+char_val
 
         # if the current frame is a 0
         else:
@@ -212,6 +226,11 @@ def unhash_array(db_string):
 
 
 # bin_array = [1,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1 , 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1]
+
+# Was used to test if last digit was 1 or 0
+# bin_array.append(0)
+# bin_array.append(1)
+
 res_string = hash_array(bin_array)
 print(res_string)
 print(len(res_string))
