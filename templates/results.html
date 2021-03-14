@@ -16,8 +16,7 @@
       <div class="divider-custom-line"></div>
     </div>
 
-    <p>practice post form : {{filterResults}}</p>
-    
+    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div> 
   </div>
   <div class="container-fluid">
     <div class="row">
@@ -104,6 +103,8 @@
             </tr>
           </tbody>
         </table>
+        <script type=text/javascript src="{{
+          url_for('static', filename='result.js') }}"></script>
       </div>
     </div>
   </div>
