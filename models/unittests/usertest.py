@@ -115,7 +115,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                            (username, email, name, enc_password))
 
             # test login
-            obj = User.login('test', 'pass')
+            obj = User.login(email, password)
             self.assertIsInstance(obj, User)
             self.assertEqual(username, obj.username)
             self.assertEqual(email, obj.email)
@@ -157,6 +157,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
         with app.app_context():
             # setup
             username = 'test'
+            email = 'test@example.com'
             password = 'pass'
             new_password = 'newpass'
             reset_token = '123'
@@ -164,7 +165,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             enc_password = User._User__encrypt_password(password)  # call private method through name mangling
             cursor = get_cursor()
             cursor.execute('INSERT INTO user (username,email,`password`,reset_token) VALUES (%s,%s,%s,%s)',
-                           (username, 'test@example.com', enc_password, reset_token))
+                           (username, email, enc_password, reset_token))
 
             # check is valid token func
             r = User.is_valid_reset_token(reset_token_invalid)
@@ -177,7 +178,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             self.assertTrue(r)
 
             # verify password reset work by logging in with new pass
-            obj = User.login('test', new_password)
+            obj = User.login(email, new_password)
             self.assertIsInstance(obj, User)
 
     if __name__ == '__main__':

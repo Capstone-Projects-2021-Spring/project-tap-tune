@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from models.Database import db
 from models.Mail import mail
 from models.User import User
@@ -28,21 +28,27 @@ mail.init_app(app)
 
 @app.route('/')
 def home_page():
-    return render_template('index.html')
+    # get logged in user or None
+    user = User.current_user()
+    return render_template('index.html', user=user)
 
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    return render_template('recordingRhythm.html')
+    user = User.current_user()
+    return render_template('recordingRhythm.html', user=user)
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
-    return render_template('filtering.html')
+    user = User.current_user()
+    return render_template('filtering.html', user=user)
 
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
+    user = User.current_user()
+
     #Audio Analysis
 
     #Filter
@@ -50,20 +56,47 @@ def result_page():
     filterResults = obj.filterRecording()
 
     #After getting results, store in user_log
-    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
+    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre']
+                           , lyrics=request.form['input_lyrics'], user=user)
 
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
-    return render_template('user.html')
+    user = User.current_user()
+    return render_template('user.html', user=user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
-    return render_template('register.html')
+    user = User.current_user()
+    return render_template('register.html', user=user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    return render_template('login.html')
+    User.reset_password('pass', 'oxDaT9e21pKW5I6P9DCLBFYVRFkvkWHPUefwdwDmTM4')
+    if request.method == 'POST':
+        redirect_url = '/'
+        user = User.login(request.form['email'], request.form['password'])
+        if user:
+            msg = "Login successful."
+            category = "success"
+
+        else:
+            msg = str("Invalid Credentials")
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
+        return make_response(jsonify(resp), 200)
+    else:
+        if User.is_logged_in():
+            return redirect(url_for('home_page'))
+        return render_template('login.html')
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    User.logout()
+    return redirect(url_for('home_page'))
+
 	
 @app.route('/service-worker.js')
 def sw():
