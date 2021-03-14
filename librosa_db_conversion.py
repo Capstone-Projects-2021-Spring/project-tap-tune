@@ -27,7 +27,7 @@ x, sr = librosa.load('ex2.wav')
 tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
 
 # beat_times = array<Time>, frames = array
-print("\n*******************beat_times, frames***************************\n")
+print("\n*******************beat_times, frames***************************")
 print(len(frames))
 
 # Short Algorithm to create array of 0's and 1's on frame indicies
@@ -39,6 +39,10 @@ for x in range(0, frames[len(frames) - 1]):
         increment += 1
     else:
         bin_array.append(0)
+
+def print_test(str, title):
+    print("******************************"+title+"************************")
+    print(str)
 
 
 def countToVal(count):
@@ -93,9 +97,10 @@ def countToVal(count):
 def hash_array(bin_array):
     run_count = 0
     res_string = ""
+    check = 0
     for frame in bin_array:
         # if the current frame is a 1
-        if(frame == 1):
+        if(frame == 1) or (check == len(bin_array)-1):
             char_val = countToVal(run_count)
             if(run_count > 0):
                 run_count = 0
@@ -107,6 +112,8 @@ def hash_array(bin_array):
         else:
             run_count = run_count + 1
 
+        check = check+1
+    print_test(check, "FRAME ITERATION CHECK")
     return res_string
 
 
@@ -117,7 +124,7 @@ def add_blank(bin_array, count_val):
 
 def valToCount(frame_val):
     dict = {
-        0: "1",
+        0: "*",
         1: "0",
         2: "2",
         3: "3",
@@ -162,11 +169,12 @@ def valToCount(frame_val):
 
 
 def unhash_array(db_string):
+    print(len(db_string))
     db_tok = db_string.split("*")
     bin_array = []
-    for val in range (len(db_tok)):
+    char_val = ""
+    for val in range (0, len(db_tok)):
         frame_val = db_tok[val]
-
         # if blank flag
         if(frame_val == ""):
             if val != len(db_tok)-1:
@@ -187,6 +195,10 @@ def unhash_array(db_string):
             if(val != len(db_tok)-1):
                 bin_array.append(1)
 
+    print("****************SHOULD BE Length of Frames************************")
+    print(val)
+    print(len(bin_array))
+
     return bin_array
 
 
@@ -204,13 +216,8 @@ print("******************ORIGINAL DATA*********************")
 print(bin_array)
 print(len(bin_array))
 
+print(res_array == bin_array)
 bin_array2 = []
 for x in range (len(bin_array)-27) :  bin_array2.append(bin_array[x])
-
-print("******************ORIGINAL DATA EDITED*********************")
-print(bin_array2)
-print(len(bin_array2))
-
-print(res_array == bin_array2)
 
 
