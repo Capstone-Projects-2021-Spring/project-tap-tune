@@ -25,7 +25,7 @@ document.addEventListener("keydown", function(){
 });
 
 /***************************************************************************/
-	function start(){
+function start(){
 		if(event.keyCode != 13 && event.keyCode != 32){
 			keyStartButton.click(beginTime());
 
@@ -78,6 +78,9 @@ function recordTime(){
 		if(event.keyCode == 13){
 			keyStopButton.click(stopTime());
 
+    keyStartButton.disabled = false;
+	keyTapButton.disabled = true;
+	keyStopButton.disabled = true;
 		}//end of if
 	}//end of stop
 
@@ -87,6 +90,10 @@ function stopTime(){
 	if (startTime){
 		console.log("Time Stop");
 		console.log("END ARRAY: "+returnTapTimes());
+
+		outKey = returnTapTimes();
+
+		return outKey;
 	}//end of if
 
 	else{
@@ -105,3 +112,21 @@ function stopTime(){
 	   return timeTapArray;
 
 }//end of returnTapTimes
+
+ $(document).ready(function () {
+                $("#keyStop").on("click", function() {
+                    var js_data = JSON.stringify(stopTime());
+                    $.ajax({
+                        url: '/rhythm',
+                        type : 'post',
+                        contentType: 'application/json',
+                        dataType : 'json',
+                        data : js_data
+                    }).done(function(result) {
+                        console.log("AJAX TAP: "+result);
+
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.log("fail: ",textStatus, errorThrown);
+                    });
+                });
+            });

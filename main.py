@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, json, jsonify
 from models.Database import db
 from models.User import User
 
@@ -41,6 +41,16 @@ def login_page():
     return render_template('login.html')
 
 
+def receiveRhythm():
+    data = request.json
+    print(data)
+    return jsonify(data)
+
+@app.route('/rhythm', methods=['GET', 'POST'])
+def test():
+    if request.method == 'POST':
+        out = receiveRhythm()
+    return out
 
 @app.route('/service-worker.js')
 def sw():

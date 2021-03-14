@@ -8,8 +8,11 @@ var startButton = document.getElementById("container");
 var tapButton = document.getElementById("recordTap");
 var stopButton = document.getElementById("recordStop");
 
+startButton.onclick = function(){startClick()};
+tapButton.onclick = function(){tapClick()};
+stopButton.onclick = function(){stopClick()};
 
-startButton.onclick = function () {
+function startClick() {
     startTime = new Date();
     console.log(startTime);
 
@@ -20,8 +23,7 @@ startButton.onclick = function () {
 }//end of startButton
 
 /*************************************************************************/
-
- tapButton.onclick = function () {
+function tapClick() {
 
 
     if (startTime){
@@ -30,7 +32,7 @@ startButton.onclick = function () {
         dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 
 	   times.push(dif);
-	   console.log("TAP TIME: "+dif);
+	   console.log("CLICK TIME: "+dif);
 	   console.log(times);
     }//end of if
 
@@ -43,7 +45,7 @@ startButton.onclick = function () {
 }//end of tapButton
 
 /*************************************************************************/
-stopButton.onclick = function () {
+function stopClick(){
 
     if (startTime){
 
@@ -51,6 +53,13 @@ stopButton.onclick = function () {
 	console.log("Stop: "+dif);
 	console.log("END ARRAY: "+returnTimes());
 
+    out = returnTimes();
+
+    startButton.disabled = false;
+	tapButton.disabled = true;
+	stopButton.disabled = true;
+
+    return out;
     }//enf of if
 
     else{
@@ -65,4 +74,23 @@ stopButton.onclick = function () {
 	   }//end of for
 
 	   return timeArray;
-}//end of returnTimes
+    }//end of returnTimes
+
+ $(document).ready(function () {
+                $("#recordStop").on("click", function() {
+                    var js_data = JSON.stringify(stopClick());
+                    $.ajax({
+                        url: '/rhythm',
+                        type : 'post',
+                        contentType: 'application/json',
+                        dataType : 'json',
+                        data : js_data
+                    }).done(function(result) {
+                        console.log("AJAX CLICK: "+result);
+                        //return result;
+                        //$("#data").html(result);
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        console.log("fail: ",textStatus, errorThrown);
+                    });
+                });
+            });
