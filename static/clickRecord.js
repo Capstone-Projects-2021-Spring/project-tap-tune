@@ -4,12 +4,6 @@ var times = new Array();
 var timeArray = [];
 var dif;
 
-var startButton = document.getElementById("startRecordingBtn");
-var tapButton = document.getElementById("tapScreenButton");
-var resetButton = document.getElementById("resetRecordingBtn");
-var finishButton = document.getElementById("finishRecordingBtn");
-
-
 let startButton = null;
 let tapButton = null;
 let stopButton = null;

@@ -5,9 +5,18 @@
 # Do I need a recording ID?
 
 import lyricsgenius
+import spotipy
+import json
 # from models.testDatabase import db, get_cursor
 from models.Database import db, get_cursor
 
+# Set user's credencials to access Spotify data
+scope = 'user-read-private user-read-playback-state user-modify-playback-state'
+lz_uri = 'spotify:artist:36QJpDe2go2KgaRleHCDTp'
+
+
+creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
+spotify = spotipy.Spotify(client_credentials_manager=creds)
 
 class Filtering:
     """
@@ -47,8 +56,17 @@ class Filtering:
                 title = track["title"]
                 artist = track["artist"]
                 genres = track["genre"]
+                
+                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+                preview = "None"
+                for album in results_1["tracks"]["items"]:
+                    albumArtist = album["artists"][0]
+                    if(albumArtist["name"] == artist_name):
+                        if (album["preview_url"]):  
+                            preview = album["preview_url"]
+                        break 
 
-                result_data.append({"title": title, "artist": artist, "genres": genres})
+                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
 
             # if there was a valid list of songs passed through
             if (song_results != None):
@@ -91,9 +109,19 @@ class Filtering:
                 title = track["title"]
                 artist = track["artist"]
                 genres = track["genre"]
+                
+                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+                preview = "None"
+                for album in results_1["tracks"]["items"]:
+                    albumArtist = album["artists"][0]
+                    if(albumArtist["name"] == artist_name):
+                        if (album["preview_url"]):  
+                            preview = album["preview_url"]
+                        break 
 
                 """APPEND NEW SET OF TRACKS TO THE LIST"""
-                result_data.append({"title": title, "artist": artist, "genres": genres})
+                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
+
 
             """
             ***INSERT THE COMPARISON TO RHYTHM ANALYSIS RESULTS HERE
@@ -127,7 +155,17 @@ class Filtering:
         for hit in request['sections'][0]['hits']:
             artist_name = hit['result']['primary_artist']['name']
             song_title = hit['result']['title']
-            result_data.append({"title": song_title, "artist": artist_name})
+
+            results_1 = spotify.search(q=song_title, limit=10, type="track", market=None)
+            preview = "None"
+            for album in results_1["tracks"]["items"]:
+                artist = album["artists"][0]
+                if(artist["name"] == artist_name):
+                    if (album["preview_url"]):  
+                        preview = album["preview_url"]
+                    break  
+
+            result_data.append({"title": song_title, "artist": artist_name, "spotifyPreview": preview})
 
         """CHECKS TO SEE IF VALID LIST OF SONGS WAS PASSED"""
         if (song_results != None):
