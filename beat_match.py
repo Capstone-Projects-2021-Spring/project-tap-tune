@@ -18,7 +18,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import sys
-import matplotlib
+import numpy
+import matplotlib.pyplot
 from flask import Flask, render_template, request, json
 import soundfile as sf
 import spotipy
@@ -60,11 +61,37 @@ def process_music_plp(filename):
     tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env)
     beats_plp = np.flatnonzero(librosa.util.localmax(pulse))
 
+# gets the peak frames of a song
+def getPeaks(filename):
+    y, sr = librosa.load(filename)
+    onset_test = librosa.onset.onset_detect(y, sr)
+
+    hop_length = 256
+    onset_envelope = librosa.onset.onset_strength(y, sr=sr, hop_length=hop_length)
+
+    N = len(y)
+    T = N / float(sr)
+    t = numpy.linspace(0, T, len(onset_envelope))
+
+    onset_frames = librosa.util.peak_pick(onset_envelope, 7, 7, 7, 7, .5, 5)
+
+    return onset_frames
+
+# finds difference between every 2nd timestamp
+def mergeBeats(timestamps):
+    new_times = []
+    for x in range(len(timestamps)-2):
+        dif = timestamps[x+2] - timestamps[x]
+        new_times.append(dif)
+
+    return new_times
+
 
 # detect beat by onset detection
 def process_music_onset(filename):
     y, sr = librosa.load(filename)
-    return librosa.onset.onset_detect(y=y, sr=sr, units='time')
+    onset_return = librosa.onset.onset_detect(y=y, sr=sr, units='time')
+    return onset_return
 
 
 # First approach of time stamp processing for pattern
@@ -154,56 +181,53 @@ def print_long(list):
         print(list[i:j])
         i = j
 
+# process the recording in full
+def processRecoring(userInput):
+    # DB song prep
+    filepath = 'sampleMusic/twinkleStar.wav'
+    songTimestamp = process_music_onset(filepath)
+    songP1, songP2 = process_timestamp2(songTimestamp)
+
+    # user input prep
+    inputP1, inputP2 = process_timestamp2(userInput)
+
+    # compare user input and DB info
+    # ---Decision making---
+    if compare(inputP1, songP1) == 1:
+        print("we have a match!")
+    else:
+        print("no match found")
+
+
+# process the recording based on peaks
+def processRecoringPeaks(userInput):
+    # DB song prep
+    filepath = 'sampleMusic/twinkleStar.wav'
+    songPeaks = getPeaks(filepath)
+    output1, output2 = process_timestamp2(songPeaks)
+
+    # User input prep
+    new_input = mergeBeats(userInput)
+    framestoTime = librosa.frames_to_time(output1, sr=22050)
+
+    # ---Decision making---
+    if compare(new_input, framestoTime) == 1:
+        print("we have a match!")
+    else:
+        print("no match found")
+
 
 if __name__ == "__main__":
-    # Never Gonna Give You Up - 0gxyHStUsqpMadRV0Di1Qt
-    # Back in Black - 08mG3Y1vljYA6bvDt4Wqkj
-    # We Will Rock You - 54flyrjcdnQdco7300avMJ
-    data = get_spotify_analysis("54flyrjcdnQdco7300avMJ")
-    dataP1, dataP2 = process_timestamp2(data)
-    print_long(dataP2)
-
-    print("\n")
-    print(len(dataP2))
-
     # ---song file processing---
     filepath = 'sampleMusic/twinkleStar.wav'
     songName = filepath[12:-4]
     songTimestamp = process_music_onset(filepath)
     # showBeatOnALine(songTimestamp, songName)
     songP1, songP2 = process_timestamp2(songTimestamp)
-
-    # print("songTimeStamp")
-    # print(songTimestamp)
-    # print("songP1")
-    # print_long(songP1)
-    # print("synSongP1")
-    # synSongP1 = synchronize(songP1)
-    # print_long(synSongP1)
-    # print("songP2")
-    # print_long(songP2)
-    # print("synSongP2")
-    # synSongP2 = synchronize(songP2)
-    # print_long(synSongP2)
-
-    # ---input processing---
-    # get input from front end
-    # userInput =  ...
-    # userInput = [1.268, 1.690, 2.115, 2.751, 3.433, 4.081, 5.251, 5.628, 6.011, 6.706, 7.392, 8.072]
     userInput = [1.923,2.517,3.108,3.728,4.337,4.931,5.554,6.770,7.397,7.970,8.631,9.273,9.884, 10.541,11.286]
-    inputP1, inputP2 = process_timestamp2(userInput)
-    print("inputP1")
-    print(inputP1)
-    # print("synInputP1")
-    # synInputP1 = synchronize(inputP1)
-    # print_long(synInputP1)
-    # showBeatOnALine(userInput, "user jinglebell")
 
-    # ---Decision making---
-    if compare(inputP1, songP1) == 1:
-        print("we have a match!")
-    else:
-        print("no match found")
+    processRecoring(userInput)
+    processRecoringPeaks(userInput)
 
 # ########################### Testing area ############################
 # beat_num = [0]
