@@ -74,7 +74,7 @@ def getPeaks(filename):
     t = numpy.linspace(0, T, len(onset_envelope))
 
     onset_frames = librosa.util.peak_pick(onset_envelope, 7, 7, 7, 7, .5, 5)
-
+    print(onset_frames)
     return onset_frames
 
 # finds difference between every 2nd timestamp
@@ -228,6 +228,7 @@ if __name__ == "__main__":
 
     processRecoring(userInput)
     processRecoringPeaks(userInput)
+
 
 # ########################### Testing area ############################
 # beat_num = [0]
