@@ -27,6 +27,8 @@ x, sr = librosa.load('ex2.wav')
 tempo, beat_times = librosa.beat.beat_track(y_percussive, sr=sr, units = 'time') # Time in seconds
 tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
 
+# beat_times = array<Time>, frames = array
+print("\n*******************beat_times, frames***************************\n")
 print(len(beat_times))
 print(len(frames))
 
@@ -34,17 +36,21 @@ print(len(frames))
 framesToSeconds = librosa.frames_to_time(frames, sr=sr) # Frames to Seconds array
 secondsToFrames = librosa.time_to_frames(beat_times, sr=sr) # Seconds to Frames
 
+print("\n*******************framesToSeconds, secondToFrames***************************\n")
+# framesToSeconds =  array<Time>, secondsToFrames = array<Frames>
 print(len(framesToSeconds))
 print(len(secondsToFrames))
 
+print("\n*******************framesToSeconds = beat_times***************************\n")
 # Compare Converted Arrays with original
-print(framesToSeconds == beat_times)
-print(secondsToFrames == frames)
+# print(framesToSeconds == beat_times)
+# print("\n*******************secondsToFrames == frames***************************\n")
+# print(secondsToFrames == frames)
 
 # Conversion of SecondsToFrames returned some false values
-for x in range(0,len(secondsToFrames)):
-    if (secondsToFrames[x] != frames[x]):
-        print(secondsToFrames[x] - frames[x])
+# for x in range(0,len(secondsToFrames)):
+#     if (secondsToFrames[x] != frames[x]):
+#         print(secondsToFrames[x] - frames[x])
 
 
 
@@ -57,4 +63,4 @@ for x in range(0, frames[len(frames) - 1]):
         increment += 1
     else:
         array.append(0)
-# print(array)
+print(array)
