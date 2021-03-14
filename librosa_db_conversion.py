@@ -28,7 +28,7 @@ tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') #
 
 # beat_times = array<Time>, frames = array
 print("\n*******************beat_times, frames***************************")
-print(len(frames))
+print(frames)
 
 # Short Algorithm to create array of 0's and 1's on frame indicies
 bin_array = []
@@ -224,7 +224,14 @@ def unhash_array(db_string):
     return bin_array
 
 
+def binToFrames(bin_array):
+    frame_array = []
 
+    for bin_ele in range (len(bin_array)):
+        if(bin_array[bin_ele] == 1):
+            frame_array.append(bin_ele)
+
+    return frame_array
 # bin_array = [1,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1 , 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1]
 
 # Was used to test if last digit was 1 or 0
@@ -243,8 +250,7 @@ print("******************ORIGINAL DATA*********************")
 print(bin_array)
 print(len(bin_array))
 
-print(res_array == bin_array)
-bin_array2 = []
-for x in range (len(bin_array)-27) :  bin_array2.append(bin_array[x])
+print("*****************TRANSLATED TO TIMESTAMPS*********************")
+print(binToFrames(res_array))
 
 
