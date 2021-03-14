@@ -72,7 +72,7 @@ def register_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    User.reset_password('pass', 'oxDaT9e21pKW5I6P9DCLBFYVRFkvkWHPUefwdwDmTM4')
+    # handle login form submission
     if request.method == 'POST':
         redirect_url = '/'
         user = User.login(request.form['email'], request.form['password'])
@@ -87,6 +87,7 @@ def login_page():
         resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
         return make_response(jsonify(resp), 200)
     else:
+        # load login page
         if User.is_logged_in():
             return redirect(url_for('home_page'))
         return render_template('login.html')
