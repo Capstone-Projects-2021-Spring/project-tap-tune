@@ -58,7 +58,11 @@
           </li>
         </ul>
         {% if user %}
-          <a href="/logout">Logout</a>
+          <span>
+            <span>{{user.username}}</span>
+            <span style="margin:auto 10px">|</span>
+            <a href="/logout">Logout</a>
+          </span>
         {% else %}
           <form class="form-inline my-2 my-lg-0">
 

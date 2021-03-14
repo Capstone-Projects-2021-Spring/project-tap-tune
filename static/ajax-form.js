@@ -52,7 +52,7 @@ function send_form(form, form_id, url, type, success_response, inner_ajax, formD
 
             // for each invalid input element (form field) return error
             for (let item of invalidList) {
-                M.toast({html: "Please fill the "+item.label.innerHTML+"", classes: 'bg-danger text-white'});
+                M.toast({html: "Please fill in the "+item.label.innerHTML+"", classes: 'bg-danger text-white'});
             }
         }
         else {
