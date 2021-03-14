@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, request
+
+from flask import Flask, render_template, request
 from models.Database import db
 from models.Mail import mail
 from models.User import User
@@ -44,33 +45,31 @@ def filter_page():
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
-    return render_template('results.html')
+    #Audio Analysis
+
+    #Filter
+    #obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    #filterResults = obj.filterRecording()
+
+    #After getting results, store in user_log
+    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
 
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     return render_template('user.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    return render_template('login.html')
+	
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
-"""
-FILES JUST FOR PETER :)
-"""
-# practice page using POST and GET to send info to server
-@app.route('/post', methods=["POST", "GET"])
-def post_func():
-    if request.method == "POST":
-        value = request.form['val']
-        return redirect(url_for("results", res=value))
-        return
-    else:
-        return render_template("post.html")
-
-# results page to redirect the POST GET page
-@app.route('/<res>')
-def results(res):
-    return('<h1>{%s}</h1>'% res)
 
 
 if __name__ == '__main__':
