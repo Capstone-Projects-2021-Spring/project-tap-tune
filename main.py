@@ -28,8 +28,6 @@ mail.init_app(app)
 
 @app.route('/')
 def home_page():
-    obj = Filtering(Genre="Rock", Artist="ACDC", Lyrics="Sound of the drums beating in my heart")
-    obj.filterRecording()
     return render_template('index.html')
 
 
@@ -48,8 +46,8 @@ def result_page():
     #Audio Analysis
 
     #Filter
-    #obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    #filterResults = obj.filterRecording()
+    obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    filterResults = obj.filterRecording()
 
     #After getting results, store in user_log
     return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre'], lyrics=request.form['input_lyrics'])
