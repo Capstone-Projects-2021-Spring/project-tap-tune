@@ -7,43 +7,43 @@ from ipywidgets import interact
 import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
 import soundfile as sf
-#
-# # Loads waveform of song into x
-# x, sr = librosa.load('khasma.wav')
-#
-# # Changes audio into harmonic/percussive wave forms
-# y_harmonic, y_percussive = librosa.effects.hpss(x, margin = (1.0, 10.0))
-#
-# ''' Not required as well to create new audio files
-# # Creates and saves in a file
-# sf.write('ex1.wav', y_harmonic,sr) #Melody Audio
-# sf.write('ex2.wav', y_percussive, sr) #Beat Audio
-#
-# # Overwrite/load the percussive beat audio
-# x, sr = librosa.load('ex2.wav')
-# '''
-#
-# # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
-# tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
-#
-# # beat_times = array<Time>, frames = array
-# print("\n*******************beat_times, frames***************************\n")
-# print(len(frames))
 
-# # Short Algorithm to create array of 0's and 1's on frame indicies
-# array = []
-# increment = 0
-# for x in range(0, frames[len(frames) - 1]):
-#     if (frames[increment] == x):
-#         array.append(1)
-#         increment += 1
-#     else:
-#         array.append(0)
+# Loads waveform of song into x
+x, sr = librosa.load('Mr.Brightside_TheKillers.wav')
+
+# Changes audio into harmonic/percussive wave forms
+y_harmonic, y_percussive = librosa.effects.hpss(x, margin = (1.0, 10.0))
+
+''' Not required as well to create new audio files
+# Creates and saves in a file
+sf.write('ex1.wav', y_harmonic,sr) #Melody Audio
+sf.write('ex2.wav', y_percussive, sr) #Beat Audio
+
+# Overwrite/load the percussive beat audio
+x, sr = librosa.load('ex2.wav')
+'''
+
+# Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
+tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
+
+# beat_times = array<Time>, frames = array
+print("\n*******************beat_times, frames***************************\n")
+print(len(frames))
+
+# Short Algorithm to create array of 0's and 1's on frame indicies
+bin_array = []
+increment = 0
+for x in range(0, frames[len(frames) - 1]):
+    if (frames[increment] == x):
+        bin_array.append(1)
+        increment += 1
+    else:
+        bin_array.append(0)
 
 
 def countToVal(count):
     dict = {
-        0: "1",
+        0: "*",
         1: "0",
         2: "2",
         3: "3",
@@ -93,13 +93,13 @@ def countToVal(count):
 def hash_array(bin_array):
     run_count = 0
     res_string = ""
-    for frame in array:
+    for frame in bin_array:
         # if the current frame is a 1
         if(frame == 1):
             char_val = countToVal(run_count)
             if(run_count > 0):
                 run_count = 0
-                res_string = res_string+char_val+"1"
+                res_string = res_string+char_val+"*"
             else:
                 res_string = res_string+char_val
 
@@ -162,36 +162,55 @@ def valToCount(frame_val):
 
 
 def unhash_array(db_string):
-    db_tok = db_string.split("1")
-    print(db_tok)
+    db_tok = db_string.split("*")
     bin_array = []
-    for frame_val in db_tok:
-        # if custom flag
+    for val in range (len(db_tok)):
+        frame_val = db_tok[val]
+
+        # if blank flag
         if(frame_val == ""):
-            pass
+            if val != len(db_tok)-1:
+                bin_array.append(1)
+
+        # if a custom flag
+        elif(frame_val[0] == "."):
+            custom_flag = frame_val[1:len(frame_val)-1]
+            add_blank(bin_array, int(custom_flag))
+            if val != len(db_tok) - 1:
+                bin_array.append(1)
 
         #known flag
         else:
             char_val = int(valToCount(frame_val))
-            print(char_val)
-            print(type(char_val))
             add_blank(bin_array, char_val)
 
-        bin_array.append(1)
+            if(val != len(db_tok)-1):
+                bin_array.append(1)
 
     return bin_array
 
 
-array = [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1]
-res_string = hash_array(array)
-print(res_string)
 
+# bin_array = [1,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1 , 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0,1]
+res_string = hash_array(bin_array)
+print(res_string)
+print(len(res_string))
 res_array = unhash_array(res_string)
+print("******************RESULT DATA**********************")
 print(res_array)
-print(array)
-# # Convert the beat tracked arrays
-# framesToSeconds = librosa.frames_to_time(frames, sr=sr) # Frames to Seconds array
-#
-# print("\n*******************framesToSeconds, secondToFrames***************************\n")
-# # framesToSeconds =  array<Time>, secondsToFrames = array<Frames>
-# print(len(framesToSeconds))
+print(len(res_array))
+
+print("******************ORIGINAL DATA*********************")
+print(bin_array)
+print(len(bin_array))
+
+bin_array2 = []
+for x in range (len(bin_array)-27) :  bin_array2.append(bin_array[x])
+
+print("******************ORIGINAL DATA EDITED*********************")
+print(bin_array2)
+print(len(bin_array2))
+
+print(res_array == bin_array2)
+
+
