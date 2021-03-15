@@ -78,7 +78,7 @@ def compare(userPattern, songPattern):
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
-        print("# of hit : {}".format(numOfHit))
+        # print("# of hit : {}".format(numOfHit))
         if numOfHit >= mark:
             return 1
         else:
@@ -195,7 +195,7 @@ def processRecoringPeaks(userInput, peakFrames):
 
 class rhythmAnalysis:
 
-    def __innit__(self, userTaps = None):
+    def __init__(self, userTaps=None):
         print(userTaps)
         if(userTaps != None):
             self.user_input = userTaps
@@ -223,47 +223,55 @@ class rhythmAnalysis:
 
         # for loop to go through the song_data
         # for track in db_results:
+        for db_track in db_results:
+            """
+            convert peak_hash to binary array
+            """
+            print("**************peak hash*******************")
+            print(db_track)
+            bin_array = unhash_array(db_track["peak_hash"])
+            print(bin_array)
 
-        """
-        convert peak_hash to binary array
-        """
-        bin_array = unhash_array(db_results[1]["peak_hash"])
-        print(bin_array)
+            """
+            convert binary array to frames
+            """
+            # frames from bin
+            res_frames = []
+            track = 0
+            offset = 0
+            check = 0
 
-        """
-        convert binary array to frames
-        """
-        # frames from bin
-        res_frames = []
-        track = 0
-        offset = 0
-        check = 0
+            for bin in bin_array:
+                if (bin == 0) and (check != len(bin_array) - 1):
+                    track += 1
 
-        for bin in bin_array:
-            if (bin == 0) and (check != len(bin_array) - 1):
-                track += 1
+                elif (bin == 1):
+                    res_frames.append(track + offset)
+                    offset += 1
 
-            elif (bin == 1):
-                res_frames.append(track + offset)
-                offset += 1
+                else:
+                    res_frames.append(track + offset + 1)
+                    offset += 1
+                check += 1
 
-            else:
-                res_frames.append(track + offset + 1)
-                offset += 1
-            check += 1
+            print(res_frames)
+            """
+            compare with the user input
+            """
+            match = processRecoringPeaks(self.user_input, res_frames)
 
-        print(res_frames)
-        """
-        compare with the user input
-        """
-        match = processRecoringPeaks(self.user_input, res_frames)
+            if (match):
+                title = db_results[0]["title"]
+                artist = db_results[0]["artist"]
+                genres = db_results[0]["genres"]
 
-        if (match):
-            title = db_results[0]["title"]
-            artist = db_results[0]["artist"]
-            genres = db_results[0]["genres"]
+                song_results.append( {"title": title, "artist": artist, "genres": genres} )
 
-            song_results.append( {"title": title, "artist": artist, "genres": genres} )
+
+        if(len(song_results) < 1):
+            return None
+        else:
+            return song_results
 
     def onset_func(self):
         song_results = []
@@ -286,44 +294,49 @@ class rhythmAnalysis:
 
         # for loop to go through the song_data
         # for track in db_results:
+        for db_track in db_results:
+            """
+            convert onset_hash to binary array
+            """
+            bin_array = unhash_array(db_track["onset_hash"])
+            print(bin_array)
 
-        """
-        convert onset_hash to binary array
-        """
-        bin_array = unhash_array(db_results[1]["onset_hash"])
-        print(bin_array)
+            """
+            convert binary array to frames
+            """
+            # frames from bin
+            res_frames = []
+            track = 0
+            offset = 0
+            check = 0
 
-        """
-        convert binary array to frames
-        """
-        # frames from bin
-        res_frames = []
-        track = 0
-        offset = 0
-        check = 0
+            for bin in bin_array:
+                if (bin == 0) and (check != len(bin_array) - 1):
+                    track += 1
 
-        for bin in bin_array:
-            if (bin == 0) and (check != len(bin_array) - 1):
-                track += 1
+                elif (bin == 1):
+                    res_frames.append(track + offset)
+                    offset += 1
 
-            elif (bin == 1):
-                res_frames.append(track + offset)
-                offset += 1
+                else:
+                    res_frames.append(track + offset + 1)
+                    offset += 1
+                check += 1
 
-            else:
-                res_frames.append(track + offset + 1)
-                offset += 1
-            check += 1
+            print(res_frames)
+            """
+            compare with the user input
+            """
+            match = processRecoringPeaks(self.user_input, res_frames)
 
-        print(res_frames)
-        """
-        compare with the user input
-        """
-        match = processRecoringPeaks(self.user_input, res_frames)
+            if (match):
+                title = db_results[0]["title"]
+                artist = db_results[0]["artist"]
+                genres = db_results[0]["genres"]
 
-        if (match):
-            title = db_results[0]["title"]
-            artist = db_results[0]["artist"]
-            genres = db_results[0]["genres"]
+                song_results.append( {"title": title, "artist": artist, "genres": genres} )
 
-            song_results.append( {"title": title, "artist": artist, "genres": genres} )
+        if (len(song_results) < 1):
+            return None
+        else:
+            return song_results

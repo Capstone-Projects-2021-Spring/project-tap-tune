@@ -6,7 +6,7 @@ from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
-
+import json
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
@@ -147,8 +147,12 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
-    print("HELLO WORLD")
-    obj = rhythmAnalysis(out)
+    data = json.loads(request.data)
+    obj = rhythmAnalysis(userTaps=data)
+
+    # result1 = obj.peak_func()
+    result2 = obj.onset_func()
+
 
     return out
 

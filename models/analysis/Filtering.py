@@ -61,7 +61,7 @@ class Filtering:
                 preview = "None"
                 for album in results_1["tracks"]["items"]:
                     albumArtist = album["artists"][0]
-                    if(albumArtist["name"] == artist_name):
+                    if(albumArtist["name"] == artist):
                         if (album["preview_url"]):  
                             preview = album["preview_url"]
                         break 
@@ -114,7 +114,7 @@ class Filtering:
                 preview = "None"
                 for album in results_1["tracks"]["items"]:
                     albumArtist = album["artists"][0]
-                    if(albumArtist["name"] == artist_name):
+                    if(albumArtist["name"] == artist):
                         if (album["preview_url"]):  
                             preview = album["preview_url"]
                         break 
