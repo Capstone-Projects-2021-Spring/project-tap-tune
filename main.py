@@ -3,6 +3,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
+from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 
 app = Flask(__name__)
@@ -27,9 +28,17 @@ mail.init_app(app)
 
 @app.route('/')
 def home_page():
+
     # get logged in user or None
     user = User.current_user()
     return render_template('index.html', user=user)
+
+
+    obj = rhythmAnalysis()
+    obj.peak_func()
+
+    return render_template('index.html')
+
 
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
@@ -62,6 +71,7 @@ def result_page():
 def user_page():
     user = User.current_user()
     return render_template('user.html', user=user)
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -107,8 +117,10 @@ def register():
 
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
+
     # handle login form submission
     if request.method == 'POST':
         redirect_url = '/'
@@ -146,6 +158,7 @@ def receiveRhythm():
 def test():
     if request.method == 'POST':
         out = receiveRhythm()
+        print('hello')
         beatMatch()
     return out
 
@@ -159,6 +172,9 @@ def beatMatch():
     print('Input list: ')
     for i in range(len(data)):
         print(data[i])
+
+    return render_template('login.html')
+
 
 
 @app.route('/service-worker.js')
