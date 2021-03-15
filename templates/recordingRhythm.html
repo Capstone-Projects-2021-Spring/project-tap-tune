@@ -28,5 +28,8 @@
   </div>
 </div>
 {% endblock %}
-{% block footer %}
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='clickRecord.js') }}"></script>
+    <script src="{{ url_for('static', filename='keyTap.js') }}"></script>
 {% endblock %}

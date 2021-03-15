@@ -50,15 +50,14 @@ def result_page():
     user = User.current_user()
 
     #Audio Analysis
+    
 
     #Filter
     obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
     filterResults = obj.filterRecording()
 
     #After getting results, store in user_log
-    return render_template('results.html', artist=request.form['input_artist'], genre=request.form['input_genre']
-                           , lyrics=request.form['input_lyrics'], user=user)
-
+    return render_template('results.html', filterResults=filterResults)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():

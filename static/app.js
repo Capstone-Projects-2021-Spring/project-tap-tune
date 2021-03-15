@@ -26,58 +26,8 @@ function goToRhythm() {
 }
 
 function goToResult() {
-    console.log("asdf");
     window.location.href= "/asdfasdf"; //link from rhythm button
 }
-
-
-$('.material-click').on('click', function(e) { 
-    var colorBox = getColor(e);
-    console.log("color was " + colorBox);   
-    if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
-        var element, circle, d, x, y;
-        element = $(this);
-        if(element.find(".md-click-circle").length == 0) {
-            element.prepend("<span class='md-click-circle'></span>");
-        }
-        circle = element.find(".md-click-circle");
-        circle.removeClass("md-click-animate-red");
-        circle.removeClass("md-click-animate-green");
-        circle.removeClass("md-click-animate-gray");
-        circle.removeClass("md-click-animate");
-        if(!circle.height() && !circle.width()) {
-            d = Math.max(element.outerWidth(), element.outerHeight());
-            circle.css({height: d, width: d});
-        }
-        x = e.pageX - element.offset().left - circle.width()/2;
-        y = e.pageY - element.offset().top - circle.height()/2;
-        
-        switch (colorBox) {
-            case -1:
-                break; 
-
-            case 1:
-                console.log("you pressed red")
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                break;
-            case 2:
-                console.log("you pressed gray")
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
-                break;
-            case 3:
-                console.log("you pressed green")
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
-                break;
-        
-            default:
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
-                var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                document.getElementById("counter-number").innerHTML = incrementBeatCount;
-                break;
-        }
-    }
-
-  });
 
 function goToRegister() {
       window.location.href= "/register";
@@ -87,6 +37,7 @@ function userLogin() {
       window.location.href= "/login";
 }
 
+//Stuff for forgotPass html
 function forgotPass() {
 	window.location.href= "/forgot"
 }
@@ -100,6 +51,7 @@ $(document).ready(function() {
     $('div#form-olvidado').toggle('500');
   });
 });
+//end stuff for forgotPass html
 
 function getColor(e) {
     //well first of all are we even in button territory
