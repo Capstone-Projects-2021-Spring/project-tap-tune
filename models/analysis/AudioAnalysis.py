@@ -270,8 +270,8 @@ class rhythmAnalysis:
 
         # retrieves cursor from Database.py
         cursor = get_cursor()
-        cursor.execute('SELECT title, artist, genre, peak_hash FROM song')
-        # fetch al results and save in song_data list
+        cursor.execute('SELECT title, artist, genre, onset_hash FROM song')
+        # fetch all results and save in song_data list
 
         """GO THROUGH DB DATA"""
         song_data = cursor.fetchall()

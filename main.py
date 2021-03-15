@@ -50,7 +50,6 @@ def result_page():
     user = User.current_user()
 
     #Audio Analysis
-    
 
     #Filter
     obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
