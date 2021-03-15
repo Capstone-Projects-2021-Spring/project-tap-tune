@@ -7,7 +7,6 @@
 import lyricsgenius
 import spotipy
 import json
-# from models.testDatabase import db, get_cursor
 from models.Database import db, get_cursor
 
 # Set user's credencials to access Spotify data
@@ -219,7 +218,8 @@ class Filtering:
         """
         CHECKS FOR ANY GENRE INPUT
         """
-        if(self.input_genre):
+        print(self.input_genre)
+        if(self.input_genre) and (self.input_genre != "Metal"):
             r_list = self.filterGenre(r_list)
             print("*****LIST FILTERED BY GENRE")
             print(r_list)
