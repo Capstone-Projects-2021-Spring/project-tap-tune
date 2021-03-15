@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block title %} - Login{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!--Import materialize.css-->
+    <!--  <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"  media="screen,projection"/> -->
+
+    <!-- custom styles -->
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/loginStyle.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/ajax-form.css')}}">
+
+    <style type="text/css">
+        .important { color: #ac1a00; }
+    </style>
+{% endblock %}
+{% block content %}
+<main class="login-form">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header"><h2>Account Access</h2></div>
+                    <div class="card-body">
+                        <form accept-charset="UTF-8" role="form" id="login-recordar" method="post">
+							<fieldset>
+								<span class="help-block">
+									Email address you use to log in to your account
+									<br>
+									We'll send you an email with instructions to choose a new password.
+								</span>
+								<div class="form-group input-group">
+									<span class="input-group-addon">
+										@
+									</span>
+									<input class="form-control" placeholder="Email" name="email" type="email"
+										required="">
+								</div>
+								<button type="submit" class="btn btn-primary btn-block" id="btn-olvidado">
+									Continue
+								</button>
+								<p class="help-block">
+								<div class="text-center">Don't need to reset? <a href="/login">Login here</a></div>
+								</p>
+							</fieldset>
+						</form>
+                        <div id="form-response"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block js %}
+    {{super()}}
+    <!-- jQuery validation is not included in the script above, so needs to be explicitly included -->
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <!-- Bootstrap HTML framework -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- Materialize CSS framework -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+{% endblock %}
