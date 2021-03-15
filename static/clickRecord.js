@@ -120,7 +120,7 @@ $( document ).ready(function() {
     function record(){
         
         //32 is the space bar
-        if(event.keyCode == 32){
+        if(event.keyCode == 82){
             if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
                 //console.log(startTime);
                 instanceTime = new Date();
@@ -142,8 +142,8 @@ $( document ).ready(function() {
                     d = Math.max(element.outerWidth(), element.outerHeight());
                     circle.css({height: d, width: d});
                 }
-                x = element.offset().left - circle.width()/2;
-                y = element.offset().top - circle.height()/2;
+                x = ((element.offset().right - element.offset().left) / 2)  - circle.width()/2;
+                y = ((element.offset().bottom - element.offset().top) / 2) - circle.height()/2;
                 
         
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
@@ -169,7 +169,6 @@ $( document ).ready(function() {
 
     $('.material-click').on('click', function(e) { 
         var colorBox = getColor(e);
-        console.log("color was " + colorBox);   
         if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
             var element, circle, d, x, y;
             element = $(this);
@@ -218,9 +217,9 @@ $( document ).ready(function() {
             
         }
     
-      });
+    });
     
-      function RGBToHex(r,g,b) {
+    function RGBToHex(r,g,b) {
         r = r.toString(16);
         g = g.toString(16);
         b = b.toString(16);
@@ -233,13 +232,11 @@ $( document ).ready(function() {
           b = "0" + b;
       
         return "#" + r + g + b;
-      }
+    }
 
-      function getColor(e) {
+    function getColor(e) {
         //well first of all are we even in button territory
         var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
-        var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
-        var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
         var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
     
         if (finishButton.innerHTML == "Submit") return -1;

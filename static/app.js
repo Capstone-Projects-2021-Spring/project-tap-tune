@@ -26,7 +26,6 @@ function goToRhythm() {
 }
 
 function goToResult() {
-    console.log("asdf");
     window.location.href= "/asdfasdf"; //link from rhythm button
 }
 
