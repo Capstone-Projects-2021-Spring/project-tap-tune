@@ -222,6 +222,10 @@ for x in range(frames[len(frames)-1]):
 
 print("************RESULTS**************")
 print(bin_array)
+
+"""
+res_string is the value to be stored in the database
+"""
 res_string = hash_array(bin_array)
 print(res_string)
 
