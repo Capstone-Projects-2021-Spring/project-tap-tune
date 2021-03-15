@@ -120,13 +120,13 @@ $( document ).ready(function() {
                 data : js_data
             }).done(function(result) {
                 console.log("AJAX CLICK: "+result);
+                goToFiltering();
                 //return result;
                 //$("#data").html(result);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
             });
 
-            //goToFiltering();
         }
         else {
             //Change text of button for confirmation
