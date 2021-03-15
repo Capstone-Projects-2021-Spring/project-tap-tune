@@ -1,11 +1,12 @@
-
 from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
 from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
+from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 
+import json
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
@@ -25,7 +26,6 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
 db.init_app(app)
 mail.init_app(app)
 
-
 @app.route('/')
 def home_page():
     # get logged in user or None
@@ -35,8 +35,7 @@ def home_page():
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    user = User.current_user()
-    return render_template('recordingRhythm.html', user=user)
+    return render_template('recordingRhythm.html')
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
@@ -48,13 +47,12 @@ def filter_page():
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-
     #Audio Analysis
-    
 
     #Filter
     obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
+    print(user_result)
+    filterResults = obj.filterRecording(user_result)
 
     #After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
@@ -144,37 +142,14 @@ def receiveRhythm():
 def test():
     if request.method == 'POST':
         out = receiveRhythm()
-        beatMatch()
-    return out
-
-def beatMatch():
 
     data = json.loads(request.data)
+    obj = rhythmAnalysis(userTaps=data)
 
-    print('WHAT DID I GET: ')
-    print(data)
+    global user_result
+    user_result = obj.onset_peak_func()
+    return out
 
-    print('Input list: ')
-    for i in range(len(data)):
-        print(data[i])
-
-
-
-     #filepath = 'sampleMusic/twinkleStar.wav'
-     #songName = filepath[12:-4]
-     #songTimestamp = process_music_onset(filepath)
-     #songP1, songP2 = process_timestamp2(songTimestamp)
-    # userInput = receiveRhythm()
-    # inputP1, inputP2 = process_timestamp2(userInput)
-    # print("inputP1")
-    # print(inputP1)
-    #
-    # # ---Decision making---
-    # if compare(inputP1, songP1) == 1:
-    #     print("we have a match!")
-    # else:
-    #     print("no match found")
-	
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
