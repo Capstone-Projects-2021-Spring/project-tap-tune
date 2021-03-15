@@ -326,4 +326,8 @@ class rhythmAnalysis:
             artist = db_results[0]["artist"]
             genres = db_results[0]["genres"]
 
+
             song_results.append( {"title": title, "artist": artist, "genres": genres} )
+
+            song_results.append( {"title": title, "artist": artist, "genres": genres} )
+

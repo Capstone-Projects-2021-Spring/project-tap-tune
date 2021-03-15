@@ -4,6 +4,9 @@ from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
+
+#from models.analysis.AudioAnalysis import AudioAnalysis
+
 from flask_mail import Message
 
 app = Flask(__name__)
@@ -156,10 +159,17 @@ def receiveRhythm():
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def test():
+
     if request.method == 'POST':
         out = receiveRhythm()
-        print('hello')
-        beatMatch()
+        #beatMatch()
+
+        #receive Rhythm as json and create AudioAnalysis class
+        #print("helloworld")
+        #out = jsonify(data)
+        #result = AudioAnalysis(out)
+
+
     return out
 
 
