@@ -49,30 +49,3 @@ $(document).ready(function() {
 });
 //end stuff for forgotPass html
 
-function getColor(e) {
-    //well first of all are we even in button territory
-    var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
-    var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
-    var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
-    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
-
-    if (finishButton.innerHTML == "Submit") return -1;
-    if (e.pageY > startButtonRect.top && e.pageY < startButtonRect.bottom) {
-        if (e.pageX > startButtonRect.left) {
-            if (e.pageX < startButtonRect.right && incrementBeatCount == 0) { //red
-                if (incrementBeatCount == 0)
-                    return 1;
-            }
-
-            else if ((e.pageX < resetButtonRect.right) && (e.pageX > resetButtonRect.left) && (incrementBeatCount > 0)) { //gray
-                return 2;
-            }
-
-            else if ((e.pageX < finishButtonRect.right) && (e.pageX > finishButtonRect.left) && (incrementBeatCount > 0)) { //green
-                
-                return 3;
-            }
-        }
-    }
-    return 0;
-}
