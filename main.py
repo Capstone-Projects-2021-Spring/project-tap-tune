@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
+from models.analysis.Filtering import Filtering
+from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
+
 import json
 app = Flask(__name__)
 
@@ -48,9 +51,9 @@ def result_page():
 
     #Filter
     obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
+    print(user_result)
+    filterResults = obj.filterRecording(user_result)
 
-    print(data)
     #After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
 
@@ -140,14 +143,11 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
-    global data
     data = json.loads(request.data)
     obj = rhythmAnalysis(userTaps=data)
 
-    # result1 = obj.peak_func()
-    result2 = obj.onset_func()
-
-    testVal = [0]
+    global user_result
+    user_result = obj.onset_peak_func()
     return out
 
 @app.route('/service-worker.js')

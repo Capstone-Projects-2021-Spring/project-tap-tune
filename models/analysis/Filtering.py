@@ -121,13 +121,22 @@ class Filtering:
 
                 """APPEND NEW SET OF TRACKS TO THE LIST"""
                 result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
+            result_final = []
+            if(song_results != None):
+                for track_1 in song_results:
+                    for track_2 in result_data:
+                        if(track_1["title"] == track_2["title"]):
+                            if (self.dupCheck(result_final, track_2["title"])):
+                                result_final.append(track_2)
+                if (len(result_final) > 0):
+                    return result_data
+
+                else:
+                    return result_final
 
 
-            """
-            ***INSERT THE COMPARISON TO RHYTHM ANALYSIS RESULTS HERE
-            """
-
-            return result_data
+            else:
+                return result_data
 
         except Exception as e:
             print(e)
@@ -205,7 +214,6 @@ class Filtering:
     Execution function, ordered so that most specific field is followed by least specific
     """
     def filterRecording(self, a_list=None):
-        print(a_list)
         r_list = a_list
 
         """
