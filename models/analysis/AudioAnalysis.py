@@ -178,6 +178,21 @@ def unhash_array(db_string):
 
     return bin_array
 
+def processRecoring(userInput, onsetFrames):
+    # DB song prep
+    songP1, songP2 = process_timestamp2(songTimestamp)
+
+    # user input prep
+    inputP1, inputP2 = process_timestamp2(userInput)
+    framestoTime = librosa.frames_to_time(input1, sr=22050)
+
+    # compare user input and DB info
+    # ---Decision making---
+    if compare(inputP1, songP1) == 1:
+        print("we have a match!")
+    else:
+        print("no match found")
+
 # process the recording based on peaks
 def processRecoringPeaks(userInput, peakFrames):
     # DB song prep
@@ -319,7 +334,7 @@ class rhythmAnalysis:
         """
         compare with the user input
         """
-        match = processRecoringPeaks(self.user_input, res_frames)
+        match = processRecoring(self.user_input, res_frames)
 
         if (match):
             title = db_results[0]["title"]
