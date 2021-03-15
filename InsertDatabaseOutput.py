@@ -1,5 +1,8 @@
 from models.analysis import AudioAnalysis
+import hashingfile
 import librosa
+
+
 
 title = ""
 artist = ""
@@ -8,6 +11,7 @@ genre = ""
 
 
 file = "" #path to file
+
 
 
 
