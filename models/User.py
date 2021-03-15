@@ -70,7 +70,7 @@ class User:
                 elif 'email' in e.args[1]:
                     error = User.DUPLICATE_EMAIL_ERROR
             return error
-        return User.login(username, password)
+        return User.login(email, password)
 
     """
     Used to check that the entered username and password matches the 
@@ -79,12 +79,12 @@ class User:
     return null on failure.
     """
     @staticmethod
-    def login(username, password):
+    def login(email, password):
         user = None
         try:
             # get user info from database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM user WHERE username = %s', (username, ))
+            cursor.execute('SELECT * FROM user WHERE email = %s', (email, ))
             user_data = cursor.fetchone()
 
             # if user found verify password
@@ -92,6 +92,7 @@ class User:
                 if User.pwd_context.verify(password, user_data['password']):
                     user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
                     # add to session
+                    session['logged_in'] = True
                     session['user_id'] = user.id
                     session['username'] = user.username
                     session['email'] = user.email
@@ -102,6 +103,30 @@ class User:
         return user
 
     """
+    check if user logged in
+    """
+    @staticmethod
+    def is_logged_in():
+        return session.get('user_id')
+
+    """
+    get logged in user
+    """
+    @staticmethod
+    def current_user():
+        if User.is_logged_in():
+            try:
+                cursor = get_cursor()
+                cursor.execute('SELECT * FROM user WHERE id = %s', (session.get('user_id'),))
+                user_data = cursor.fetchone()
+                if user_data:
+                    return User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+            except Exception as e:
+                print(e)
+
+        return None
+
+    """
     Used to logout a user. 
     Destroys any session info and logs user out. 
     Returns void.
@@ -109,6 +134,7 @@ class User:
     @staticmethod
     def logout():
         # remove user from session
+        session.pop('logged_in', None)
         session.pop('user_id', None)
         session.pop('username', None)
         session.pop('email', None)
@@ -234,3 +260,7 @@ class User:
     def get_song_log(self):
         # TODO IMPLEMENT GET SONG LOG
         return []
+
+if __name__ == ("__main__"):
+    print("HELLO WORLD")
+    

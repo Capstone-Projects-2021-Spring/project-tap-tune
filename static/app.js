@@ -17,7 +17,35 @@ $('.greeting').on('click',function(e){
     alert("HELLO WORLD");
 });
 
-$('div.topnav a').on('click', function(){
-    $('a.active').removeClass('active'); // to remove the current active tab
-    $(this).addClass('active'); // add active class to the clicked tab
+function goToFiltering() {
+    window.location.href= "/filtering"; //link from rhythm button
+}
+
+function goToRhythm() {
+      window.location.href= "/recordingRhythm"; //link from rhythm button
+}
+
+function goToRegister() {
+      window.location.href= "/register";
+}
+
+function userLogin() {
+      window.location.href= "/login";
+}
+
+//Stuff for forgotPass html
+function forgotPass() {
+	window.location.href= "/forgot"
+}
+$(document).ready(function() {
+  $('#olvidado').click(function(e) {
+    e.preventDefault();
+    $('div#form-olvidado').toggle('500');
+  });
+  $('#acceso').click(function(e) {
+    e.preventDefault();
+    $('div#form-olvidado').toggle('500');
+  });
 });
+//end stuff for forgotPass html
+
