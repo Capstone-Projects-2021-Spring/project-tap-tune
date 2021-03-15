@@ -6,7 +6,7 @@
     results = [
                 {
                     title: *title,
-                    artist: *artis,
+                    artist: *artist,
                     genres: *genres
                 }
             ]
