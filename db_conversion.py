@@ -202,7 +202,7 @@ def unhash_array(db_string):
 
 
 """
-GET THE STRING VALUE TO BE STORED IN THE DB
+GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
 """
 # Loads waveform of song into x
 filepath = 'sampleMusic/twinkleStar.wav'
@@ -229,6 +229,8 @@ res_string is the value to be stored in the database
 res_string = hash_array(bin_array)
 print(res_string)
 
+
+
 """
 Restore the frame array
 """
@@ -241,6 +243,7 @@ res_frames = []
 track = 0
 offset = 0
 check = 0
+
 for bin in res_array:
     if(bin == 0) and (check != len(res_array)-1):
         track += 1
