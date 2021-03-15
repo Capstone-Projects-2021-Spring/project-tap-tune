@@ -4,6 +4,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
+from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 
 app = Flask(__name__)
@@ -28,6 +29,10 @@ mail.init_app(app)
 
 @app.route('/')
 def home_page():
+
+    obj = rhythmAnalysis()
+    obj.peak_func()
+
     return render_template('index.html')
 
 
