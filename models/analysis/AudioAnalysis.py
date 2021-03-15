@@ -1,4 +1,3 @@
-# CLASS DESCRIPTION
 """
 1. accept the user input rhythm recording
 2. fetch DB information onset_frames <hashed string>, peak_frames<hashed string>, sr <int>
@@ -7,7 +6,7 @@
     results = [
                 {
                     title: *title,
-                    artist: *artist,
+                    artist: *artis,
                     genres: *genres
                 }
             ]
