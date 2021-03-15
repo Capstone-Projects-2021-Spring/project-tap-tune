@@ -1,6 +1,9 @@
 from models.Database import db, get_cursor
+from models.Mail import mail
+from flask_mail import Message
 from passlib.context import CryptContext
 from flask import session
+import secrets
 
 """
 User class models and contains information about a user.
@@ -30,7 +33,7 @@ class User:
     # encrypt password
     @staticmethod
     def __encrypt_password(password):
-        return User.pwd_context.encrypt(password)
+        return User.pwd_context.hash(password)
 
     """
     Used to create an instance of a new user and add them to the database. 
@@ -50,7 +53,7 @@ class User:
     def signup(username, email, name, password):
         try:
             # encrypt password
-            enc_password = User.__encrypt_password
+            enc_password = User.__encrypt_password(password)
 
             # insert user into database
             cursor = get_cursor()
@@ -67,7 +70,7 @@ class User:
                 elif 'email' in e.args[1]:
                     error = User.DUPLICATE_EMAIL_ERROR
             return error
-        return User.login(username, password)
+        return User.login(email, password)
 
     """
     Used to check that the entered username and password matches the 
@@ -76,28 +79,52 @@ class User:
     return null on failure.
     """
     @staticmethod
-    def login(username, password):
+    def login(email, password):
         user = None
         try:
             # get user info from database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM user WHERE username = %s', (username, ))
+            cursor.execute('SELECT * FROM user WHERE email = %s', (email, ))
             user_data = cursor.fetchone()
 
             # if user found verify password
             if user_data:
                 if User.pwd_context.verify(password, user_data['password']):
                     user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+                    # add to session
+                    session['logged_in'] = True
+                    session['user_id'] = user.id
+                    session['username'] = user.username
+                    session['email'] = user.email
+                    session['name'] = user.name
         except Exception as e:
             print(e)
 
-        # add to session
-        session['user_id'] = user.id
-        session['username'] = user.username
-        session['email'] = user.email
-        session['name'] = user.name
-
         return user
+
+    """
+    check if user logged in
+    """
+    @staticmethod
+    def is_logged_in():
+        return session.get('user_id')
+
+    """
+    get logged in user
+    """
+    @staticmethod
+    def current_user():
+        if User.is_logged_in():
+            try:
+                cursor = get_cursor()
+                cursor.execute('SELECT * FROM user WHERE id = %s', (session.get('user_id'),))
+                user_data = cursor.fetchone()
+                if user_data:
+                    return User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+            except Exception as e:
+                print(e)
+
+        return None
 
     """
     Used to logout a user. 
@@ -107,6 +134,7 @@ class User:
     @staticmethod
     def logout():
         # remove user from session
+        session.pop('logged_in', None)
         session.pop('user_id', None)
         session.pop('username', None)
         session.pop('email', None)
@@ -121,8 +149,62 @@ class User:
     """
     @staticmethod
     def send_reset_password_email(email):
-        # TODO IMPLEMENT RESET PASSWORD EMAIL
+        # check if user is valid
+        cursor = get_cursor()
+        cursor.execute('SELECT * FROM user WHERE email = %s', (email,))
+        data = cursor.fetchone()
+
+        # user is valid
+        if data:
+            # generate reset token
+            reset_token = User.__generate_reset_token()
+
+            # add token to database
+            if User.__set_reset_token(data['id'], reset_token):
+                # send email if token added successfully
+                html_body = '''
+                        <p>
+                            Hello, %s<br>
+                            Follow the link below to reset your password.
+                        </p>
+                        <a href="taptune.live/reset-password?token=%s">Reset Password</a>''' % (data['name'], reset_token)
+                msg = Message()
+                msg.add_recipient(data['email'])
+                msg.subject = "TapTune - Reset Password Link"
+                msg.html = html_body
+                mail.send(msg)
+                print('sending email to %s' % email)
+                return True
+            return False
+
         return False
+
+    """
+    generate secure token that is url safe
+    """
+    @staticmethod
+    def __generate_reset_token():
+        return secrets.token_urlsafe(32)
+
+    """
+    add reset token to database
+    """
+    @staticmethod
+    def __set_reset_token(user_id, reset_token):
+        try:
+            # insert user reset_token into database
+            cursor = get_cursor()
+            cursor.execute('UPDATE user set reset_token = %s WHERE id = %s',
+                           (reset_token, user_id))
+            db.connection.commit()
+
+            if cursor.rowcount < 1:
+                return False
+        except Exception as e:
+            print(e)
+            return False
+
+        return True
 
     """
     Used to check that the given reset_token is valid. 
@@ -178,3 +260,7 @@ class User:
     def get_song_log(self):
         # TODO IMPLEMENT GET SONG LOG
         return []
+
+if __name__ == ("__main__"):
+    print("HELLO WORLD")
+    

@@ -4,81 +4,129 @@ var times = new Array();
 var timeArray = [];
 var dif;
 
-var startButton = document.getElementById("container");
-var tapButton = document.getElementById("recordTap");
-var stopButton = document.getElementById("recordStop");
-
-startButton.onclick = function(){startClick()};
-tapButton.onclick = function(){tapClick()};
-stopButton.onclick = function(){stopClick()};
-
-function startClick() {
-    startTime = new Date();
-    console.log(startTime);
-
-	startButton.disabled = true;
-	tapButton.disabled = false;
-	stopButton.disabled = false;
-
-}//end of startButton
-
-/*************************************************************************/
-function tapClick() {
+var startButton = document.getElementById("startRecordingBtn");
+var tapButton = document.getElementById("tapScreenButton");
+var resetButton = document.getElementById("resetRecordingBtn");
+var finishButton = document.getElementById("finishRecordingBtn");
 
 
-    if (startTime){
-		//console.log(startTime);
-        instanceTime = new Date();
-        dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 
-	   times.push(dif);
-	   console.log("CLICK TIME: "+dif);
-	   console.log(times);
-    }//end of if
+$( document ).ready(function() {
 
-    else{
-        alert("time has not started");
+let startButton = null;
+let tapButton = null;
+let stopButton = null;
+var finishButton = null;
 
-    }//end of else
+    startButton = document.getElementById("startRecordingBtn");
+    tapButton = document.getElementById("tapScreenButton");
+    resetButton = document.getElementById("resetRecordingBtn");
+    finishButton = document.getElementById("finishRecordingBtn");
 
-	return dif;
-}//end of tapButton
+    startButton.onclick = function (){startClick()}
+    tapButton.onclick = function (){tapClick()}
+    resetButton.onclick = function (){resetClick()}
+    finishButton.onclick = function (){finishClick()}
+
+    function startClick(){
+        startTime = new Date();
+        console.log(startTime);
+
+
+        document.getElementById("counter-number").className = "py-5 counter-text-active";
+        document.getElementById("counter-number").style.opacity = "1";
+        document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success ml-3";
+        document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary disabled ml-3";
+        document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary ml-3";
+
+    }//end of startButton
 
 /*************************************************************************/
-function stopClick(){
 
-    if (startTime){
+    function tapClick() {
+        if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
+            //console.log(startTime);
+            instanceTime = new Date();
+            dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 
-    console.log("Time Stop");
-	console.log("Stop: "+dif);
-	console.log("END ARRAY: "+returnTimes());
+        times.push(dif);
+        console.log("TAP TIME: "+dif);
+        console.log(times);
+        }//end of if
 
-    out = returnTimes();
+        return dif;
+    }//end of tapButton
 
-    startButton.disabled = false;
-	tapButton.disabled = true;
-	stopButton.disabled = true;
+/*************************************************************************/
+    function resetClick(){
 
-    return out;
-    }//enf of if
+        document.getElementById("finishRecordingBtn").innerHTML = "Stop";
+        document.getElementById("counter-number").className = "py-5 counter-text";
+        document.getElementById("counter-number").style.color = "#858585";
+        document.getElementById("counter-number").style.opacity = "0.5";
+        document.getElementById("counter-number").style.textShadow = "";
 
-    else{
-    console.log("time has not started");
-    }//end of else
-}//end of stopButton
+        document.getElementById("counter-number").innerHTML = 0;
+        document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success disabled ml-3";
+        document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary ml-3";
+        document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary disabled ml-3";
+
+        if (startTime){
+
+        console.log("Time Reset");
+        console.log("Stop: "+dif);
+        console.log("END ARRAY: "+returnTimes());
+        //do something with the return times array here
+
+        timeArray = [];
+        times = new Array();
+        }//enf of if
+
+        else{
+        console.log("time has not started");
+        }//end of else
+
+
+    }//end of stopButton
+
+/*************************************************************************/
+    function finishClick(){
+
+        if (startTime){
+
+        console.log("Time Stop");
+        console.log("Stop: "+dif);
+        console.log("END ARRAY: "+returnTimes());
+
+        }//enf of if
+
+        else{
+        console.log("time has not started");
+        }//end of else
+
+        if (finishButton.innerHTML == "Submit")
+            goToFiltering();
+        else {
+            document.getElementById("counter-number").className = "py-5 counter-text";
+            finishButton.innerHTML = "Submit";
+        }
+
+        return returnTimes();
+    }//end of stopButton
+
 /************************************************************************/
- function returnTimes(){
+    function returnTimes(){
 
-	for(var i = 0; i < times.length; i++){
-		   timeArray[i] = times[i];
-	   }//end of for
+        for(var i = 0; i < times.length; i++){
+            timeArray[i] = times[i];
+        }//end of for
 
-	   return timeArray;
+        return timeArray;
     }//end of returnTimes
-
+/************************************************************************/
  $(document).ready(function () {
-                $("#recordStop").on("click", function() {
-                    var js_data = JSON.stringify(stopClick());
+                $("#finishRecordingBtn").on("click", function() {
+                    var js_data = JSON.stringify(finishClick());
                     $.ajax({
                         url: '/rhythm',
                         type : 'post',
@@ -94,3 +142,7 @@ function stopClick(){
                     });
                 });
             });
+/************************************************************************/
+
+});
+
