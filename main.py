@@ -4,9 +4,9 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
-#from models.analysis.AudioAnalysis import AudioAnalysis
+from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
-
+import json
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
@@ -26,6 +26,8 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
 db.init_app(app)
 mail.init_app(app)
 
+rhythmresults = {}
+
 
 @app.route('/')
 def home_page():
@@ -43,21 +45,25 @@ def rhythm_page():
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
     user = User.current_user()
-    return render_template('filtering.html', user=user)
+    return render_template('filtering.html', user=user, rhythmResults = rhythmresults)
 
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-
     #Audio Analysis
+    global data
+    print(data)
+    #obj = rhythmAnalysis(userTaps=data)
+    #rhythmresults = obj.onset_func()
+    #result1 = obj.peak_func()
+
+    #Filter the Song Results if there are any inputs from request form 
+    obj = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    filterResults = obj.filterRecording() 
+    #filterResults = obj.filterRecording(results1) //once obj.peak_func returns list 
     
-
-    #Filter
-    obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
-
-    #After getting results, store in user_log
+    #Todo: After getting results, store in user_log 
     return render_template('results.html', filterResults=filterResults)
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -108,6 +114,7 @@ def register():
         return render_template('register.html')
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     # handle login form submission
@@ -144,26 +151,14 @@ def receiveRhythm():
 @app.route('/rhythm', methods=['GET', 'POST'])
 def test():
     if request.method == 'POST':
-        #receive Rhythm as json and create AudioAnalysis class
-        print("helloworld")
-        data = request.json
-        out = jsonify(data)
-        result = AudioAnalysis(out)
+        out = receiveRhythm()
+
+    global data
+    data = json.loads(request.data)
 
     return out
 
-def beatMatch():
 
-    data = json.loads(request.data)
-
-    print('WHAT DID I GET: ')
-    print(data)
-
-    print('Input list: ')
-    for i in range(len(data)):
-        print(data[i])
-
-	
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
