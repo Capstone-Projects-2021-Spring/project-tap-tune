@@ -145,7 +145,6 @@ def valToCount(frame_val):
 
 # takes in the db value and unhashes it to form a binary array
 def unhash_array(db_string):
-    print(db_string)
     db_tok = db_string.split("*")
     bin_array = []
     char_val = ""
@@ -171,10 +170,6 @@ def unhash_array(db_string):
             if(val != len(db_tok)-1):
                 bin_array.append(1)
 
-    print("****************SHOULD BE Length of Frames************************")
-    print(val)
-    print(len(bin_array))
-
     return bin_array
 
 # process the recording based on peaks
@@ -192,6 +187,21 @@ def processRecoringPeaks(userInput, peakFrames):
     else:
         print("no match found")
 
+# process the recording in full
+def processRecoring(userInput, onsetFrames):
+    # DB song prep
+    songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
+    songP1, songP2 = process_timestamp2(songTimestamp)
+
+    # user input prep
+    inputP1, inputP2 = process_timestamp2(userInput)
+
+    # compare user input and DB info
+    # ---Decision making---
+    if compare(inputP1, songP1) == 1:
+        print("we have a match!")
+    else:
+        print("no match found")
 
 class rhythmAnalysis:
 
@@ -227,10 +237,9 @@ class rhythmAnalysis:
             """
             convert peak_hash to binary array
             """
-            print("**************peak hash*******************")
-            print(db_track)
+            print("**************SONG CHECK*******************")
+            print(db_track["title"])
             bin_array = unhash_array(db_track["peak_hash"])
-            print(bin_array)
 
             """
             convert binary array to frames
@@ -299,7 +308,7 @@ class rhythmAnalysis:
             convert onset_hash to binary array
             """
             bin_array = unhash_array(db_track["onset_hash"])
-            print(bin_array)
+            print(db_track)
 
             """
             convert binary array to frames
@@ -323,11 +332,10 @@ class rhythmAnalysis:
                     offset += 1
                 check += 1
 
-            print(res_frames)
             """
             compare with the user input
             """
-            match = processRecoringPeaks(self.user_input, res_frames)
+            match = processRecoring(self.user_input, res_frames)
 
             if (match):
                 title = db_results[0]["title"]
