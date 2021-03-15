@@ -26,7 +26,6 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
 db.init_app(app)
 mail.init_app(app)
 
-
 @app.route('/')
 def home_page():
     # get logged in user or None
@@ -50,12 +49,12 @@ def filter_page():
 def result_page():
     user = User.current_user()
     #Audio Analysis
-    
 
     #Filter
     obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
     filterResults = obj.filterRecording()
 
+    print(data)
     #After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
 
@@ -147,13 +146,14 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
+    global data
     data = json.loads(request.data)
     obj = rhythmAnalysis(userTaps=data)
 
     # result1 = obj.peak_func()
     result2 = obj.onset_func()
 
-
+    testVal = [0]
     return out
 
 
