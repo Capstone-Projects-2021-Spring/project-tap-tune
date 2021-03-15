@@ -1,13 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response, json
-
+from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
 from models.Database import db
 from models.Mail import mail
 from models.User import User
-
-from beat_match import process_timestamp2, process_music_onset, compare
 from models.analysis.Filtering import Filtering
 from flask_mail import Message
-
 
 app = Flask(__name__)
 
@@ -52,72 +48,30 @@ def filter_page():
 def result_page():
     user = User.current_user()
 
-    #Audio Analysis
-    
+    # Audio Analysis
 
-    #Filter
-    obj = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    # Filter
+    obj = Filtering(Artist=request.form['input_artist'], Lyrics=request.form['input_lyrics'])
     filterResults = obj.filterRecording()
 
-    #After getting results, store in user_log
+    # After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
+
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     user = User.current_user()
     return render_template('user.html', user=user)
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     user = User.current_user()
     return render_template('register.html', user=user)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-    return render_template('login.html')
-
-
-def receiveRhythm():
-    data = request.json
-    print(data)
-    return jsonify(data)
-
-@app.route('/rhythm', methods=['GET', 'POST'])
-def test():
-    if request.method == 'POST':
-        out = receiveRhythm()
-        beatMatch()
-    return out
-
-def beatMatch():
-
-    data = json.loads(request.data)
-
-    print('WHAT DID I GET: ')
-    print(data)
-
-    print('Input list: ')
-    for i in range(len(data)):
-        print(data[i])
-
-
-
-     #filepath = 'sampleMusic/twinkleStar.wav'
-     #songName = filepath[12:-4]
-     #songTimestamp = process_music_onset(filepath)
-     #songP1, songP2 = process_timestamp2(songTimestamp)
-    # userInput = receiveRhythm()
-    # inputP1, inputP2 = process_timestamp2(userInput)
-    # print("inputP1")
-    # print(inputP1)
-    #
-    # # ---Decision making---
-    # if compare(inputP1, songP1) == 1:
-    #     print("we have a match!")
-    # else:
-    #     print("no match found")
-
-
     # handle login form submission
     if request.method == 'POST':
         redirect_url = '/'
@@ -143,6 +97,46 @@ def beatMatch():
 def logout():
     User.logout()
     return redirect(url_for('home_page'))
+
+
+def receiveRhythm():
+    data = request.json
+    print(data)
+    return jsonify(data)
+
+
+@app.route('/rhythm', methods=['GET', 'POST'])
+def test():
+    if request.method == 'POST':
+        out = receiveRhythm()
+        beatMatch()
+    return out
+
+
+def beatMatch():
+    data = json.loads(request.data)
+
+    print('WHAT DID I GET: ')
+    print(data)
+
+    print('Input list: ')
+    for i in range(len(data)):
+        print(data[i])
+
+    # filepath = 'sampleMusic/twinkleStar.wav'
+    # songName = filepath[12:-4]
+    # songTimestamp = process_music_onset(filepath)
+    # songP1, songP2 = process_timestamp2(songTimestamp)
+    # userInput = receiveRhythm()
+    # inputP1, inputP2 = process_timestamp2(userInput)
+    # print("inputP1")
+    # print(inputP1)
+    #
+    # # ---Decision making---
+    # if compare(inputP1, songP1) == 1:
+    #     print("we have a match!")
+    # else:
+    #     print("no match found")
 
 
 @app.route('/service-worker.js')
