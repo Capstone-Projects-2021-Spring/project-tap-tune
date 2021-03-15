@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
+from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
 from models.Database import db
 from models.Mail import mail
 from models.User import User
@@ -97,11 +97,49 @@ def logout():
     User.logout()
     return redirect(url_for('home_page'))
 
+def receiveRhythm():
+    data = request.json
+    print(data)
+    return jsonify(data)
+
+@app.route('/rhythm', methods=['GET', 'POST'])
+def test():
+    if request.method == 'POST':
+        out = receiveRhythm()
+        beatMatch()
+    return out
+
+def beatMatch():
+
+    data = json.loads(request.data)
+
+    print('WHAT DID I GET: ')
+    print(data)
+
+    print('Input list: ')
+    for i in range(len(data)):
+        print(data[i])
+
+
+
+     #filepath = 'sampleMusic/twinkleStar.wav'
+     #songName = filepath[12:-4]
+     #songTimestamp = process_music_onset(filepath)
+     #songP1, songP2 = process_timestamp2(songTimestamp)
+    # userInput = receiveRhythm()
+    # inputP1, inputP2 = process_timestamp2(userInput)
+    # print("inputP1")
+    # print(inputP1)
+    #
+    # # ---Decision making---
+    # if compare(inputP1, songP1) == 1:
+    #     print("we have a match!")
+    # else:
+    #     print("no match found")
 	
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
-
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
