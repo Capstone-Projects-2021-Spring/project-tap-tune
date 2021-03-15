@@ -1,6 +1,7 @@
 import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
 import soundfile as sf
+import numpy
 
 
 def framesToBin(frames):
@@ -201,20 +202,58 @@ def unhash_array(db_string):
     return bin_array
 
 
+# """
+# GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
+# """
+# # Loads waveform of song into x
+# filepath = 'sampleMusic/twinkleStar.wav'
+# y, sr = librosa.load(filepath)
+# onset_return = librosa.onset.onset_detect(y=y, sr=sr)
+# frames = onset_return
+#
+# # new implementation
+# bin_array = []
+# increment = 0
+# for x in range(frames[len(frames)-1]):
+#     if (frames[increment] == x):
+#         bin_array.append(1)
+#         increment += 1
+#     else:
+#         bin_array.append(0)
+#
+# print("************RESULTS**************")
+# print(bin_array)
+#
+# """
+# res_string is the value to be stored in the database
+# """
+# res_string = hash_array(bin_array)
+# print("********************ONSET HASH********************")
+# print(res_string)
+# print(len(res_string))
+
 """
-GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
+GET THE STRING VALUE TO BE STORED IN THE DB, PEAK_FRAMES
 """
 # Loads waveform of song into x
-filepath = 'sampleMusic/twinkleStar.wav'
+filepath = 'sampleMusic/Mr.Brightside_TheKillers.wav'
 y, sr = librosa.load(filepath)
-onset_return = librosa.onset.onset_detect(y=y, sr=sr)
-frames = onset_return
+onset_test = librosa.onset.onset_detect(y, sr)
+
+hop_length = 256
+onset_envelope = librosa.onset.onset_strength(y, sr=sr, hop_length=hop_length)
+
+N = len(y)
+T = N / float(sr)
+t = numpy.linspace(0, T, len(onset_envelope))
+
+peak_frames = librosa.util.peak_pick(onset_envelope, 7, 7, 7, 7, .5, 5)
 
 # new implementation
 bin_array = []
 increment = 0
-for x in range(frames[len(frames)-1]):
-    if (frames[increment] == x):
+for x in range(peak_frames[len(peak_frames)-1]):
+    if (peak_frames[increment] == x):
         bin_array.append(1)
         increment += 1
     else:
@@ -227,9 +266,10 @@ print(bin_array)
 res_string is the value to be stored in the database
 """
 res_string = hash_array(bin_array)
+
+print("*******************PEAK HASH*********************")
 print(res_string)
-
-
+print(len(res_string))
 
 """
 Restore the frame array
@@ -258,4 +298,4 @@ for bin in res_array:
     check += 1
 
 print("*********************RESULT FRAMES COMPARD TO ORIGINAL FRAMES")
-print(res_frames == frames)
+print(res_frames == peak_frames)
