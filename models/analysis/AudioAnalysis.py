@@ -15,6 +15,7 @@
     results.append( {"title" : *title, "artist", *artist, "genres":*genre} )
 5. Return the song results to use in the Filtering
 """
+
 import librosa
 import math
 from models.Database import db, get_cursor
@@ -202,6 +203,8 @@ class rhythmAnalysis:
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
     def peak_func(self):
+        song_results = []
+
         # retrieves cursor from Database.py
         cursor = get_cursor()
         cursor.execute('SELECT title, artist, genre, peak_hash FROM song')
@@ -217,6 +220,9 @@ class rhythmAnalysis:
             peak_hash = track['peak_hash']
 
             db_results.append( {"title": title, "artist": artist, "genres": genres, "peak_hash": peak_hash})
+
+        # for loop to go through the song_data
+        # for track in db_results:
 
         """
         convert peak_hash to binary array
@@ -250,4 +256,11 @@ class rhythmAnalysis:
         """
         compare with the user input
         """
-        processRecoringPeaks(self.user_input, res_frames)
+        match = processRecoringPeaks(self.user_input, res_frames)
+
+        if (match):
+            title = db_results[0]["title"]
+            artist = db_results[0]["artist"]
+            genres = db_results[0]["genres"]
+
+            song_results.append( {"title": title, "artist": artist, "genres": genres} )
