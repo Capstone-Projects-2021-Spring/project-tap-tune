@@ -47,17 +47,11 @@ def filter_page():
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-    #Audio Analysis
-    global data
-    print(data)
-    #obj = rhythmAnalysis(userTaps=data)
-    #rhythmresults = obj.onset_func()
-    #result1 = obj.peak_func()
 
     #Filter the Song Results if there are any inputs from request form 
     obj = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording() 
-    #filterResults = obj.filterRecording(results1) //once obj.peak_func returns list 
+    print(user_result)
+    filterResults = obj.filterRecording(user_result)
     
     #Todo: After getting results, store in user_log 
     return render_template('results.html', filterResults=filterResults)
@@ -148,8 +142,11 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
-    global data
     data = json.loads(request.data)
+    obj = rhythmAnalysis(userTaps=data)
+
+    global user_result
+    user_result = obj.onset_peak_func()
     return out
 
 @app.route('/service-worker.js')
