@@ -41,6 +41,7 @@ def rhythm_page():
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
+
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
