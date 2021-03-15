@@ -15,6 +15,7 @@
     results.append( {"title" : *title, "artist", *artist, "genres":*genre} )
 5. Return the song results to use in the Filtering
 """
+
 import librosa
 import math
 from models.Database import db, get_cursor
