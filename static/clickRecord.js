@@ -126,7 +126,7 @@ $( document ).ready(function() {
                 console.log("fail: ",textStatus, errorThrown);
             });
             
-            //goToFiltering();
+            goToFiltering();
         }
         else {
             //Change text of button for confirmation

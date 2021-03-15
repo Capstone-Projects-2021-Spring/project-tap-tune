@@ -196,6 +196,7 @@ def processRecoringPeaks(userInput, peakFrames):
 class rhythmAnalysis:
 
     def __innit__(self, userTaps = None):
+        print(userTaps)
         if(userTaps != None):
             self.user_input = userTaps
     """

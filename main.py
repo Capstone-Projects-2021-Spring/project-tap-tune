@@ -146,7 +146,10 @@ def receiveRhythm():
 def test():
     if request.method == 'POST':
         out = receiveRhythm()
-        beatMatch()
+
+    print("HELLO WORLD")
+    obj = rhythmAnalysis(out)
+
     return out
 
 
