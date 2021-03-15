@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
 from models.Database import db
 from models.Mail import mail
@@ -6,6 +5,7 @@ from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
+
 import json
 app = Flask(__name__)
 
@@ -26,9 +26,6 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
 db.init_app(app)
 mail.init_app(app)
 
-rhythmresults = {}
-
-
 @app.route('/')
 def home_page():
     # get logged in user or None
@@ -38,14 +35,13 @@ def home_page():
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    user = User.current_user()
-    return render_template('recordingRhythm.html', user=user)
+    return render_template('recordingRhythm.html')
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
     user = User.current_user()
-    return render_template('filtering.html', user=user, rhythmResults = rhythmresults)
+    return render_template('filtering.html', user=user)
 
 
 @app.route('/results', methods=['GET', 'POST'])
@@ -114,7 +110,6 @@ def register():
         return render_template('register.html')
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     # handle login form submission
@@ -155,9 +150,7 @@ def test():
 
     global data
     data = json.loads(request.data)
-
     return out
-
 
 @app.route('/service-worker.js')
 def sw():
