@@ -264,3 +264,66 @@ class rhythmAnalysis:
             genres = db_results[0]["genres"]
 
             song_results.append( {"title": title, "artist": artist, "genres": genres} )
+
+    def onset_func(self):
+        song_results = []
+
+        # retrieves cursor from Database.py
+        cursor = get_cursor()
+        cursor.execute('SELECT title, artist, genre, peak_hash FROM song')
+        # fetch al results and save in song_data list
+
+        """GO THROUGH DB DATA"""
+        song_data = cursor.fetchall()
+        db_results = []
+        for track in song_data:
+            title = track["title"]
+            artist = track['artist']
+            genres = track["genre"]
+            onset_hash = track['onset_hash']
+
+            db_results.append( {"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash})
+
+        # for loop to go through the song_data
+        # for track in db_results:
+
+        """
+        convert onset_hash to binary array
+        """
+        bin_array = unhash_array(db_results[1]["onset_hash"])
+        print(bin_array)
+
+        """
+        convert binary array to frames
+        """
+        # frames from bin
+        res_frames = []
+        track = 0
+        offset = 0
+        check = 0
+
+        for bin in bin_array:
+            if (bin == 0) and (check != len(bin_array) - 1):
+                track += 1
+
+            elif (bin == 1):
+                res_frames.append(track + offset)
+                offset += 1
+
+            else:
+                res_frames.append(track + offset + 1)
+                offset += 1
+            check += 1
+
+        print(res_frames)
+        """
+        compare with the user input
+        """
+        match = processRecoringPeaks(self.user_input, res_frames)
+
+        if (match):
+            title = db_results[0]["title"]
+            artist = db_results[0]["artist"]
+            genres = db_results[0]["genres"]
+
+            song_results.append( {"title": title, "artist": artist, "genres": genres} )
