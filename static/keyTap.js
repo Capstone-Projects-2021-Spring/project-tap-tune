@@ -33,7 +33,7 @@ document.addEventListener("keydown", function(){
 
 /***************************************************************************/
 function start(){
-		if(event.keyCode != 13 && event.keyCode != 32 &&event.keyCode != 82 ){
+		if(event.keyCode != 13 && event.keyCode != 32){
 			keyStartButton.click(beginTime());
 
 		}//end of if
@@ -117,7 +117,7 @@ function stopTime(){
 }//end of stopTime
 /***************************************************************************/
 function resetTap(){
-    		if(event.keyCode == 82){
+    		if(){
 			keyResetButton.click(resetTap2());
     }
 }//end of resetTap

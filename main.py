@@ -5,7 +5,6 @@ from models.Mail import mail
 from models.User import User
 
 from beat_match import process_timestamp2, process_music_onset, compare
-
 from models.analysis.Filtering import Filtering
 from flask_mail import Message
 
