@@ -6,9 +6,12 @@ var timeTapArray = [];
 
 var dif;
 
-var keyStartButton = document.getElementById("keyContainer");
-var keyTapButton = document.getElementById("keyTap");
-var keyStopButton = document.getElementById("keyStop");
+$( document ).ready(function() {
+var keyStartButton = document.createElement("keyContainer");
+var keyTapButton = document.createElement("keyTap");
+var keyStopButton = document.createElement("keyStop");
+var keyResetButton = document.createElement("keyReset");
+
 
 /***************************************************************************/
 //event listener for key press
@@ -24,9 +27,13 @@ document.addEventListener("keydown", function(){
 	stop();
 });
 
+document.addEventListener("keydown", function(){
+	resetTap();
+});
+
 /***************************************************************************/
 function start(){
-		if(event.keyCode != 13 && event.keyCode != 32){
+		if(event.keyCode != 13 && event.keyCode != 32 &&event.keyCode != 82 ){
 			keyStartButton.click(beginTime());
 
 		}//end of if
@@ -78,29 +85,59 @@ function recordTime(){
 		if(event.keyCode == 13){
 			keyStopButton.click(stopTime());
 
-    keyStartButton.disabled = false;
+/*    keyStartButton.disabled = false;
 	keyTapButton.disabled = true;
-	keyStopButton.disabled = true;
+	keyStopButton.disabled = true;*/
 		}//end of if
 	}//end of stop
 
 /***************************************************************************/
 function stopTime(){
 
-	if (startTime){
-		console.log("Time Stop");
-		console.log("END ARRAY: "+returnTapTimes());
+        if (startTime){
 
-		outKey = returnTapTimes();
+        console.log("Time Stop");
+        console.log("Stop: "+dif);
+        console.log("END ARRAY: "+returnTapTimes());
 
-		return outKey;
-	}//end of if
+        }//enf of if
 
-	else{
-		console.log("time has not started")
-	}//end of else
+        else{
+        console.log("time has not started");
+        }//end of else
+
+        if (finishButton.innerHTML == "Submit")
+            goToFiltering();
+        else {
+            document.getElementById("counter-number").className = "py-5 counter-text";
+            finishButton.innerHTML = "Submit";
+        }
+
+        return returnTimes();
 }//end of stopTime
+/***************************************************************************/
+function resetTap(){
+    		if(event.keyCode == 82){
+			keyResetButton.click(resetTap2());
+    }
+}//end of resetTap
+/***************************************************************************/
+function resetTap2(){
+        if (startTime){
 
+        console.log("Time Reset");
+        console.log("Stop: "+dif);
+        console.log("END ARRAY: "+returnTapTimes());
+        //do something with the return times array here
+
+        timeArray = [];
+        times = new Array();
+        }//enf of if
+
+        else{
+        console.log("time has not started");
+        }//end of else
+}
 /***************************************************************************/
  function returnTapTimes(){
 
@@ -112,7 +149,7 @@ function stopTime(){
 	   return timeTapArray;
 
 }//end of returnTapTimes
-
+/***************************************************************************/
  $(document).ready(function () {
                 $("#keyStop").on("click", function() {
                     var js_data = JSON.stringify(stopTime());
@@ -130,3 +167,5 @@ function stopTime(){
                     });
                 });
             });
+
+});
