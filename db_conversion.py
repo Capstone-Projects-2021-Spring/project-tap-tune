@@ -2,6 +2,8 @@ import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
 import soundfile as sf
 
+import beat_match
+
 
 def framesToBin(frames):
     # Short Algorithm to create array of 0's and 1's on frame indicies
@@ -205,10 +207,11 @@ def unhash_array(db_string):
 GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
 """
 # Loads waveform of song into x
-filepath = 'sampleMusic/twinkleStar.wav'
+filepath = 'sampleMusic/jingleBell.wav'
 y, sr = librosa.load(filepath)
 onset_return = librosa.onset.onset_detect(y=y, sr=sr)
-frames = onset_return
+peak = beat_match.getPeaks(filepath)
+frames = peak
 
 # new implementation
 bin_array = []
