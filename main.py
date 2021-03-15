@@ -1,10 +1,7 @@
-
 from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
 from models.Database import db
 from models.Mail import mail
 from models.User import User
-from models.analysis.Filtering import Filtering
-from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 import json
 app = Flask(__name__)
@@ -35,8 +32,7 @@ def home_page():
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    user = User.current_user()
-    return render_template('recordingRhythm.html', user=user)
+    return render_template('recordingRhythm.html')
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
@@ -62,7 +58,6 @@ def result_page():
 def user_page():
     user = User.current_user()
     return render_template('user.html', user=user)
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -105,7 +100,6 @@ def register():
         if User.is_logged_in():
             return redirect(url_for('home_page'))
         return render_template('register.html')
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -155,7 +149,6 @@ def test():
 
     testVal = [0]
     return out
-
 
 @app.route('/service-worker.js')
 def sw():
