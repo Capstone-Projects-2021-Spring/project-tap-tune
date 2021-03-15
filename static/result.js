@@ -8,6 +8,12 @@ var jsonObj = $.parseJSON(data2);
 //Order jsonObj by match percentage code here;
 
 for(var i = 0; i < jsonObj.length; i++) {
+    //Main Search in main view
+    if (i = 0) {
+
+    }
+
+    //Secondary searches in table
     var obj = jsonObj[i];
     console.log(obj);
     var row = table.insertRow(-1);
@@ -17,8 +23,11 @@ for(var i = 0; i < jsonObj.length; i++) {
     var sampleAudioLinkCell = row.insertCell(3);
     titleCell.innerHTML = obj.title;
     artistCell.innerHTML = obj.artist;
-    //percentageMatchCell.innerHTML = obj.title; "in development" text placeholder for now?
-    sampleAudioLinkCell.innerHTML = obj.artist;
+    percentageMatchCell.innerHTML = "N/A"
+    sampleAudioLinkCell.innerHTML = `
+    <audio controls="controls">
+        <source src="${obj.spotifyPreview}" type="audio/mpeg"/>
+    </audio>`;
     
 }
 

@@ -65,9 +65,46 @@ def user_page():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register_page():
-    user = User.current_user()
-    return render_template('register.html', user=user)
+def register():
+    # handle register form submission
+    if request.method == 'POST':
+        redirect_url = '/'
+
+        # check if password and confirmation match
+        if request.form['password'] == request.form['confirm_password']:
+            # continue with signup
+            user = User.signup(request.form['username'], request.form['email'], '', request.form['password'])
+
+            # check signup status
+            if user:
+                if isinstance(user, User):
+                    msg = "Signup successful."
+                    category = "success"
+                else:
+                    category = "danger"
+                    if user == User.DUPLICATE_EMAIL_ERROR:
+                        msg = "Email already in use"
+                    elif user == User.DUPLICATE_USERNAME_ERROR:
+                        msg = "Username already taken"
+                    else:
+                        msg = "Signup failed."
+
+            else:
+                # will only result in this if user is None which will happen if register success but login fail
+                msg = str("Error: After successful signup, could not auto sign in")
+                category = "danger"
+        else:
+            msg = "Password and confirmation do not match"
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
+        return make_response(jsonify(resp), 200)
+    else:
+        # load register page
+        if User.is_logged_in():
+            return redirect(url_for('home_page'))
+        return render_template('register.html')
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -123,26 +160,14 @@ def beatMatch():
     for i in range(len(data)):
         print(data[i])
 
-    # filepath = 'sampleMusic/twinkleStar.wav'
-    # songName = filepath[12:-4]
-    # songTimestamp = process_music_onset(filepath)
-    # songP1, songP2 = process_timestamp2(songTimestamp)
-    # userInput = receiveRhythm()
-    # inputP1, inputP2 = process_timestamp2(userInput)
-    # print("inputP1")
-    # print(inputP1)
-    #
-    # # ---Decision making---
-    # if compare(inputP1, songP1) == 1:
-    #     print("we have a match!")
-    # else:
-    #     print("no match found")
-
 
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
 
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgotPass_page():
+    return render_template('forgotPass.html')
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session

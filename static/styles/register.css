@@ -45,6 +45,11 @@ body {
 	.signup-form .input-group-addon {
 		max-width: 42px;
 		text-align: center;
+		vertical-align: middle;
+		/*margin: auto 10px auto auto;*/
+		padding: 6px 10px;
+		border: 1px solid #e1e1e1;
+		border-right: none;
 	}
 
     .signup-form .btn{
