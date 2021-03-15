@@ -154,8 +154,62 @@ def sw():
     return app.send_static_file('service-worker.js')
 
 @app.route('/forgot', methods=['GET', 'POST'])
-def forgotPass_page():
-    return render_template('forgotPass.html')
+def forgot_pass():
+    if request.method == 'POST':
+        # handle request
+        rval = User.send_reset_password_email(request.form['email'])
+        if rval:
+            msg = "An email was sent with instructions to reset your password."
+            category = "success"
+
+        else:
+            msg = str("Email not sent")
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category}
+        return make_response(jsonify(resp), 200)
+    else:
+        return render_template('forgotPass.html')
+
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_pass():
+    if request.method == 'POST':
+        redirect_url = '/login'
+
+        # check if valid reset token
+        # its already checked in page load but can be issue if multiple forms were opened
+        if User.is_valid_reset_token(request.form['token']):
+            # check if password and confirmation match
+            if request.form['password'] == request.form['confirm_password']:
+                # continue with reset
+                reset = User.reset_password(request.form['password'], request.form['token'])
+
+                # check reset status
+                if reset:
+                    msg = "Password Reset!"
+                    category = "success"
+                else:
+                    msg = "Password reset failed"
+                    category = "danger"
+            else:
+                msg = "Password and confirmation do not match"
+                category = "danger"
+        else:
+            msg = "Password reset failed. Invalid link."
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
+        return make_response(jsonify(resp), 200)
+    else:
+        token = request.args.get('token')
+        print(token)
+        is_valid_token = False
+        if token:
+            is_valid_token = User.is_valid_reset_token(token)
+
+        return render_template('resetPass.html', is_valid_token=is_valid_token, token=token)
+
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
