@@ -15,10 +15,6 @@ $( document ).ready(function() {
     finishButton = document.getElementById("finishRecordingBtn");
 
     startButton.onclick = function () {
-        startTime = new Date();
-        console.log(startTime);
-
-
         document.getElementById("counter-number").className = "py-5 counter-text-active";
         document.getElementById("counter-number").style.opacity = "1";
         document.getElementById("finishRecordingBtn").className = "btn btn-success ml-3";
@@ -32,12 +28,21 @@ $( document ).ready(function() {
     tapButton.onclick = function () {
         if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
             //console.log(startTime);
-            instanceTime = new Date();
-            dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-
-        times.push(dif);
-        console.log("TAP TIME: "+dif);
-        console.log(times);
+            var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
+            if (times.length > 0) { 
+                instanceTime = new Date();
+                dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
+                
+                times.push(dif);
+                console.log("TAP TIME: "+dif);
+                console.log(times);
+            } else { //the first tap is the start of the counter
+                startTime = new Date();
+                console.log(startTime);
+                times.push(0);
+                console.log("TAP STARTED: "+dif);
+                console.log(times);
+            }
         }//end of if
 
         return dif;
@@ -65,6 +70,7 @@ $( document ).ready(function() {
 
             timeArray = [];
             times = new Array();
+            startTime = null;
 
             //animation
             var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
@@ -110,6 +116,7 @@ $( document ).ready(function() {
         console.log("time has not started");
         }//end of else
 
+        //
         if (finishButton.innerHTML == "Submit"){
             var js_data = JSON.stringify(returnTimes());
             $.ajax({
@@ -117,7 +124,7 @@ $( document ).ready(function() {
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
-                data : js_data
+                data : js_data //passing the variable js_data
             }).done(function(result) {
                 console.log("AJAX CLICK: "+result);
                 //return result;
@@ -162,12 +169,22 @@ $( document ).ready(function() {
     /************************************************************************/
     function returnTimes(){
 
-        for(var i = 0; i < times.length; i++){
-            timeArray[i] = times[i];
-        }//end of for
-
+        timeArray = adjustArray(times);
+        console.log("old array " + times)
+        console.log("new array " + timeArray);
         return timeArray;
     }//end of returnTimes
+
+    function adjustArray(array){
+        array.shift();
+        var startdif = array[0];
+        var newArray = [];
+        for(var i = 0; i < array.length; i++){
+            newArray[i] = array[i] - startdif;
+        }//end of for
+
+        return newArray;
+    }
 
     
     
@@ -251,8 +268,6 @@ $( document ).ready(function() {
     
                 case 1:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                    document.getElementById("counter-number").innerHTML = incrementBeatCount;
                     var healthCountg = Math.floor((incrementBeatCount / 10) * 153);
                     var healthCountb = Math.floor((incrementBeatCount / 10) * 255);
                     document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);

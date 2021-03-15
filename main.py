@@ -4,6 +4,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
+#from models.analysis.AudioAnalysis import AudioAnalysis
 from flask_mail import Message
 
 app = Flask(__name__)
@@ -143,8 +144,12 @@ def receiveRhythm():
 @app.route('/rhythm', methods=['GET', 'POST'])
 def test():
     if request.method == 'POST':
-        out = receiveRhythm()
-        beatMatch()
+        #receive Rhythm as json and create AudioAnalysis class
+        print("helloworld")
+        data = request.json
+        out = jsonify(data)
+        result = AudioAnalysis(out)
+
     return out
 
 def beatMatch():
@@ -158,22 +163,6 @@ def beatMatch():
     for i in range(len(data)):
         print(data[i])
 
-
-
-     #filepath = 'sampleMusic/twinkleStar.wav'
-     #songName = filepath[12:-4]
-     #songTimestamp = process_music_onset(filepath)
-     #songP1, songP2 = process_timestamp2(songTimestamp)
-    # userInput = receiveRhythm()
-    # inputP1, inputP2 = process_timestamp2(userInput)
-    # print("inputP1")
-    # print(inputP1)
-    #
-    # # ---Decision making---
-    # if compare(inputP1, songP1) == 1:
-    #     print("we have a match!")
-    # else:
-    #     print("no match found")
 	
 @app.route('/service-worker.js')
 def sw():
