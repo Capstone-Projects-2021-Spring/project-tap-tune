@@ -48,7 +48,6 @@ def filter_page():
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-
     #Audio Analysis
 
     #Filter
