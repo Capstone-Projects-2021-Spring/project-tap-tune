@@ -21,9 +21,9 @@ $( document ).ready(function() {
 
         document.getElementById("counter-number").className = "py-5 counter-text-active";
         document.getElementById("counter-number").style.opacity = "1";
-        document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success ml-3";
-        document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary disabled ml-3";
-        document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary ml-3";
+        document.getElementById("finishRecordingBtn").className = "btn btn-success ml-3";
+        document.getElementById("startRecordingBtn").className = "btn btn-primary disabled ml-3";
+        document.getElementById("resetRecordingBtn").className = "btn btn-secondary ml-3";
 
     }//end of startButton
 
@@ -52,19 +52,41 @@ $( document ).ready(function() {
         document.getElementById("counter-number").style.textShadow = "";
 
         document.getElementById("counter-number").innerHTML = 0;
-        document.getElementById("finishRecordingBtn").className = "btn btn-lg btn-success disabled ml-3";
-        document.getElementById("startRecordingBtn").className = "btn btn-lg btn-primary ml-3";
-        document.getElementById("resetRecordingBtn").className = "btn btn-lg btn-secondary disabled ml-3";
+        document.getElementById("finishRecordingBtn").className = "btn btn-success disabled ml-3";
+        document.getElementById("startRecordingBtn").className = "btn btn-primary ml-3";
+        document.getElementById("resetRecordingBtn").className = "btn btn-secondary disabled ml-3";
 
         if (startTime){
 
-        console.log("Time Reset");
-        console.log("Stop: "+dif);
-        console.log("END ARRAY: "+returnTimes());
-        //do something with the return times array here
+            console.log("Time Reset");
+            console.log("Stop: "+dif);
+            console.log("END ARRAY: "+returnTimes());
+            //do something with the return times array here
 
-        timeArray = [];
-        times = new Array();
+            timeArray = [];
+            times = new Array();
+
+            //animation
+            var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
+            var element, circle, d, x, y;
+            element = $("#tapScreenButton");
+            if(element.find(".md-click-circle").length == 0) {
+                element.prepend("<span class='md-click-circle'></span>");
+            }
+            circle = element.find(".md-click-circle");
+            circle.removeClass("md-click-animate-red");
+            circle.removeClass("md-click-animate-green");
+            circle.removeClass("md-click-animate-gray");
+            circle.removeClass("md-click-animate");
+            if(!circle.height() && !circle.width()) {
+                d = Math.max(element.outerWidth(), element.outerHeight());
+                circle.css({height: d, width: d});
+            }
+
+            x = ((resetButtonRect.right - resetButtonRect.left) / 2) + resetButtonRect.left - circle.width()/2;
+            y = ((resetButtonRect.bottom - resetButtonRect.top) / 2) + resetButtonRect.top - circle.height()/2;
+            circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
+
         }//enf of if
 
         else{
@@ -76,8 +98,6 @@ $( document ).ready(function() {
 
     /*************************************************************************/
     finishButton.onclick = function () {
-
-
         if (startTime){
 
         console.log("Time Stop");
@@ -90,9 +110,48 @@ $( document ).ready(function() {
         console.log("time has not started");
         }//end of else
 
-        if (finishButton.innerHTML == "Submit")
-            goToFiltering();
+        if (finishButton.innerHTML == "Submit"){
+            var js_data = JSON.stringify(returnTimes());
+            $.ajax({
+                url: '/rhythm',
+                type : 'post',
+                contentType: 'application/json',
+                dataType : 'json',
+                data : js_data
+            }).done(function(result) {
+                console.log("AJAX CLICK: "+result);
+                //return result;
+                //$("#data").html(result);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("fail: ",textStatus, errorThrown);
+            });
+            
+            //goToFiltering();
+        }
         else {
+            //Change text of button for confirmation
+            //animation
+            var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
+            var element, circle, d, x, y;
+            element = $("#tapScreenButton");
+            if(element.find(".md-click-circle").length == 0) {
+                element.prepend("<span class='md-click-circle'></span>");
+            }
+            circle = element.find(".md-click-circle");
+            circle.removeClass("md-click-animate-red");
+            circle.removeClass("md-click-animate-green");
+            circle.removeClass("md-click-animate-gray");
+            circle.removeClass("md-click-animate");
+            if(!circle.height() && !circle.width()) {
+                d = Math.max(element.outerWidth(), element.outerHeight());
+                circle.css({height: d, width: d});
+            }
+
+            x = ((finishButtonRect.right - finishButtonRect.left) / 2) + finishButtonRect.left - circle.width()/2;
+            y = ((finishButtonRect.bottom - finishButtonRect.top) / 2) + finishButtonRect.top - circle.height()/2;
+            circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
+            
+            //change text class to be stagnat and confirm user submit 
             document.getElementById("counter-number").className = "py-5 counter-text";
             finishButton.innerHTML = "Submit";
         }
@@ -137,6 +196,8 @@ $( document ).ready(function() {
                 }
                 circle = element.find(".md-click-circle");
                 circle.removeClass("md-click-animate-red");
+                circle.removeClass("md-click-animate-gray");
+                circle.removeClass("md-click-animate-green");
                 circle.removeClass("md-click-animate");
                 if(!circle.height() && !circle.width()) {
                     d = Math.max(element.outerWidth(), element.outerHeight());
@@ -159,9 +220,6 @@ $( document ).ready(function() {
                     document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
                 }
             }//end of if
-            
-            return dif;
-            
         }//end of if
     }//end of record
 
@@ -177,6 +235,8 @@ $( document ).ready(function() {
             }
             circle = element.find(".md-click-circle");
             circle.removeClass("md-click-animate-red");
+            circle.removeClass("md-click-animate-green");
+            circle.removeClass("md-click-animate-gray");
             circle.removeClass("md-click-animate");
             if(!circle.height() && !circle.width()) {
                 d = Math.max(element.outerWidth(), element.outerHeight());
@@ -190,7 +250,6 @@ $( document ).ready(function() {
                     break; 
     
                 case 1:
-                    console.log("you pressed red")
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
                     var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
                     document.getElementById("counter-number").innerHTML = incrementBeatCount;

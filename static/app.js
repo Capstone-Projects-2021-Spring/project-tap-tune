@@ -25,10 +25,6 @@ function goToRhythm() {
       window.location.href= "/recordingRhythm"; //link from rhythm button
 }
 
-function goToResult() {
-    window.location.href= "/asdfasdf"; //link from rhythm button
-}
-
 function goToRegister() {
       window.location.href= "/register";
 }
