@@ -110,7 +110,7 @@ $( document ).ready(function() {
         console.log("time has not started");
         }//end of else
 
-        //
+
         if (finishButton.innerHTML == "Submit"){
             var js_data = JSON.stringify(returnTimes());
             $.ajax({
@@ -118,10 +118,7 @@ $( document ).ready(function() {
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
-                data : js_data //passing the variable
-            }).done(function(result) {
-                console.log("success: " + result);
-                goToFiltering();
+
                 //return result;
                 //$("#data").html(result);
             }).fail(function(jqXHR, textStatus, errorThrown) {
