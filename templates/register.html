@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %} - Register{% endblock %}
+{% block head %}
+    {{ super() }}
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- custom styles -->
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/register.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/ajax-form.css')}}">
+
+    <style type="text/css">
+        .important { color: #ac1a00; }
+
+		.input-group-addon {
+			display: table-cell;
+		}
+    </style>
+{% endblock %}
+{% block content %}
+<div class="signup-form">
+    <form id="signup-form" action="/register" method="post" data-success-response="redirect">
+		<h2>Sign Up</h2>
+		<p>Please fill in this form to create an account!</p>
+		<hr>
+        <div class="form-group">
+			<label for="username" class="col-form-label">Username</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-user"></i></span>
+				<input id="username" type="text" class="form-control" name="username" placeholder="Username" required="required">
+			</div>
+        </div>
+        <div class="form-group">
+			<label for="email" class="col-form-label">Email</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-paper-plane"></i></span>
+				<input id="email" type="email" class="form-control" name="email" placeholder="Email Address" required="required">
+			</div>
+        </div>
+		<div class="form-group">
+			<label for="password" class="col-form-label">Password</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-lock"></i></span>
+				<input id="password" type="password" class="form-control" name="password" placeholder="Password" required="required">
+			</div>
+        </div>
+		<div class="form-group">
+			<label for="confirm_password" class="col-form-label">Confirm Password</label>
+			<div class="input-group">
+				<span class="input-group-addon">
+					<i class="fa fa-lock"></i>
+					<i class="fa fa-check"></i>
+				</span>
+				<input id="confirm_password" type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required="required">
+			</div>
+        </div>
+
+		<div class="form-group">
+            <button type="submit" data-ajax-submit class="btn btn-primary btn-lg waves-effect waves-light">Sign Up</button>
+        </div>
+		<div id="form-response"></div>
+    </form>
+	<div class="text-center">Already have an account? <a href="/login">Login here</a></div>
+</div>
+{% endblock %}
+{% block js %}
+    {{super()}}
+    <!-- jQuery validation is not included in the script above, so needs to be explicitly included -->
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <!-- Bootstrap HTML framework -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- Materialize CSS framework -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+{% endblock %}
