@@ -55,7 +55,10 @@ class Filtering:
                 title = track["title"]
                 artist = track["artist"]
                 genres = track["genre"]
-                
+
+                id =  track["id"]
+
+                """SEARCH THROUGH SPOTIFY FOR AUDIO SAMPLE FILES"""
                 results_1 = spotify.search(q=title, limit=10, type="track", market=None)
                 preview = "None"
                 for album in results_1["tracks"]["items"]:
@@ -65,18 +68,21 @@ class Filtering:
                             preview = album["preview_url"]
                         break 
 
-                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
+                result_data.append({"title": title, "artist": artist, "genres": genres, "id": id, "spotifyPreview": preview})
 
+            """PERFORMS CROSS COMPARISON WITH PREVIOUS SONG LISTS"""
             # if there was a valid list of songs passed through
             if (song_results != None):
                 # go through song_results and look for a song match
                 for artist_track in result_data:
-                    for genre_track in song_results:
-                        if (genre_track["title"] == artist_track["title"]):
+                    for track in song_results:
+                        if (track["title"] == artist_track["title"]):
                             return_data.append(artist_track)
                             match = match + 1
+                # if there are any matches return the cross compared list of songs
                 if match > 0:
                     return return_data
+                # if there are no matches return song_result
                 else:
                     return song_results
             # if no valid song_results is passed
@@ -94,7 +100,7 @@ class Filtering:
     Return : 0 (failure)
     """
 
-    def filterGenre(self, song_results):
+    def filterGenre(self, song_results = None):
         try:
             # retrieves cursor from Database.py
             cursor = get_cursor()
@@ -108,7 +114,10 @@ class Filtering:
                 title = track["title"]
                 artist = track["artist"]
                 genres = track["genre"]
-                
+
+                id = track["id"]
+
+                """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
                 results_1 = spotify.search(q=title, limit=10, type="track", market=None)
                 preview = "None"
                 for album in results_1["tracks"]["items"]:
@@ -119,23 +128,28 @@ class Filtering:
                         break 
 
                 """APPEND NEW SET OF TRACKS TO THE LIST"""
-                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
-            result_final = []
-            if(song_results != None):
-                for track_1 in song_results:
-                    for track_2 in result_data:
-                        if(track_1["title"] == track_2["title"]):
-                            if (self.dupCheck(result_final, track_2["title"])):
-                                result_final.append(track_2)
-                if (len(result_final) > 0):
-                    return result_data
+                result_data.append({"title": title, "artist": artist, "genres": genres, "id": id, "spotifyPreview": preview})
 
-                else:
-                    return result_final
+            """COMPARE THE RESULT LIST WITH ANY PRIOR SONGS"""
+            # result_final = []
+            #
+            # if(song_results != None):
+            #     for track_1 in song_results:
+            #         for track_2 in result_data:
+            #             if(track_1["title"] == track_2["title"]):
+            #                 if (self.dupCheck(result_final, track_2["title"])):
+            #                     result_final.append(track_2)
+            #     if (len(result_final) > 0):
+            #         return result_data
+            #
+            #     else:
+            #         return result_final
+            #
+            #
+            # else:
+            #     return result_data
 
-
-            else:
-                return result_data
+            return result_data
 
         except Exception as e:
             print(e)
@@ -147,11 +161,10 @@ class Filtering:
     Return : List of artist/title pairs found from the lyric filtering (success)
     Return : None (failure)
     """
-
     def filterLyrics(self, song_results):
         match = 0
 
-        """LYRICGENIUS SSTUP"""
+        """LYRICGENIUS SETUP"""
         client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
         genius = lyricsgenius.Genius(client_access_token)
         result_data = []
@@ -164,6 +177,7 @@ class Filtering:
             artist_name = hit['result']['primary_artist']['name']
             song_title = hit['result']['title']
 
+            """SEARCH SPOTIFY FOR AUDIO SAMPLE FILES"""
             results_1 = spotify.search(q=song_title, limit=10, type="track", market=None)
             preview = "None"
             for album in results_1["tracks"]["items"]:
@@ -175,7 +189,8 @@ class Filtering:
 
             result_data.append({"title": song_title, "artist": artist_name, "spotifyPreview": preview})
 
-        """CHECKS TO SEE IF VALID LIST OF SONGS WAS PASSED"""
+        """CROSS COMPARE LYRIC SEARCHES WITH SONG RESULTS"""
+        # if there was a valid song list passed
         if (song_results != None):
             return_data = []
 
@@ -189,17 +204,15 @@ class Filtering:
                         if (self.dupCheck(return_data, lyric_track["title"])):
                             return_data.append(res_track)
                             match = match + 1
-            # CHECK IF THERE WERE ANY MATCHES
+            # if there are matches found return the cross compared list
             if match > 0:
                 return return_data
             else:
                 return song_results
 
-        # if no valid song_results is passed
+        # if no valid song_results is passed DON'T RETURN LIST BECASUE WE DON'T HAVE THEM
         else:
-            return result_data
-
-        return song_data
+            return None
 
 
     def dupCheck(self, dict, target):
@@ -209,16 +222,21 @@ class Filtering:
             else:
                 return False
         return True
+
     """
     Execution function, ordered so that most specific field is followed by least specific
+    EDITS TO MAKE
+    - DOES NOT ACCEPT A_LIST
+    - FILTER FLOW IS GENRE->ARTIST->LYRICS --> SONG ANALYSIS
+    - STORE THE SONG ID
+    - RETURN A LIST OF SONGS [ {"TITLE", "ARTIST", "GENRES", "ID"] }
     """
     def filterRecording(self, a_list=None):
-        r_list = a_list
+        r_list = []
 
         """
         CHECKS FOR ANY GENRE INPUT
         """
-        print(self.input_genre)
         if(self.input_genre) and (self.input_genre != "Metal"):
             r_list = self.filterGenre(r_list)
             print("*****LIST FILTERED BY GENRE")

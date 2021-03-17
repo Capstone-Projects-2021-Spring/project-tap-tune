@@ -61,6 +61,7 @@ target = artist_result["artists"]["items"][0]["id"]
 """GET TOP 5 TRACKS"""
 tracks = spotify.artist_top_tracks(artist_id=target)
 
+
 for x in range (5):
     song = tracks["tracks"][x]["name"]
     release_date = tracks["tracks"][x]["album"]["release_date"]
@@ -69,5 +70,3 @@ for x in range (5):
     print(target_artist)
     print(release_date)
     print(song)
-
-

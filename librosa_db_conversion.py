@@ -27,18 +27,7 @@ x, sr = librosa.load('ex2.wav')
 tempo, frames = librosa.beat.beat_track(y_percussive, sr=sr, units = 'frames') # Librosa Frames
 
 # beat_times = array<Time>, frames = array
-print("\n*******************beat_times, frames***************************")
-print(frames)
 
-# Short Algorithm to create array of 0's and 1's on frame indicies
-bin_array = []
-increment = 0
-for x in range(0, frames[len(frames) - 1]):
-    if (frames[increment] == x):
-        bin_array.append(1)
-        increment += 1
-    else:
-        bin_array.append(0)
 
 def print_test(str, title):
     print("******************************"+title+"************************")
@@ -238,19 +227,38 @@ def binToFrames(bin_array):
 # bin_array.append(0)
 # bin_array.append(1)
 
+# Short Algorithm to create array of 0's and 1's on frame indicies
+bin_array = []
+increment = 0
+for x in range(0, frames[len(frames) - 1]):
+    if (frames[increment] == x):
+        bin_array.append(1)
+        increment += 1
+    else:
+        bin_array.append(0)
+
+print("******************ORIGINAL DATA (FRAMES)*********************")
+print(frames)
+
+print("******************BINARY ARRAY*********************")
+print(bin_array)
+
+print("******************DB STRING VALUE**********************")
 res_string = hash_array(bin_array)
 print(res_string)
 print(len(res_string))
+
+print("******************BINARY ARRAY FROM STORED VALUE**********************")
 res_array = unhash_array(res_string)
-print("******************RESULT DATA**********************")
 print(res_array)
 print(len(res_array))
 
-print("******************ORIGINAL DATA*********************")
-print(bin_array)
-print(len(bin_array))
-
-print("*****************TRANSLATED TO TIMESTAMPS*********************")
+print("*****************ORIGINAL DATA FRAMES*********************")
 print(binToFrames(res_array))
+
+print("*****************ORIGINAL DATA TIMSTAMPS*********************")
+songTimestamp = librosa.frames_to_time(res_array, sr=22050)
+print(songTimestamp)
+print(len(songTimestamp))
 
 
