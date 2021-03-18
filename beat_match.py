@@ -142,16 +142,28 @@ def compare(userPattern, songPattern):
     # keep track of how many match appears
     numOfHit = 0
 
+    outerLoop = (len(songSynced) - len(userSynced))
+    innerLoop = len(userSynced)
+
     for i in range(len(songSynced) - len(userSynced)):
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
+
         print("# of hit : {}".format(numOfHit))
+        print("mark: ", mark)
+        print("Outer loop: ", outerLoop)
+        print("Inner loop: ", innerLoop)
+        print(numOfHit)
+
+        match = (numOfHit * len(userSynced))/(len(songSynced))
+
+        print("match %: ", match * 100)
         if numOfHit >= mark:
             return 1
         else:
             numOfHit = 0
-    print("max # of hit : {}".format(numOfHit))
+    print("max # of hits : {}".format(numOfHit))
     if numOfHit >= mark:
         return 1
     else:
@@ -189,7 +201,7 @@ def print_long(list):
 # process the recording in full
 def processRecoring(userInput):
     # DB song prep
-    filepath = 'sampleMusic/birthdaySong.wav'
+    filepath = 'sampleMusic/twinkleStar.wav'
     songTimestamp = process_music_onset(filepath)
     songP1, songP2 = process_timestamp2(songTimestamp)
 
@@ -250,7 +262,7 @@ if __name__ == "__main__":
     #     print("nomatch")
 
     # processRecoring(twinkleStarInput)
-    processRecoringPeaks(userInput)
+    processRecoringPeaks(twinkleStarInput)
 
 # ########################### Testing area ############################
 # beat_num = [0]
