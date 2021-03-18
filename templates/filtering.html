@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %} - Home{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="recording-bg h-100">
+  <div class="container d-flex align-items-center flex-column">
+    <!-- Masthead Heading-->
+    <h1 class="masthead-heading text-uppercase mb-0 mt-4">Optional Features</h1>
+    <div class="container d-flex align-items-center flex-column">
+      <small id="emailHelp" class="form-text text-muted mb-3">All feature inputs are optional but will help the search be more efficient and reliable.  </small>
+    </div><!-- Icon Divider-->
+    <div class="divider-custom divider-dark">
+      <div class="divider-custom-line"></div>
+    </div>
+    <form action="/results" method="POST">
+      <div class="form-group">
+        <label for="inputArtist">Artist</label>
+        <input type="text" class="form-control" id="inputArtist" name="input_artist" placeholder="Enter Artist...">
+      </div>
+      <div class="form-group">
+        <label for="inputSelectGenre">Main Genre</label>
+        <select class="form-control" id="inputGenre" name="input_genre">
+          <option>Metal</option>
+          <option>Rock</option>
+          <option>Electronic</option>
+          <option>Funk</option>
+          <option>Pop</option>
+          <option>Soul</option>
+          <option>Dance</option>
+          <option>House</option>
+          <option>Jazz</option>
+          <option>Piano</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="inputLyrics">Lyrics</label>
+        <textarea class="form-control" id="inputLyrics" name="input_lyrics" rows="6"></textarea>
+      </div>
+      <button type="submit" class="btn btn-lg btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

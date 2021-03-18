@@ -46,12 +46,14 @@ def process_music(filename):
     beat_times = librosa.frames_to_time(beat_frames, sr=sr)
     return beat_times
 
+
 def process_music_split(filename):
     y, sr = librosa.load(filename)
-    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0,5.0))
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
 
     sf.write('sample_harmonic.wav', y_harm, sr)
     sf.write('sample_percussive.wav', y_harm, sr)
+
 
 # process beat by finding predominant local pulse
 def process_music_plp(filename):
@@ -60,6 +62,7 @@ def process_music_plp(filename):
     pulse = librosa.beat.plp(onset_envelope=onset_env, sr=sr)
     tempo, beats = librosa.beat.beat_track(onset_envelope=onset_env)
     beats_plp = np.flatnonzero(librosa.util.localmax(pulse))
+
 
 # gets the peak frames of a song
 def getPeaks(filename):
@@ -77,11 +80,12 @@ def getPeaks(filename):
     print(onset_frames)
     return onset_frames
 
+
 # finds difference between every 2nd timestamp
 def mergeBeats(timestamps):
     new_times = []
-    for x in range(len(timestamps)-2):
-        dif = timestamps[x+2] - timestamps[x]
+    for x in range(len(timestamps) - 2):
+        dif = timestamps[x + 2] - timestamps[x]
         new_times.append(dif)
 
     return new_times
@@ -125,7 +129,7 @@ def process_timestamp2(timestamp):
 # return 1, meaning it is a match if more than XX%(70%) of the pattern note is matched
 def compare(userPattern, songPattern):
     # synchronize two pattern
-    base = min(min(userPattern), min(songPattern)) # use the min in two pattern as base for synchronization
+    base = min(min(userPattern), min(songPattern))  # use the min in two pattern as base for synchronization
     userSynced = synchronize(userPattern, base)
     songSynced = synchronize(songPattern, base)
 
@@ -181,10 +185,11 @@ def print_long(list):
         print(list[i:j])
         i = j
 
+
 # process the recording in full
 def processRecoring(userInput):
     # DB song prep
-    filepath = 'sampleMusic/twinkleStar.wav'
+    filepath = 'sampleMusic/birthdaySong.wav'
     songTimestamp = process_music_onset(filepath)
     songP1, songP2 = process_timestamp2(songTimestamp)
 
@@ -202,7 +207,7 @@ def processRecoring(userInput):
 # process the recording based on peaks
 def processRecoringPeaks(userInput):
     # DB song prep
-    filepath = 'sampleMusic/twinkleStar.wav'
+    filepath = 'sampleMusic/backInBlack.wav'
     songPeaks = getPeaks(filepath)
     output1, output2 = process_timestamp2(songPeaks)
 
@@ -217,18 +222,35 @@ def processRecoringPeaks(userInput):
         print("no match found")
 
 
+def drop_ambigious(timestamp):
+    result = [timestamp[0]]
+    i = 1
+    while i <= len(timestamp) - 1:
+        if timestamp[i] - timestamp[i - 1] >= 0.08:
+            result.append(timestamp[i])
+        i += 1
+    return result
+
+
 if __name__ == "__main__":
     # ---song file processing---
-    filepath = 'sampleMusic/twinkleStar.wav'
+    filepath = 'sampleMusic/birthdaySong.wav'
     songName = filepath[12:-4]
     songTimestamp = process_music_onset(filepath)
+    songTimestamp = drop_ambigious(songTimestamp)
     # showBeatOnALine(songTimestamp, songName)
     songP1, songP2 = process_timestamp2(songTimestamp)
-    userInput = [1.923,2.517,3.108,3.728,4.337,4.931,5.554,6.770,7.397,7.970,8.631,9.273,9.884, 10.541,11.286]
+    userInput = [2.377,3.073,3.476,3.752,4.452,4.809,5.117,5.759,6.458,7.127]
+    twinkleStarInput = [0.261, 0.725, 1.391, 2.046, 2.736, 3.325, 4.084, 5.197, 5.941, 6.550, 7.254, 7.957, 8.604,9.294]
+    jingleBellInput = [0.830, 1.190, 1.600, 2.456, 2.878, 3.335, 4.190, 4.655, 5.088, 5.497, 5.946]
+    # userP1, userP2 = process_timestamp2(userInput)
+    # if compare(userP1, songP1) == 1:
+    #     print("match")
+    # else:
+    #     print("nomatch")
 
-    processRecoring(userInput)
+    # processRecoring(twinkleStarInput)
     processRecoringPeaks(userInput)
-
 
 # ########################### Testing area ############################
 # beat_num = [0]

@@ -3,6 +3,8 @@ import librosa, librosa.display
 import soundfile as sf
 import numpy
 
+import beat_match
+
 
 def framesToBin(frames):
     # Short Algorithm to create array of 0's and 1's on frame indicies
@@ -236,18 +238,23 @@ def unhash_array(db_string):
 GET THE STRING VALUE TO BE STORED IN THE DB, PEAK_FRAMES
 """
 # Loads waveform of song into x
-filepath = 'sampleMusic/Mr.Brightside_TheKillers.wav'
+# filepath = 'sampleMusic/Mr.Brightside_TheKillers.wav'
+# y, sr = librosa.load(filepath)
+# onset_test = librosa.onset.onset_detect(y, sr)
+
+# hop_length = 256
+# onset_envelope = librosa.onset.onset_strength(y, sr=sr, hop_length=hop_length)
+
+# N = len(y)
+# T = N / float(sr)
+# t = numpy.linspace(0, T, len(onset_envelope))
+
+# peak_frames = librosa.util.peak_pick(onset_envelope, 7, 7, 7, 7, .5, 5)
+filepath = 'sampleMusic/jingleBell.wav'
 y, sr = librosa.load(filepath)
-onset_test = librosa.onset.onset_detect(y, sr)
-
-hop_length = 256
-onset_envelope = librosa.onset.onset_strength(y, sr=sr, hop_length=hop_length)
-
-N = len(y)
-T = N / float(sr)
-t = numpy.linspace(0, T, len(onset_envelope))
-
-peak_frames = librosa.util.peak_pick(onset_envelope, 7, 7, 7, 7, .5, 5)
+onset_return = librosa.onset.onset_detect(y=y, sr=sr)
+peak = beat_match.getPeaks(filepath)
+frames = peak
 
 # new implementation
 bin_array = []
