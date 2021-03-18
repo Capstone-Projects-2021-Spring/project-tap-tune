@@ -467,6 +467,6 @@ class rhythmAnalysis:
                 return None
             else:
                 return song_results
-        except Exception as (e):
+        except Exception as e:
             print(e)
 
