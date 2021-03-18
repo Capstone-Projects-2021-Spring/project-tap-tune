@@ -85,16 +85,20 @@ def compare(userPattern, songPattern):
 
     # keep track of how many match appears
     numOfHit = 0
-
+    match = 0.0
     for i in range(len(songSynced) - len(userSynced)):
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
         # print("# of hit : {}".format(numOfHit))
+        match = (numOfHit*len(userSynced))/len(songSynced)
+
         if numOfHit >= mark:
             return 1
         else:
             numOfHit = 0
+
+
     print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
         return 1
