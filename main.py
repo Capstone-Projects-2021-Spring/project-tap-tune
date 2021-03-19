@@ -37,6 +37,9 @@ def home_page():
 def rhythm_page():
     return render_template('recordingRhythm.html')
 
+@app.route('/recordingMelody', methods=['GET', 'POST'])
+def melody_page():
+    return render_template('recordingMelody.html')
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():

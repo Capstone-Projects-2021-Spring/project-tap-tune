@@ -34,7 +34,7 @@
         <!-- Portfolio Grid Items-->
         <div class="row justify-content-center">
             <!-- Portfolio Item 1-->
-            <div class="col-xl-2 col-xl-4 mb-5e3" onclick="goToRhythm()" > <!-- go to rhythm page-->
+            <div class="col-xl-2 col-xl-4 mb-5e3"> <!-- go to rhythm page-->
                 <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1" >
                     <div class="portfolio-item-caption-rhythm d-flex align-items-center justify-content-center h-100 w-100" >
                         <div class="portfolio-item-caption-rhythm-content text-center text-white text-uppercase mb-0"  >
@@ -48,7 +48,7 @@
                 </div>
               </div>
             <!-- Portfolio Item 2-->
-            <div class="col-xl-2 col-xl-4 mb-5" >
+            <div class="col-xl-2 col-xl-4 mb-5">
                 <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
                     <div class="portfolio-item-caption-melody d-flex align-items-center justify-content-center h-100 w-100"> 
                         <div class="portfolio-item-caption-melody-content text-center text-white text-uppercase mb-0">
@@ -64,5 +64,86 @@
         </div>
     </div>
 </section>
+
+<!-- Panel Instructions for Each Feature-->
+<div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-labelledby="portfolioModal1Label" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true"><i class="fas fa-times"></i></span>
+          </button>
+          <div class="modal-body text-center">
+              <div class="container">
+                  <div class="row justify-content-center">
+                      <div class="col-lg-8">
+                          <!-- Portfolio Modal - Title-->
+                          <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal1Label">Rhythm Recording</h2>
+                          <!-- Icon Divider-->
+                          <div class="divider-custom">
+                            <div class="divider-custom-line"></div>
+                          </div>
+                          <!-- Portfolio Modal - Description-->
+                          <p class="text-muted text-left"> TapTune's <span style="color: #65baff; font-weight: bold;">Rhythm Recording </span>feature takes your input of beats to a song's rhythm and any filters that you can remember to describe the song.  It will then use a search algorithm after analyzing your input values to find the song that you are thinking of and display what we found.</p>
+                          <!-- Portfolio Modal - Text-->
+                          <h3 class="mb-1 text-secondary text-uppercase text-left">Instructions</h3>
+                          <ol class="text-left" type="1">
+                            <li>Press the "Start Recording" button.</li>
+                            <li>When you are ready, start tapping anwhere on the screen to record the rhythm of the song you are thinking of.</li>
+                            <li>If you feel as if you messed up on the input, feel free to reset the recording with the reset button.</li>
+                            <li>Once you tapped around 8-20 beats, click "Stop" </li>
+                            <li>[TODO] Listen back to the rhythm that you recorded and if you think it's accurate, "Submit" your recording.</li>
+                            <li>Input any filters that you think would help with our search.</li>
+                            <li>Wait for the website to find your song and you should find our top main result based on your input recording and filters.</li>
+                          </ol> 
+                          <button class="btn btn-lg btn-primary" data-dismiss="modal" onclick="goToRhythm()">
+                              Start Recording
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- Portfolio Modal 2-->
+<div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-labelledby="portfolioModal2Label" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true"><i class="fas fa-times"></i></span>
+          </button>
+          <div class="modal-body text-center">
+              <div class="container">
+                  <div class="row justify-content-center">
+                      <div class="col-lg-8">
+                          <!-- Portfolio Modal - Title-->
+                          <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal2Label">Melody Recording</h2>
+                          <!-- Icon Divider-->
+                          <div class="divider-custom">
+                            <div class="divider-custom-line"></div>
+                          </div>
+                          <!-- Portfolio Modal - Description-->
+                          <p class="text-muted text-left"> TapTune's <span style="color: #ff9292; font-weight: bold;">Melody Recording </span>feature takes your input of beats to a song's rhythm and any filters that you can remember to describe the song.  It will then use a search algorithm after analyzing your input values to find the song that you are thinking of and display what we found.</p>
+                          <!-- Portfolio Modal - Text-->
+                          <h3 class="mb-1 text-secondary text-uppercase text-left">Instructions</h3>
+                          <ol class="text-left" type="1">
+                            <li>Press the "Start Recording" button.</li>
+                            <li>When you are ready, start tapping anwhere on the screen to record the rhythm of the song you are thinking of.</li>
+                            <li>If you feel as if you messed up on the input, feel free to reset the recording with the reset button.</li>
+                            <li>Once you tapped around 8-20 beats, click "Stop" </li>
+                            <li>[TODO] Listen back to the rhythm that you recorded and if you think it's accurate, "Submit" your recording.</li>
+                            <li>Input any filters that you think would help with our search.</li>
+                            <li>Wait for the website to find your song and you should find our top main result based on your input recording and filters.</li>
+                          </ol> 
+                          <button class="btn btn-lg btn-primary" data-dismiss="modal" onclick="goToMelody()">
+                              Start Recording
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 
 {% endblock %}
