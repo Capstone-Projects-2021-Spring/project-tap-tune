@@ -4,10 +4,9 @@ from models.Mail import mail
 from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
-
-#from models.analysis.AudioAnalysis import AudioAnalysis
-
 from flask_mail import Message
+
+import json
 
 app = Flask(__name__)
 
@@ -31,23 +30,19 @@ mail.init_app(app)
 
 @app.route('/')
 def home_page():
-
     # get logged in user or None
     user = User.current_user()
     return render_template('index.html', user=user)
 
 
-    obj = rhythmAnalysis()
-    obj.peak_func()
-
-    return render_template('index.html')
-
-
-
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    user = User.current_user()
-    return render_template('recordingRhythm.html', user=user)
+    return render_template('recordingRhythm.html')
+
+
+@app.route('/recordingMelody', methods=['GET', 'POST'])
+def melody_page():
+    return render_template('recordingMelody.html')
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
@@ -60,13 +55,13 @@ def filter_page():
 def result_page():
     user = User.current_user()
 
-    # Audio Analysis
+    # Filter the Song Results if there are any inputs from request form
+    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                    Lyrics=request.form['input_lyrics'])
+    print(user_result)
+    filterResults = obj.filterRecording(user_result)
 
-    # Filter
-    obj = Filtering(Artist=request.form['input_artist'], Lyrics=request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
-
-    # After getting results, store in user_log
+    # Todo: After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
 
 
@@ -74,7 +69,6 @@ def result_page():
 def user_page():
     user = User.current_user()
     return render_template('user.html', user=user)
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -119,11 +113,8 @@ def register():
         return render_template('register.html')
 
 
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
-
     # handle login form submission
     if request.method == 'POST':
         redirect_url = '/'
@@ -159,41 +150,79 @@ def receiveRhythm():
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def test():
-
     if request.method == 'POST':
         out = receiveRhythm()
-        #beatMatch()
 
-        #receive Rhythm as json and create AudioAnalysis class
-        #print("helloworld")
-        #out = jsonify(data)
-        #result = AudioAnalysis(out)
-
-
-    return out
-
-
-def beatMatch():
     data = json.loads(request.data)
+    obj = rhythmAnalysis(userTaps=data)
 
-    print('WHAT DID I GET: ')
-    print(data)
-
-    print('Input list: ')
-    for i in range(len(data)):
-        print(data[i])
-
-    return render_template('login.html')
-
+    global user_result
+    user_result = obj.onset_peak_func()
+    return out
 
 
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
 
+
 @app.route('/forgot', methods=['GET', 'POST'])
-def forgotPass_page():
-    return render_template('forgotPass.html')
+def forgot_pass():
+    if request.method == 'POST':
+        # handle request
+        rval = User.send_reset_password_email(request.form['email'])
+        if rval:
+            msg = "An email was sent with instructions to reset your password."
+            category = "success"
+
+        else:
+            msg = str("Email not sent")
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category}
+        return make_response(jsonify(resp), 200)
+    else:
+        return render_template('forgotPass.html')
+
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_pass():
+    if request.method == 'POST':
+        redirect_url = '/login'
+
+        # check if valid reset token
+        # its already checked in page load but can be issue if multiple forms were opened
+        if User.is_valid_reset_token(request.form['token']):
+            # check if password and confirmation match
+            if request.form['password'] == request.form['confirm_password']:
+                # continue with reset
+                reset = User.reset_password(request.form['password'], request.form['token'])
+
+                # check reset status
+                if reset:
+                    msg = "Password Reset!"
+                    category = "success"
+                else:
+                    msg = "Password reset failed"
+                    category = "danger"
+            else:
+                msg = "Password and confirmation do not match"
+                category = "danger"
+        else:
+            msg = "Password reset failed. Invalid link."
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
+        return make_response(jsonify(resp), 200)
+    else:
+        token = request.args.get('token')
+        print(token)
+        is_valid_token = False
+        if token:
+            is_valid_token = User.is_valid_reset_token(token)
+
+        return render_template('resetPass.html', is_valid_token=is_valid_token, token=token)
+
 
 if __name__ == '__main__':
     app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session

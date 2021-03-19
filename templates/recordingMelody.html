@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %} - Home{% endblock %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{url_for('static', filename='styles/microphone.css')}}">
+{% endblock %}
+{% block content %}
+<div class="js-message message"></div>
+<div class="recorder">
+  <div class="waveform">
+    <canvas class="js-canvas waveform__canvas"></canvas>
+  </div>
+  <div class="toolbar">
+    <button class="js-record button button--record"><i class="fa fa-microphone" aria-hidden="true"></i></button>
+    <button class="js-play button button--play button--disabled"><i class="fa fa-play" aria-hidden="true"></i></button>
+    <audio class="js-audio audio audio--hidden" controls/>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='microphone.js') }}"></script>
+{% endblock %}

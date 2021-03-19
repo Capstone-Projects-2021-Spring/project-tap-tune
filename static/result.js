@@ -1,21 +1,26 @@
 var table = document.getElementById("resultsSecondaryTable");
 var mainSearchTitle = document.getElementById("resultsMainSearchTitle");
 var mainSearchArtist = document.getElementById("resultsMainSearchArtist");
+var mainSearchLyrics = document.getElementById("resultsMainSearchArtist");
 var data = document.getElementById("filteredResultsList").getAttribute("data-filtered");
 var data2 = data.replace(/'/g, '"');
-var jsonObj = $.parseJSON(data2);
+if (data2.length > 0)
+    var jsonObj = $.parseJSON(data2);
 
 //Order jsonObj by match percentage code here;
 
 for(var i = 0; i < jsonObj.length; i++) {
-    //Main Search in main view
-    if (i = 0) {
 
+    var obj = jsonObj[i];
+    console.log(obj);
+
+    //Main Search in main view
+    if (i == 0) {
+        mainSearchTitle.textContent = obj.title;
+        mainSearchArtist.textContent = obj.artist;
     }
 
     //Secondary searches in table
-    var obj = jsonObj[i];
-    console.log(obj);
     var row = table.insertRow(-1);
     var titleCell = row.insertCell(0);
     var artistCell = row.insertCell(1);
