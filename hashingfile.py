@@ -201,11 +201,11 @@ def unhash_array(db_string):
     return bin_array
 
 
-"""
-GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
 
+#GET THE STRING VALUE TO BE STORED IN THE DB, ONSET_FRAMES
+'''
 # Loads waveform of song into x
-filepath = 'sampleMusic/twinkleStar.wav'
+filepath = "C:\\Users\\2015d\OneDrive\Desktop\.wav files\ACDC_BackInBlack.wav"
 y, sr = librosa.load(filepath)
 onset_return = librosa.onset.onset_detect(y=y, sr=sr)
 frames = onset_return
@@ -228,10 +228,9 @@ print(bin_array)
 """
 res_string = hash_array(bin_array)
 print(res_string)
+'''
 
 
-
-"""
 #Restore the frame array
 '''
 res_array = unhash_array(res_string)
