@@ -2,7 +2,7 @@ import os, sys
 from acrcloud.recognizer import ACRCloudRecognizer
 import re
 
-#TODO: Work on more metadata extraction, folder scan and output
+#TODO: Work on more metadata extraction
 
 # Function to turn array of individual strings from split function into one string
 def arrayToString(array):
@@ -33,6 +33,9 @@ class foundsong:
         self.artists = ""
         self.genres = ""
 
+        # Only for auto database input
+        self.path = ""
+
     def set_title(self, title):
         self.title = title
 
@@ -41,6 +44,10 @@ class foundsong:
 
     def set_genre(self, genres):
         self.genres = genres
+
+    # Only for auto database input
+    def set_path(self, path):
+        self.path = path
 
 
 class acrCloudRequest:
@@ -59,7 +66,7 @@ class acrCloudRequest:
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
-        print(fingerprinted)
+        # print(fingerprinted)
 
         # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
         fingerprinted = re.sub('[^A-Za-z0-9,-_]+', '', fingerprinted)
@@ -74,7 +81,7 @@ class acrCloudRequest:
             try:
                 # String manipulation for each metadata field
                 substr = fingerprinted[fingerprinted.index(songStrings[identifiers]) + len(songStrings[identifiers]) + 1:]
-                print(substr)
+                # print(substr)
 
                 # Searches for multiple entries in each field like multiple genres or artists
                 # multiple fields in identifier are separated by string "name:".
@@ -113,16 +120,39 @@ class acrCloudRequest:
 
         return songmetadata
 
+
+    # This will NOT be used for final implementation. This will primarily be used for backend automatic database insert
+    # Returns a list of song objects with respective metadata and path to actual song file
     def getACRFingerPrint_Folder(self, folder):
+
         # Get all the files in the folder
         # This assumes all the files in the folder are .wav
         file_list = os.listdir(folder)
+        print(file_list)
 
-        # Makes sure nothing but songs are in the test
-        file_songlist = []
-        for files in range(len(file_list)):
-            if ".wav" in file_list[files]:
-                file_songlist.append(file_list[files])
+        # Makes a list of the absolute path to that file for ACRCloud file access
+        file_abs_path = []
+        for x in range(len(file_list)):
+            file_abs_path.append(folder + "\\" + file_list[x])
+
+        # Makes sure nothing but songs are in the test by checking the end of the path name
+        file_songList = []
+        for x in range(len(file_abs_path)):
+            if ".wav" in file_abs_path[x][len(file_abs_path[x]) - 6:]:
+                file_songList.append(file_abs_path[x])
+
+        # Uses the in class getACRSongFingerprint to get the metadata for each of the songs
+        # Saves the path to the file as attribute in Song Object for hashing later
+        file_returnList = []
+        for x in range(len(file_songList)):
+            print("" + str(x + 1) + ": Finding Metadata for " + file_songList[x])
+            song = self.getACRSongFingerprint(file_songList[x])
+            song.set_path(file_songList[x])
+            file_returnList.append(song)
+
+        print("Task Complete!")
+        return file_returnList
+
 
 
 
@@ -137,18 +167,15 @@ class acrCloudRequest:
 
 #   TESTING   ###################################################################################################################
 
+obj = acrCloudRequest()
+
+file = ""
+song = obj.getACRSongFingerprint(file)
+print(song.title)
+
 '''
 folderDir = ""
-file = ""
-#file = "kaguya.wav"
-obj = acrCloudRequest()
-obj.getACRFingerPrint_Folder(folderDir)
-
-song = obj.getACRSongFingerprint(file)
-print(" ")
-print(song.title)
-print(song.artists)
-print(song.genres)
+foldersonglist = obj.getACRFingerPrint_Folder(folderDir)
 '''
 
 
