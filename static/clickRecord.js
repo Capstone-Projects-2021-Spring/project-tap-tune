@@ -15,10 +15,6 @@ $( document ).ready(function() {
     finishButton = document.getElementById("finishRecordingBtn");
 
     startButton.onclick = function () {
-        startTime = new Date();
-        console.log(startTime);
-
-
         document.getElementById("counter-number").className = "py-5 counter-text-active";
         document.getElementById("counter-number").style.opacity = "1";
         document.getElementById("finishRecordingBtn").className = "btn btn-success ml-3";
@@ -31,13 +27,19 @@ $( document ).ready(function() {
 
     tapButton.onclick = function () {
         if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
-            //console.log(startTime);
-            instanceTime = new Date();
-            dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-
-        times.push(dif);
-        console.log("TAP TIME: "+dif);
-        console.log(times);
+            if (startTime) {
+                //console.log(startTime);
+                instanceTime = new Date();
+                dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
+                
+                times.push(dif);
+                console.log("TAP TIME: "+dif);
+                console.log(times);
+            }
+            else { //record the first tap
+                startTime = new Date();
+                console.log(startTime);
+            }
         }//end of if
 
         return dif;
@@ -65,6 +67,7 @@ $( document ).ready(function() {
 
             timeArray = [];
             times = new Array();
+            startTime = null;
 
             //animation
             var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
@@ -100,9 +103,9 @@ $( document ).ready(function() {
     finishButton.onclick = function () {
         if (startTime){
 
-        console.log("Time Stop");
-        console.log("Stop: "+dif);
-        console.log("END ARRAY: "+returnTimes());
+            console.log("Time Stop");
+            console.log("Stop: "+dif);
+            console.log("END ARRAY: "+returnTimes());
 
         }//enf of if
 
@@ -164,14 +167,23 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function returnTimes(){
-
-        for(var i = 0; i < times.length; i++){
-            timeArray[i] = times[i];
-        }//end of for
-
-        return timeArray;
+        var returnArray = adjustArray(times);
+        console.log("finished array " + returnArray)
+        return returnArray;
     }//end of returnTimes
 
+    /************************************************************************/
+    function adjustArray(array){
+        //adjust array times so that the first array does not account
+        var newArray = new Array();
+        var dif = array[0];
+        for(var i = 0; i < array.length; i++){
+            var num = array[i] - dif;
+            newArray[i] = num.toFixed(3);
+        }//end of for
+
+        return newArray;
+    }//end of returnTimes
     
     
     document.addEventListener("keydown", function(){
@@ -254,11 +266,7 @@ $( document ).ready(function() {
     
                 case 1:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                    document.getElementById("counter-number").innerHTML = incrementBeatCount;
-                    var healthCountg = Math.floor((incrementBeatCount / 10) * 153);
-                    var healthCountb = Math.floor((incrementBeatCount / 10) * 255);
-                    document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
+                    document.getElementById("counter-number").style.color = RGBToHex(0, 0, 0);
                     break;
             
                 default:
