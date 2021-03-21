@@ -1,6 +1,6 @@
 import librosa
-import AudioAnalysis
-import beat_match
+import models.analysis.AudioAnalysis as AudioAnalysis
+import models.analysis.beat_match as beat_match
 
 #Purpose: intergrate the process of hash value to timestamp in one function
 #Status: In-Progess, bug spotted: converting onset hash value to timestamp looks different than getting timestamp from librosa.onset.onset_detection
@@ -109,4 +109,4 @@ back_in_black_pattern_ratio = process_timestamp_ratio(back_in_black_timestamp_fr
 # print(back_in_black_pattern_ratio)
 
 # Seperate a song into x part to compare:
-song_parts = split_song(song_pattern=)
+# song_parts = split_song(song_pattern=)

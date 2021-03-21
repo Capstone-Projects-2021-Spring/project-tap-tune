@@ -77,20 +77,37 @@ def compare(userPattern, songPattern):
 
     # keep track of how many match appears
     numOfHit = 0
+    checkedPattern = 0
+    matchP = []
 
     for i in range(len(songSynced) - len(userSynced)):
+        checkedPattern += 1
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
         # print("# of hit : {}".format(numOfHit))
+
+        # calculates the match percentage for this one pattern
+        match = numOfHit / len(userPattern)
+        match *= 100
+        matchP.append(match)
+        print(match)
         if numOfHit >= mark:
+            print("**********MATCH PERCENT ARRAY**********")
+            print(matchP)
             return 1
         else:
+            print("**********MATCH PERCENT ARRAY**********")
+            print(matchP)
             numOfHit = 0
-    print("max # of hit : {}".format(numOfHit))
+    # print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
+        print("**********MATCH PERCENT ARRAY**********")
+        print(matchP)
         return 1
     else:
+        print("**********MATCH PERCENT ARRAY**********")
+        print(matchP)
         return 0
 
 def compare_hash(userHash, songHash):
