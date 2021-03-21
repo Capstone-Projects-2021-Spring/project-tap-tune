@@ -160,6 +160,16 @@ def test():
     user_result = obj.onset_peak_func()
     return out
 
+@app.route('/melody', methods=['GET', 'POST'])
+def melody():
+    if request.method == 'POST':
+        print("Received Audio File")
+        outFile = request.files["file"]
+        print(outFile)
+        fileName = outFile.filename
+        print(fileName)
+        return jsonify(fileName)
+
 
 @app.route('/service-worker.js')
 def sw():
