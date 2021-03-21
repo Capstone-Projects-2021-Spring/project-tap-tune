@@ -118,6 +118,10 @@ $( document ).ready(function() {
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
+                data : js_data //passing the variable
+            }).done(function(result) {
+                console.log("success: " + result);
+                goToFiltering();
 
                 //return result;
                 //$("#data").html(result);
