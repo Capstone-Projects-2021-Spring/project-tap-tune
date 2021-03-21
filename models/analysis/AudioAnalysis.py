@@ -1,7 +1,7 @@
 """
 1. accept the user input rhythm recording
 2. fetch DB information onset_frames <hashed string>, peak_frames<hashed string>, sr <int>
-3. compare the user iput with information from database
+3. compare the user input with information from database
 4. append the songs labeled as matches to a list of results
     results = [
                 {
@@ -59,6 +59,10 @@ def synchronize(originalPattern, base):
 # a multiple C meaning the how much faster/slower userPattern is to songPattern: a1= c*s1, a2=c*s2......
 # a pattern note is a match if the error after multiplying c is smaller than XX
 # return 1, meaning it is a match if more than XX%(70%) of the pattern note is matched
+
+# multi layer inputs: 1. compare seperately 2. combine different layers of the input and compare to the song
+# split the song acccording to the user input.
+# use hash to do comparison instead of timestamp
 def compare(userPattern, songPattern):
     # synchronize two pattern
     base = min(min(userPattern), min(songPattern)) # use the min in two pattern as base for synchronization
@@ -85,6 +89,16 @@ def compare(userPattern, songPattern):
             numOfHit = 0
     print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
+        return 1
+    else:
+        return 0
+
+def compare_hash(userHash, songHash):
+    numOfHit = 0
+    mark = len(userHash)*0.7
+
+
+    if numOfHit>=mark:
         return 1
     else:
         return 0

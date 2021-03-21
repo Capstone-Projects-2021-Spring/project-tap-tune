@@ -2,8 +2,9 @@ import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
 import soundfile as sf
 import numpy
+import librosa.display
 
-import beat_match
+from analysis import beat_match
 
 
 def framesToBin(frames):

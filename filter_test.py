@@ -2,7 +2,7 @@
 import librosa
 import soundfile as af
 import matplotlib.pyplot as plt
-import beat_match
+from analysis import beat_match
 
 
 #
