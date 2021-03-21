@@ -174,12 +174,12 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function adjustArray(array){
-        //adjust array times so that the first array does not account
+        //adjust array times so that the first array does not count
         var newArray = new Array();
         var dif = array[0];
         for(var i = 0; i < array.length; i++){
             var num = array[i] - dif;
-            newArray[i] = num.toFixed(3);
+            newArray[i] = parseFloat(num.toFixed(3));
         }//end of for
 
         return newArray;
