@@ -21,6 +21,40 @@
         <button id="resetRecordingBtn" type="button" class="btn btn-secondary disabled ml-3">Reset</button>
         <button id="finishRecordingBtn" type="button" class="btn btn-success disabled ml-3">Stop</button>
       </div>
+      <div class="row justify-content-center mt-3">    
+        <button disabled id="playRecordingBtn" type="button" class="btn btn-success ml-3" onclick="playSound()">Play</button>
+        <div class="dropdown ml-3">
+          <button class="btn btn-third dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span id="selected1">
+              Rhythm Type
+            </span>
+          </button>
+          <div id = "recordingTypeDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="#">General</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Harmonics</a>
+            <a class="dropdown-item" href="#">Percussion</a>
+          </div>
+        </div>
+        <div class="dropdown ml-3">
+          <button disabled id="tapKeyDropdown" class="btn btn-third dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span id="selected2">
+              Tap Key
+            </span>
+          </button>
+          <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="#">C</a>
+            <a class="dropdown-item" href="#">D</a>
+            <a class="dropdown-item" href="#">E</a>
+            <a class="dropdown-item" href="#">F</a>
+            <a class="dropdown-item" href="#">G</a>
+            <a class="dropdown-item" href="#">A</a>
+            <a class="dropdown-item" href="#">B</a>
+          </div>
+        </div>
+        <audio controls id="harmony1" src="{{ url_for('static', filename='assets/playbackNotes/F.wav') }}" volume="0.1" hidden></audio>
+        <audio controls id="percussion" src="{{ url_for('static', filename='assets/playbackNotes/simple-kick.wav') }}" volume="0" hidden></audio>
+      </div>
       <div class="container d-flex align-items-center flex-column">
         <h1 id="counter-number" class="py-5 counter-text">0</h1>
       </div>

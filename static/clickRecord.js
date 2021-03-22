@@ -8,11 +8,13 @@ let startButton = null;
 let tapButton = null;
 let stopButton = null;
 let finishButton = null;
+let playButton = null;
 $( document ).ready(function() {
     startButton = document.getElementById("startRecordingBtn");
     tapButton = document.getElementById("tapScreenButton");
     resetButton = document.getElementById("resetRecordingBtn");
     finishButton = document.getElementById("finishRecordingBtn");
+    playButton = document.getElementById("playRecordingBtn");
 
     startButton.onclick = function () {
         document.getElementById("counter-number").className = "py-5 counter-text-active";
@@ -90,6 +92,9 @@ $( document ).ready(function() {
             y = ((resetButtonRect.bottom - resetButtonRect.top) / 2) + resetButtonRect.top - circle.height()/2;
             circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
 
+            //also set playbutton to disabled again
+            playButton.disabled = true;
+
         }//enf of if
 
         else{
@@ -135,7 +140,6 @@ $( document ).ready(function() {
             //goToFiltering();
         }
         else {
-            //Change text of button for confirmation
             //animation
             var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
             var element, circle, d, x, y;
@@ -158,8 +162,10 @@ $( document ).ready(function() {
             circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
             
             //change text class to be stagnat and confirm user submit 
+            //Also enable playback button
             document.getElementById("counter-number").className = "py-5 counter-text";
             finishButton.innerHTML = "Submit";
+            playButton.disabled = false;
         }
 
 
@@ -169,6 +175,7 @@ $( document ).ready(function() {
     function returnTimes(){
         var returnArray = adjustArray(times);
         console.log("finished array " + returnArray)
+        times = returnArray;
         return returnArray;
     }//end of returnTimes
 
@@ -321,5 +328,64 @@ $( document ).ready(function() {
         return 0;
     }
     
+    $('#recordingTypeDropdown a').click(function(){
+        var selected = $(this).text();
+        if (selected == "Harmonics") {
+            document.getElementById("tapKeyDropdown").disabled = false;
+        }
+        else {
+            document.getElementById("tapKeyDropdown").disabled = true;
+        }
+        $('#selected1').text($(this).text());
+    });
+
+    $('#recordingKeyDropdown a').click(function(){
+        $('#selected2').text($(this).text());
+    });
+
 });
+
+function playSound() {
+    var recordingType = $('#selected1').text();
+    console.log("recording type is " + recordingType);
+
+    // Make Playback sound drums
+    if (recordingType == "Percussion") {
+        var sound = document.getElementById("percussion");
+    }
+
+    // Make Playback sound a specific key
+    else if (recordingType == "Harmonics") {
+        var tapKey = $('#selected2').text();
+        switch (tapKey) {
+            case "F":
+                var sound = document.getElementById("harmony1");
+                break;
+        
+            default:
+                var sound = document.getElementById("percussion");
+                break;
+        }
+    }
+
+    // Make Playback sound a default sound beat
+    else {
+        var sound = document.getElementById("percussion");
+    }
+
+    for (var i = 0; i < times.length; i++) {
+        var millisecondsTime = times[i] * 1000;
+        setTimeout(() => {
+            var audio = document.createElement('audio');
+            audio.src = sound.src;
+            audio.volume = 0.3;
+            document.body.appendChild(audio);
+            audio.play();
+            
+            audio.onended = function () {
+                this.parentNode.removeChild(this);
+            }
+        }, millisecondsTime);
+    }
+}
 
