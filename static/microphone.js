@@ -219,7 +219,7 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = (new Date().toISOString())+'.wav';
+    var outFile = 'output.wav';
     link.download = outFile;
 
     //ajax call to send output wav file
