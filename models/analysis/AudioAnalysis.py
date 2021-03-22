@@ -21,6 +21,15 @@ from acrcloud.recognizer import ACRCloudRecognizer
 import re
 from models.Database import db, get_cursor
 
+
+def dupCheck(self, dict, target):
+    for track in dict:
+        if target in track:
+            pass
+        else:
+            return False
+    return True
+
 """COMPARISON FUNCTIONS"""
 # finds difference between every 2nd timestamp
 def mergeBeats(timestamps):
@@ -234,10 +243,12 @@ def processRecoring(userInput, onsetFrames):
 
 class rhythmAnalysis:
 
-    def __init__(self, userTaps=None):
+    def __init__(self, userTaps=None, filterResults=None):
         print(userTaps)
         if(userTaps != None):
             self.user_input = userTaps
+        if(filterResults != None):
+            self.filter_results = filterResults
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
@@ -474,6 +485,15 @@ class rhythmAnalysis:
 
                     song_results.append({"title": title, "artist": artist, "genres": genres})
                 index += 1
+            if(self.filter_results):
+                # if there is a list of songs from filtering
+                # compare the filter_results list to song_results
+                final_result = []
+                for filter_track in self.filter_results:
+                    for analysis_track in song_results:
+                        if(filter_track["title"] == analysis_track["title"]):
+                            if(dupCheck(final_result, analysis_track["title"])):
+                                final_result.append(analysis_track)
 
             if (len(song_results) < 1):
                 return None

@@ -58,13 +58,15 @@ def result_page():
     user = User.current_user()
 
     #Filter the Song Results if there are any inputs from request form 
-    obj = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
-    filterResults = obj.filterRecording()
+    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    filterResults = objF.filterRecording()
 
-    print(user_result)
-    
+    # Running Rhythm analysis on userTaps, includes filterResults to cross check
+    objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
+    final_res = objR.onset_peak_func()
+
     #Todo: After getting results, store in user_log 
-    return render_template('results.html', filterResults=filterResults)
+    return render_template('results.html', filterResults=final_res)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
@@ -152,11 +154,12 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
-    data = json.loads(request.data)
-    obj = rhythmAnalysis(userTaps=data)
-
     global user_result
-    user_result = obj.onset_peak_func()
+    user_result = json.loads(request.data)
+    # obj = rhythmAnalysis(userTaps=data)
+    #
+    # global user_result
+    # user_result = obj.onset_peak_func()
     return out
 
 @app.route('/service-worker.js')
