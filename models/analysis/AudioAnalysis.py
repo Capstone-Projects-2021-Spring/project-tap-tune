@@ -61,7 +61,7 @@ def synchronize(originalPattern, base):
 # return 1, meaning it is a match if more than XX%(70%) of the pattern note is matched
 def compare(userPattern, songPattern):
     # synchronize two pattern
-    base = min(min(userPattern), min(songPattern)) # use the min in two pattern as base for synchronization
+    base = min(min(userPattern), min(songPattern))  # use the min in two pattern as base for synchronization
     userSynced = synchronize(userPattern, base)
     songSynced = synchronize(songPattern, base)
 
@@ -69,41 +69,37 @@ def compare(userPattern, songPattern):
     error = 0.5
 
     # how many notes need to match to pass
-    # len(userSynced) = the number of taps in the user input
-    # mark = 70% of the tap count
     mark = math.floor(len(userSynced) * 0.7)
-
-    """
-    mark is the minimum number of hits
-    shooting for 70%
-    
-    70% minimum --> 25% minimum
-    denom_val = total number of values in songSynced OR 
-    num_val = number of hits
-    match % = (num_val) / (denom_val)
-    """
 
     # keep track of how many match appears
     numOfHit = 0
-    match = 0.0
+    checkedPattern = 0
+    matchAVG = 0
+
+    # match res should accept the matchAVG
+    matchRes = 0
+
     for i in range(len(songSynced) - len(userSynced)):
+        checkedPattern += 1
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
         # print("# of hit : {}".format(numOfHit))
-        match = (numOfHit*len(userSynced))/len(songSynced)
 
+        # calculates the match percentage of the one pattern check
+        # adds the match percentage to the average of previous match percentages
+        match = numOfHit / len(userPattern)
+        match *= 100
+        matchAVG = (matchAVG + match) / checkedPattern
         if numOfHit >= mark:
-            return 1
+            return 1, (matchAVG)
         else:
             numOfHit = 0
-
-
-    print("max # of hit : {}".format(numOfHit))
+    # print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
-        return 1
+        return 1, (matchAVG)
     else:
-        return 0
+        return 0, (matchAVG)
 
 """CONVERSION FUNCTIONS"""
 
@@ -197,8 +193,13 @@ def processRecoringPeaks(userInput, peakFrames):
     new_input = mergeBeats(userInput)
     framestoTime = librosa.frames_to_time(output1, sr=22050)
 
+    bool, match_res = compare(new_input, framestoTime)
+
+    # print("*************MATCH AVERAGE****************")
+    # print(match_res)
+
     # ---Decision making---
-    if compare(new_input, framestoTime) == 1:
+    if bool == 1:
         print("we have a match!")
         return 1
     else:
@@ -215,7 +216,12 @@ def processRecoring(userInput, onsetFrames):
 
     # compare user input and DB info
     # ---Decision making---
-    if compare(inputP1, songP1) == 1:
+    bool, match_res = compare(inputP1, songP1)
+
+    # print("*************MATCH AVERAGE****************")
+    # print(match_res)
+    # ---Decision making---
+    if bool == 1:
         print("we have a match!")
         return 1
     else:
@@ -456,8 +462,6 @@ class rhythmAnalysis:
                 match = processRecoringPeaks(self.user_input, peak_frames)
                 match2 = processRecoring(self.user_input, onset_frames)
 
-                print(match, match2)
-
 
                 if (match or match2):
                     title = db_results[index]["title"]
@@ -473,4 +477,5 @@ class rhythmAnalysis:
                 return song_results
         except Exception as e:
             print(e)
+
 

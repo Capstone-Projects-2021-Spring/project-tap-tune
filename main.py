@@ -53,8 +53,9 @@ def result_page():
 
     #Filter the Song Results if there are any inputs from request form 
     obj = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    filterResults = obj.filterRecording()
+
     print(user_result)
-    filterResults = obj.filterRecording(user_result)
     
     #Todo: After getting results, store in user_log 
     return render_template('results.html', filterResults=filterResults)

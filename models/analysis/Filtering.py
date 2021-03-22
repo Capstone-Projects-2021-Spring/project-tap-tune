@@ -267,4 +267,5 @@ class Filtering:
             print("NO LYRICS INPUT")
 
         # returns the list filtered by provided fields
+        print(r_list)
         return r_list
