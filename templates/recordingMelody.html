@@ -5,31 +5,29 @@
   <link rel="stylesheet" href="{{url_for('static', filename='styles/microphone.css')}}">
 {% endblock %}
 {% block content %}
-<div class="recording-bg h-100">
-  
-  <div class="container d-flex align-items-center flex-column">
-    <!-- Masthead Heading-->
-    <h1 class="masthead-heading text-uppercase mb-0 mt-4">Recording the Melody</h1>
-    <!-- Icon Divider-->
-    <div class="divider-custom divider-dark">
-      <div class="divider-custom-line"></div>
+
+<div class="app">
+  <select name="" id="micSelect"></select>
+
+  <select id="visSelect">
+    <option value="frequencybars">Bar</option>
+    <option value="sinewave">Wave</option>
+    <option value="circle">Circle</option>
+  </select>
+
+  <a id="download" >Download</a>
+
+    <div class="audio-controls">
+        <button id="record" class="btn btn-primary"><i class="fa fa-microphone" aria-hidden="true"></i>  Start Recording</button>
+        <button id="pause" class="btn btn-secondary ml-3 "><i class="fa fa-play" aria-hidden="true"></i>  Playback</button>
+        <button id="stop" class="btn btn-success ml-3 "><i class="fa fa-stop" aria-hidden="true"></i>  Stop</button>
+        <audio id="audio" class="js-audio audio audio--hidden" controls></audio>
     </div>
-    <div class="row justify-content-center">    
-      <div class="toolbar">
-        <button class="js-record btn btn-primary"><i class="fa fa-microphone" aria-hidden="true"></i>  Start Recording</button>
-        <button class="js-play btn btn-secondary btn-secondary--play btn-secondary--disabled ml-3 "><i class="fa fa-play" aria-hidden="true"></i>  Playback</button>
-        <button class="js-play btn btn-success btn-secondary--play btn-success--disabled ml-3 "><i class="fa fa-stop" aria-hidden="true"></i>  Stop</button>
-        <audio class="js-audio audio audio--hidden" controls/>
-      </div>
-    </div>
-  </div>
-  <div class="container mt-4">
-    <div class="waveform">
-      <canvas class="js-canvas waveform__canvas"></canvas>
-    </div>
-    <div class="js-message message"></div>
-  </div>
-</div>
+
+  <div id="msg">Recording...</div>
+  <div id="msg2">Recording Paused</div>
+  <canvas width="500" height="300"></canvas>
+<div>
 
 {% endblock %}
 {% block js %}

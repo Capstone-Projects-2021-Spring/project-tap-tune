@@ -1,83 +1,43 @@
-
-@keyframes spin { 
-  from { 
-    transform: rotate(0deg); 
-  } to { 
-    transform: rotate(360deg); 
-  }
+#msg {
+  visibility: hidden;
+  color: red;
+  font-weight: bold;
+  font-size: 22px;
+  font-family: Verdana;
 }
 
-* {
-  box-sizing: border-box;
+#msg2 {
+  visibility: hidden;
+  color: red;
+  font-weight: bold;
+  font-size: 22px;
+  font-family: Verdana;
+}
+button {
+  padding: 5px 10px;
+  border: 1px solid grey;
+  font-size: 18px;
+  background: white;
 }
 
-.recorder {
-  
+.audio-controls {
+  display: flex;
+  align-items: center;
+  padding-top: 20px;
+  justify-content: center;
 }
-
-.waveform {
-  margin-left: auto;
-  margin-right: auto;
-  
-  padding: 2rem 0;
-  width: 80%;
-  border-style: solid;
-  border-color: rgba(189, 91, 91, 0.438);
-  box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.288);
-
+.audio-controls button {
+  margin: 0px 5px;
 }
-
-.js-canvas {
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-
+canvas {
+  margin-top: 10px;
+  background-color: black;
 }
-
-
-.toolbar { 
+select {
+  height: 25px;
+  margin: 0px 5px;
+}
+.app {
   text-align: center;
-}
-
-.button {
-  
-  position: relative;
-  
-  display: inline-block;
-  
-  width: 8rem;
-  height: 8rem;
-  margin: 0 1rem;
-  padding: 0;
-
-  
-  border-radius: 50%;
-  border: none;
-  outline: none;
-  
-  font-size: 4rem;
-  
-  cursor: pointer;
-  
-}
-
-
-
-.audio {
-  width: 0;
-  height: 0;
-  
-  opacity: 0;
-  visibility: 0;
-}
-
-.message {
-  transtion: opacity .4s ease-in-out;
-  padding: 1rem 2rem;
-  
-  opacity: 0;
-  
-  font-size: 1.6rem;
-  font-family: Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  padding-top: 20px;
 }
