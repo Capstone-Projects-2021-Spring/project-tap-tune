@@ -16,12 +16,24 @@
 }
 
 .waveform {
-  position: relative;
+  margin-left: auto;
+  margin-right: auto;
   
-  padding: 4rem 0;
-  
+  padding: 2rem 0;
+  width: 80%;
+  border-style: solid;
+  border-color: rgba(189, 91, 91, 0.438);
+  box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.288);
 
 }
+
+.js-canvas {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+
+}
+
 
 .toolbar { 
   text-align: center;
@@ -49,6 +61,8 @@
   
 }
 
+
+
 .audio {
   width: 0;
   height: 0;
@@ -66,8 +80,4 @@
   font-size: 1.6rem;
   font-family: Helvetica, Arial, sans-serif;
   line-height: 1.5;
-}
-
-.js-canvas {
-  width:100%
 }
