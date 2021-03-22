@@ -110,6 +110,7 @@ $( document ).ready(function() {
         console.log("time has not started");
         }//end of else
 
+
         if (finishButton.innerHTML == "Submit"){
             var js_data = JSON.stringify(returnTimes());
             $.ajax({
@@ -117,15 +118,17 @@ $( document ).ready(function() {
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
-                data : js_data
+                data : js_data //passing the variable
             }).done(function(result) {
-                console.log("AJAX CLICK: "+result);
+                console.log("success: " + result);
+                goToFiltering();
+
                 //return result;
                 //$("#data").html(result);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
             });
-            
+
             //goToFiltering();
         }
         else {
@@ -150,8 +153,8 @@ $( document ).ready(function() {
             x = ((finishButtonRect.right - finishButtonRect.left) / 2) + finishButtonRect.left - circle.width()/2;
             y = ((finishButtonRect.bottom - finishButtonRect.top) / 2) + finishButtonRect.top - circle.height()/2;
             circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
-            
-            //change text class to be stagnat and confirm user submit 
+
+            //change text class to be stagnat and confirm user submit
             document.getElementById("counter-number").className = "py-5 counter-text";
             finishButton.innerHTML = "Submit";
         }
@@ -169,22 +172,22 @@ $( document ).ready(function() {
         return timeArray;
     }//end of returnTimes
 
-    
-    
+
+
     document.addEventListener("keydown", function(){
         record();
     });
-    
+
     /***************************************************************************/
     function record(){
-        
+
         //32 is the space bar
         if(event.keyCode == 82){
             if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
                 //console.log(startTime);
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-                
+
                 times.push(dif);
                 console.log("TAP TIME: "+dif);
                 console.log(times);
@@ -205,8 +208,8 @@ $( document ).ready(function() {
                 }
                 x = ((element.offset().right - element.offset().left) / 2)  - circle.width()/2;
                 y = ((element.offset().bottom - element.offset().top) / 2) - circle.height()/2;
-                
-        
+
+
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                 var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
                 document.getElementById("counter-number").innerHTML = incrementBeatCount;
@@ -225,7 +228,7 @@ $( document ).ready(function() {
 
 
 
-    $('.material-click').on('click', function(e) { 
+    $('.material-click').on('click', function(e) {
         var colorBox = getColor(e);
         if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
             var element, circle, d, x, y;
@@ -244,11 +247,11 @@ $( document ).ready(function() {
             }
             x = e.pageX - element.offset().left - circle.width()/2;
             y = e.pageY - element.offset().top - circle.height()/2;
-            
+
             switch (colorBox) {
                 case -1:
-                    break; 
-    
+                    break;
+
                 case 1:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
                     var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
@@ -257,7 +260,7 @@ $( document ).ready(function() {
                     var healthCountb = Math.floor((incrementBeatCount / 10) * 255);
                     document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
                     break;
-            
+
                 default:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
@@ -273,23 +276,23 @@ $( document ).ready(function() {
                     }
                     break;
             }
-            
+
         }
-    
+
     });
-    
+
     function RGBToHex(r,g,b) {
         r = r.toString(16);
         g = g.toString(16);
         b = b.toString(16);
-      
+
         if (r.length == 1)
           r = "0" + r;
         if (g.length == 1)
           g = "0" + g;
         if (b.length == 1)
           b = "0" + b;
-      
+
         return "#" + r + g + b;
     }
 
@@ -297,7 +300,7 @@ $( document ).ready(function() {
         //well first of all are we even in button territory
         var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
         var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
-    
+
         if (finishButton.innerHTML == "Submit") return -1;
         if (e.pageY > startButtonRect.top && e.pageY < startButtonRect.bottom) {
             if (e.pageX > startButtonRect.left) {
@@ -309,6 +312,5 @@ $( document ).ready(function() {
         }
         return 0;
     }
-    
-});
 
+});

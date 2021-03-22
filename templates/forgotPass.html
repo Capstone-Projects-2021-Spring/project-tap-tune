@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %} - Login{% endblock %}
+{% block title %} - Login Forgot{% endblock %}
 {% block head %}
     {{ super() }}
 
@@ -29,27 +29,24 @@
                 <div class="card">
                     <div class="card-header"><h2>Account Access</h2></div>
                     <div class="card-body">
-                        <form accept-charset="UTF-8" role="form" id="login-recordar" method="post">
-							<fieldset>
-								<span class="help-block">
-									Email address you use to log in to your account
-									<br>
-									We'll send you an email with instructions to choose a new password.
-								</span>
-								<div class="form-group input-group">
-									<span class="input-group-addon">
-										@
-									</span>
-									<input class="form-control" placeholder="Email" name="email" type="email"
-										required="">
-								</div>
-								<button type="submit" class="btn btn-primary btn-block" id="btn-olvidado">
-									Continue
-								</button>
-								<p class="help-block">
-								<div class="text-center">Don't need to reset? <a href="/login">Login here</a></div>
-								</p>
-							</fieldset>
+                        <form id="forgot-login-form" action="/forgot" method="post">
+                            <span class="help-block">
+                                Email address you use to log in to your account
+                                <br>
+                                We'll send you an email with instructions to choose a new password.
+                            </span>
+                            <br><br>
+                            <div class="form-group input-group">
+                                <label for="email" class="col-form-label" style="margin-right:10px;">Email</label>
+                                <input id="email" class="form-control" placeholder="Email" name="email" type="email"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" data-ajax-submit id="btn-olvidado">
+                                Continue
+                            </button>
+                            <p class="help-block">
+                                <div class="text-center">Don't need to reset? <a href="/login">Login here</a></div>
+                            </p>
 						</form>
                         <div id="form-response"></div>
                     </div>
