@@ -62,7 +62,8 @@ def result_page():
     filterResults = objF.filterRecording()
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
-    objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
+    mod_list = user_result[1:len(user_result)]
+    objR = rhythmAnalysis(userTaps=mod_list, filterResults=filterResults)
     final_res = objR.onset_peak_func()
 
     #Todo: After getting results, store in user_log 

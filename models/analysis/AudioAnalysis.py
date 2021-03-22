@@ -70,13 +70,16 @@ def process_timestamp_diff(timestamp):
 # Principle: analyze timestamp by deviding each timestamp by avg beat_diff, beat_diff: time difference between one beat
 #            to next one
 # Status: clear, waiting for tests
-def process_timestamp_ratio(timestamp):
+def process_timestamp_ratio(timestamp)
     beat_diff_over_avg = []
     diff = 0
     for i in range(len(timestamp) - 1):
         temp = timestamp[i + 1] - timestamp[i]
         diff += temp
     avg_diff = diff / len(timestamp)
+    print("\n*************")
+    print(avg_diff)
+    print("***************\n")
     for i in range(len(timestamp)):
         beat_diff_over_avg.append(timestamp[i] / avg_diff)
     return beat_diff_over_avg
@@ -90,10 +93,19 @@ def compare_ratio(user_pattern, song_pattern):
     mark = len(user_pattern) * 0.7
     numOfHit = 0
     error = 0.2  # Working process
+
+    checkedPattern = 0
+    matchAVG = 0
+
     for i in range(len(song_pattern) - len(user_pattern)):
         numOfHit = 0
         temp = i
         for j in range(len(user_pattern)):
+            # print("==============")
+            # print("\nBUG TESTING")
+            # print("user_pattern: ",user_pattern)
+            # print("user_pattern/song_pattern: ",user_pattern[j],"/",song_pattern[i])
+            # print("==============\n")
             if user_pattern[j] / song_pattern[i] >= 0.8:
                 numOfHit += 1
                 i += 1
@@ -102,11 +114,12 @@ def compare_ratio(user_pattern, song_pattern):
                 break
 
         if numOfHit >= mark:
+            print(matchAVG)
             return 1
     if numOfHit >= mark:
         return 1
     else:
-        return 0;
+        return 0
 
 
 # Purpose: Split a song into three section as a list. Iterate through the list for compare, provide early exit if song
@@ -180,13 +193,21 @@ def compare(userPattern, songPattern):
         match *= 100
         matchAVG = (matchAVG + match) / checkedPattern
         if numOfHit >= mark:
+            print("\nMATCH AVG:")
+            print(matchAVG)
             return 1, (matchAVG)
         else:
+            print("\nMATCH AVG:")
+            print(matchAVG)
             numOfHit = 0
     # print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
+        print("\nMATCH AVG:")
+        print(matchAVG)
         return 1, (matchAVG)
     else:
+        print("\nMATCH AVG:")
+        print(matchAVG)
         return 0, (matchAVG)
 
 
@@ -279,7 +300,7 @@ def unhash_array(db_string):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
-
+    # print("IN PROCESS PEAKS")
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -302,6 +323,7 @@ def process_recording_peaks(userInput, peakFrames):
 
 # process the recording in full
 def process_recording(userInput, onsetFrames):
+    print("IN PROCESS_RECORDING")
     # DB song prep
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
     songTimestamp = drop_ambiguous(songTimestamp)
