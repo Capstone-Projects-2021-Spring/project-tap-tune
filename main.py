@@ -43,6 +43,12 @@ def melody_page():
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
+    ''' This was for AudioAnalysis Testing. Remove later on
+    from models.analysis import AudioAnalysis as test
+    userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
+    custobj = test.rhythmAnalysis(userinput)
+    print(custobj.onset_peak_func())
+    '''
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
