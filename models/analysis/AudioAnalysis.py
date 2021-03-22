@@ -282,7 +282,7 @@ def process_recording(userInput, onsetFrames):
 
     # compare user input and DB info
     # ---Decision making---
-    if compare(input_pattern, song_pattern) == 1:
+    if compare_ratio(input_pattern, song_pattern) == 1:
         print("we have a match!")
         return 1
     else:
