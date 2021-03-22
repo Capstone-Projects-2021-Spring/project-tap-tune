@@ -168,6 +168,9 @@ def melody():
         print(outFile)
         fileName = outFile.filename
         print(fileName)
+
+        outFile.save(fileName)
+        print("Hoping it uploads")
         return jsonify(fileName)
 
 
