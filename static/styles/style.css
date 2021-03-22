@@ -2510,6 +2510,33 @@ fieldset:disabled a.btn {
   box-shadow: 0 0 0 0.2rem rgba(76, 91, 106, 0.5);
 }
 
+.btn-third {
+  color: rgb(255, 255, 255);
+  background-color: #3894f0;
+  border-color: #369bff;
+}
+.btn-third.hover, .btn-third:hover {
+  color: rgb(255, 255, 255);
+  background-color: #6cb8fa;
+  border-color: #dceeff;
+  box-shadow: 0 0 0 0.2rem rgba(66, 175, 248, 0.836);
+}
+.btn-third.disabled, .btn-third:disabled {
+  color: rgb(44, 44, 44);
+  background-color: #ffffff85;
+  border-color: #168aff;
+  pointer-events: none;
+  outline: none;
+}
+.btn-third:not(:disabled):not(.disabled):active, .btn-third:not(:disabled):not(.disabled).active, .show > .btn-third.dropdown-toggle {
+  color: rgb(44, 44, 44);
+  background-color: #ffffff85;
+  border-color: #2c3e50;
+}
+.btn-third:not(:disabled):not(.disabled):active:focus, .btn-third:not(:disabled):not(.disabled).active:focus, .show > .btn-third.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(78, 167, 255, 0.5);
+}
+
 .btn-success {
   color: #fff;
   background-color: #28a745;
@@ -3150,7 +3177,7 @@ input[type=button].btn-block {
   height: 0;
   margin: 0.5rem 0;
   overflow: hidden;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid #c2c2c2;
 }
 
 .dropdown-item {
