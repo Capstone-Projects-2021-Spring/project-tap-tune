@@ -146,10 +146,12 @@ we_will_rock_you_peak_hash = '.58.*C*Q*X*.58.*X*Z*.61.*.36.*R*.63.*Z*T*.61.*.36.
 # print(back_in_black_pattern_ratio)
 
 # Seperate a song into x part to compare:
-print(compare_ratio(userinput, test))
+# print(compare_ratio(userinput, test))
 
 
 # ------------------------------------Recycle Zone-------------------------------------------------------
-# userinput = [1, 1, 4, 5, 1, 4, 1, 1, 4, 5];
+userinput = [0.001, 0.17, 0.388, 0.588, 0.772, 0.966, 1.153, 1.332]
+userinput = process_timestamp_ratio(userinput)
+print(userinput)
 # test = [2, 2, 1, 1, 4, 5, 3, 3, 1, 1, 4, 5, 1, 4, 8, 8, 9, 1, 1, 4, 5, 1, 4, 1, 7, 4, 5, 6, ]
 
