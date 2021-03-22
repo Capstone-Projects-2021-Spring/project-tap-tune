@@ -7,6 +7,7 @@ from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 
 import json
+
 app = Flask(__name__)
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
@@ -26,6 +27,7 @@ app.config['MAIL_DEFAULT_SENDER'] = 'noreply.taptune@gmail.com'
 db.init_app(app)
 mail.init_app(app)
 
+
 @app.route('/')
 def home_page():
     # get logged in user or None
@@ -37,9 +39,11 @@ def home_page():
 def rhythm_page():
     return render_template('recordingRhythm.html')
 
+
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
     return render_template('recordingMelody.html')
+
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
@@ -51,13 +55,15 @@ def filter_page():
 def result_page():
     user = User.current_user()
 
-    #Filter the Song Results if there are any inputs from request form 
-    obj = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    # Filter the Song Results if there are any inputs from request form
+    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                    Lyrics=request.form['input_lyrics'])
     print(user_result)
     filterResults = obj.filterRecording(user_result)
-    
-    #Todo: After getting results, store in user_log 
+
+    # Todo: After getting results, store in user_log
     return render_template('results.html', filterResults=filterResults)
+
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
@@ -135,10 +141,12 @@ def logout():
     User.logout()
     return redirect(url_for('home_page'))
 
+
 def receiveRhythm():
     data = request.json
     print(data)
     return jsonify(data)
+
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def test():
@@ -152,9 +160,24 @@ def test():
     user_result = obj.onset_peak_func()
     return out
 
+@app.route('/melody', methods=['GET', 'POST'])
+def melody():
+    if request.method == 'POST':
+        print("Received Audio File")
+        outFile = request.files["file"]
+        print(outFile)
+        fileName = outFile.filename
+        print(fileName)
+
+        outFile.save(fileName)
+        print("Hoping it uploads")
+        return jsonify(fileName)
+
+
 @app.route('/service-worker.js')
 def sw():
     return app.send_static_file('service-worker.js')
+
 
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot_pass():

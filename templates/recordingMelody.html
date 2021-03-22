@@ -5,17 +5,30 @@
   <link rel="stylesheet" href="{{url_for('static', filename='styles/microphone.css')}}">
 {% endblock %}
 {% block content %}
-<div class="js-message message"></div>
-<div class="recorder">
-  <div class="waveform">
-    <canvas class="js-canvas waveform__canvas"></canvas>
+
+<div class="app">
+  <select name="" id="micSelect"></select>
+
+  <select id="visSelect">
+    <option value="frequencybars">Bar</option>
+    <option value="sinewave">Wave</option>
+    <option value="circle">Circle</option>
+  </select>
+
+  <a id="download" >Download</a>
+
+  <div class="audio-controls">
+    <button id="record">Record</button>
+    <button id="pause">Pause</button>
+    <button id="stop">Stop</button>
+    <audio id="audio" controls></audio>
   </div>
-  <div class="toolbar">
-    <button class="js-record button button--record"><i class="fa fa-microphone" aria-hidden="true"></i></button>
-    <button class="js-play button button--play button--disabled"><i class="fa fa-play" aria-hidden="true"></i></button>
-    <audio class="js-audio audio audio--hidden" controls/>
-  </div>
-</div>
+
+  <div id="msg">Recording...</div>
+  <div id="msg2">Recording Paused</div>
+  <canvas width="500" height="300"></canvas>
+<div>
+
 {% endblock %}
 {% block js %}
     {{super()}}
