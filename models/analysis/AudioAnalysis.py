@@ -70,7 +70,7 @@ def process_timestamp_diff(timestamp):
 # Principle: analyze timestamp by deviding each timestamp by avg beat_diff, beat_diff: time difference between one beat
 #            to next one
 # Status: clear, waiting for tests
-def process_timestamp_ratio(timestamp)
+def process_timestamp_ratio(timestamp):
     beat_diff_over_avg = []
     diff = 0
     for i in range(len(timestamp) - 1):
