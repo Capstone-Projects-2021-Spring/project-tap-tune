@@ -161,7 +161,6 @@ def compare(userPattern, songPattern):
     matchAVG = 0
 
     # match res should accept the matchAVG
-    matchRes = 0
 
     for i in range(len(songSynced) - len(userSynced)):
         checkedPattern += 1
