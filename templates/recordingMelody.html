@@ -17,12 +17,13 @@
 
   <a id="download" >Download</a>
 
-  <div class="audio-controls">
-    <button id="record">Record</button>
-    <button id="pause">Pause</button>
-    <button id="stop">Stop</button>
-    <audio id="audio" controls></audio>
-  </div>
+    <div class="audio-controls">
+            <button id="record" class="btn btn-primary"><i class="fa fa-microphone" aria-hidden="true"></i>  Start Recording</button>
+            <button id="pause" class="btn btn-secondary ml-3 "><i class="fa fa-play" aria-hidden="true"></i>  Playback</button>
+            <button id="stop" class="btn btn-success ml-3 "><i class="fa fa-stop" aria-hidden="true"></i>  Stop</button>
+            <audio id="audio" class="js-audio audio audio--hidden" controls></audio>
+    </div>
+
 
   <div id="msg">Recording...</div>
   <div id="msg2">Recording Paused</div>
