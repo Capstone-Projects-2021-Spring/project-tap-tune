@@ -31,6 +31,7 @@ def mergeBeats(timestamps):
 
     return new_times
 
+"""DEPRECATED"""
 # Second approach to process song timestamp array for pattern
 # 1. compute time differences between each beat
 # 2. get even time difference
@@ -56,6 +57,7 @@ def synchronize(originalPattern, base):
         syncedPattern.append(i / base)
     return syncedPattern
 
+"""MODIFIED"""
 # compare input array to song
 # find out if the userPattern[a1,a2,a3...] can be found in the songPattern[s1,s2,s3...]
 # a multiple C meaning the how much faster/slower userPattern is to songPattern: a1= c*s1, a2=c*s2......

@@ -169,7 +169,7 @@ class acrCloudRequest:
 
 obj = acrCloudRequest()
 
-file = r"C:\Users\2015d\OneDrive\Desktop\.wav files\ACDC_BackInBlack.wav"
+file = "Mr.Brightside_TheKillers.wav"
 song = obj.getACRSongFingerprint(file)
 print(song.title)
 print(song.genres)
