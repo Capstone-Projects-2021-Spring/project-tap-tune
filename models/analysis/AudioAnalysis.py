@@ -13,6 +13,7 @@
 
     results.append( {"title" : *title, "artist", *artist, "genres":*genre} )
 5. Return the song results to use in the Filtering
+6. data processing: hash from db > bin > frame > timestamp > drop ambiguous > pattern -> compare function
 """
 
 import librosa
@@ -39,6 +40,90 @@ def mergeBeats(timestamps):
         new_times.append(dif)
 
     return new_times
+
+
+# Purpose: for pair of beats that are too closer to each other that sounds like one beat to human ears, consider them
+#          as one beat
+# Status: clear
+def drop_ambiguous(timestamp):
+    result = [timestamp[0]]
+    i = 1
+    while i <= len(timestamp) - 1:
+        if timestamp[i] - timestamp[i - 1] >= 0.08:
+            result.append(timestamp[i])
+        i += 1
+    return result
+
+# Purpose:  take in timestamp, return pattern
+# Principle: process timestamp and get pattern by getting time differences between each beat
+# Status: clear
+def process_timestamp_diff(timestamp):
+    beat_diff = []
+    for i in range(len(timestamp) - 1):
+        temp = timestamp[i + 1] - timestamp[i]
+        beat_diff.append(temp)
+    return beat_diff
+
+
+# Purpose: take in timestamp, output pattern
+# Principle: analyze timestamp by deviding each timestamp by avg beat_diff, beat_diff: time difference between one beat
+#            to next one
+# Status: clear, waiting for tests
+def process_timestamp_ratio(timestamp):
+    beat_diff_over_avg = []
+    diff = 0
+    for i in range(len(timestamp) - 1):
+        temp = timestamp[i + 1] - timestamp[i]
+        diff += temp
+    avg_diff = diff / len(timestamp)
+    for i in range(len(timestamp)):
+        beat_diff_over_avg.append(timestamp[i] / avg_diff)
+    return beat_diff_over_avg
+
+
+# Purpose: Compare two ratio pattern
+# Principle: if user_pattern[i] / song_pattern[i] is very close t 1, it is a match beat
+# Status: In progess, error range need more testing to determine
+# Note: round both item to same decimal precision to compare?
+def compare_ratio(user_pattern, song_pattern):
+    mark = len(user_pattern) * 0.7
+    numOfHit = 0
+    error = 0.2  # Working process
+    for i in range(len(song_pattern) - len(user_pattern)):
+        numOfHit = 0
+        temp = i
+        for j in range(len(user_pattern)):
+            if user_pattern[j] / song_pattern[i] >= 0.8:
+                numOfHit += 1
+                i += 1
+            else:
+                i = temp + 1
+                break
+
+        if numOfHit >= mark:
+            return 1
+    if numOfHit >= mark:
+        return 1
+    else:
+        return 0;
+
+
+# Purpose: Split a song into three section as a list. Iterate through the list for compare, provide early exit if song
+#          match in the first half.
+#   section one: first half
+#   Section two: Second half
+#   Section three(enhanced section): from middle of first half to middle of second half, last section to run, make sure
+#                                    no part is missed
+# Principle: compare first half first, if not match, compare with second half, if both are not match, exit. If both have
+#            some match, compare
+#            the thitd section to ensure
+# Status: Clear
+# Note: Another approach to split the song?
+def split_song(song_pattern):
+    length = len(song_pattern)
+    pattern_set = [song_pattern[0:(length / 2)], song_pattern[(length / 2):-1], song_pattern[(length / 4):(length * 3 / 4)]]
+    return pattern_set
+
 
 """DEPRECATED"""
 # Second approach to process song timestamp array for pattern
@@ -199,20 +284,16 @@ def unhash_array(db_string):
 
 # process the recording based on peaks
 def processRecoringPeaks(userInput, peakFrames):
-    # DB song prep
-    output1, output2 = process_timestamp2(peakFrames)
-
     # User input prep
     new_input = mergeBeats(userInput)
-    framestoTime = librosa.frames_to_time(output1, sr=22050)
-
-    bool, match_res = compare(new_input, framestoTime)
-
-    # print("*************MATCH AVERAGE****************")
-    # print(match_res)
+    new_input_pattern = process_timestamp_ratio(new_input)
+    # DB song prep
+    timestamp = librosa.frames_to_time(peakFrames, sr=22050)
+    timestamp = drop_ambiguous(timestamp)
+    song_pattern = process_timestamp_ratio(timestamp)
 
     # ---Decision making---
-    if bool == 1:
+    if compare_ratio(new_input_pattern, song_pattern) == 1:
         print("we have a match!")
         return 1
     else:
@@ -223,18 +304,14 @@ def processRecoringPeaks(userInput, peakFrames):
 def processRecoring(userInput, onsetFrames):
     # DB song prep
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
-    songP1, songP2 = process_timestamp2(songTimestamp)
+    songTimestamp = drop_ambiguous(songTimestamp)
+    song_pattern = process_timestamp_ratio(songTimestamp)
     # user input prep
-    inputP1, inputP2 = process_timestamp2(userInput)
+    input_pattern = process_timestamp_ratio(userInput)
 
     # compare user input and DB info
     # ---Decision making---
-    bool, match_res = compare(inputP1, songP1)
-
-    # print("*************MATCH AVERAGE****************")
-    # print(match_res)
-    # ---Decision making---
-    if bool == 1:
+    if compare_ratio(input_pattern, song_pattern) == 1:
         print("we have a match!")
         return 1
     else:
