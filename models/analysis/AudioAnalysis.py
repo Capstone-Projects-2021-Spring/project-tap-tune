@@ -77,9 +77,10 @@ def process_timestamp_ratio(timestamp):
         temp = timestamp[i + 1] - timestamp[i]
         diff += temp
     avg_diff = diff / len(timestamp)
-    print("\n*************")
-    print(avg_diff)
-    print("***************\n")
+    print("*****************************")
+    print("average difference = ", avg_diff)
+    print("diff = ", diff)
+    print("timestamp length = ", len(timestamp))
     for i in range(len(timestamp)):
         beat_diff_over_avg.append(timestamp[i] / avg_diff)
     return beat_diff_over_avg
@@ -101,11 +102,6 @@ def compare_ratio(user_pattern, song_pattern):
         numOfHit = 0
         temp = i
         for j in range(len(user_pattern)):
-            # print("==============")
-            # print("\nBUG TESTING")
-            # print("user_pattern: ",user_pattern)
-            # print("user_pattern/song_pattern: ",user_pattern[j],"/",song_pattern[i])
-            # print("==============\n")
             if user_pattern[j] / song_pattern[i] >= 0.8:
                 numOfHit += 1
                 i += 1
@@ -300,14 +296,21 @@ def unhash_array(db_string):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
-    # print("IN PROCESS PEAKS")
+    print("IN PROCESS PEAKS")
+    print("user input = ", userInput)
+    print("peak frames = ", peakFrames)
     # User input prep
     new_input = merge_beats(userInput)
+    print("merged beats = ", new_input)
     new_input_pattern = process_timestamp_ratio(new_input)
+    print("processed timestamps = ", new_input_pattern)
     # DB song prep
     timestamp = librosa.frames_to_time(peakFrames, sr=22050)
+    # print("frames to timestamp = ", timestamp)
     timestamp = drop_ambiguous(timestamp)
+    print("timestamp ambiguous dropped = ", timestamp)
     song_pattern = process_timestamp_ratio(timestamp)
+    print("song_patter = ", song_pattern)
 
     # print("*************MATCH AVERAGE****************")
     # print(match_res)
@@ -380,8 +383,6 @@ class rhythmAnalysis:
             """
             convert peak_hash to binary array
             """
-            print("**************SONG CHECK*******************")
-            print(db_track["title"])
             bin_array = unhash_array(db_track["peak_hash"])
 
             """
@@ -530,8 +531,8 @@ class rhythmAnalysis:
                 """
                 peak_array = unhash_array(db_track["peak_hash"])
                 onset_array = unhash_array(db_track["onset_hash"])
+                print("\n================================================================")
                 print(db_track)
-
                 """
                 convert binary array to frames
                 """
