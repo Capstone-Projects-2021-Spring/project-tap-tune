@@ -1,7 +1,7 @@
 from models.analysis import AudioAnalysis
 import hashingfile
 import librosa
-import ACRCloudRequest as acrcloud
+import FingerprintRequest as fingerprint
 
 # TODO: Work on Peak_Hashing, automatic imput into database
 
@@ -10,12 +10,12 @@ class databaseInsertSong:
     # path to Song file and ACRCloud connection saved to Object
     def __init__(self, path):
         self.file = path
-        self.acrreq = acrcloud.acrCloudRequest()
+        self.fp = fingerprint.FingerprintRequest()
 
     def getInsertString(self):
 
         # Gets ACRCloud Fingerprinted metadata back as a song object with set attributes
-        song = self.acrreq.getACRSongFingerprint(self.file)
+        song = self.fp.getACRSongFingerprint(self.file)
         title = song.title
         artist = song.artists
         genre = song.genres
@@ -46,7 +46,6 @@ class databaseInsertSong:
 
 
 #   TESTING   ###################################################################################################################
-'''
-string = databaseInsertSong("").getInsertString()
-print(string)
-'''
+
+
+
