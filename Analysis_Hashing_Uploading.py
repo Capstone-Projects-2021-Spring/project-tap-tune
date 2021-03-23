@@ -223,6 +223,22 @@ def binToFrames(bin_array):
     """SPOTIFY API TO GET SONG METADATA"""
 
 
+def artistMod(artist):
+    dict = {
+        "ACDC":"AC/DC",
+        "Earth Wind Fire":"Earth, Wind & Fire"
+    }
+
+    if artist in dict.keys():
+        return dict[artist]
+
+    else:
+        return artist
+
+"""
+GOES THROUGH MUSIC FOLDER AND PRODUCES HASH VALUES
+"""
+"""
 for filename in os.listdir("music"):
     print("\n",filename)
 
@@ -270,3 +286,83 @@ for filename in os.listdir("music"):
     print("\nPeak hash")
     print(res_string)
     print("\n======================================================")
+"""
+creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
+spotify = spotipy.Spotify(client_credentials_manager=creds)
+
+songs = []
+element = 0
+"""SPOTIFY TESTER TO GET METADATA"""
+for filename in os.listdir("test_music"):
+    filename_split = filename.split("_")
+    track_id = ""
+    artist_id = ""
+    track_artist = str(filename_split[0])
+    track_title = str(filename_split[1])[0:len(filename_split[1])-4]
+    track_artist = artistMod(track_artist)
+    songs.append( {"title": track_title, "artist": track_artist, "release_date": "", "genre":"", "onset_hash": "", "peak_hash": ""})
+
+    """SEARCH THROUGH SPOTIFY AND CHECK ARTISTS"""
+    found = False
+    results_2 = spotify.search(q=track_title, limit=10, type="track", market=None)
+    for albums in results_2["tracks"]["items"]:
+        for artist in albums["artists"]:
+            if(artist["name"] == track_artist):
+                track_id = albums["id"]
+                track_release = albums["album"]["release_date"]
+                artist_id = artist["id"]
+                songs[element]["release_date"] = track_release
+                found = True
+                break
+        if(found):
+            """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
+            md_results = spotify.artist(artist_id)
+            genres = ", ".join(md_results["genres"])
+            songs[element]["genre"] = genres
+            break
+
+    """PERFORM ONSET HASHING"""
+    file_path = "test_music/" + filename
+    # Loads waveform of song into x
+    x, sr = librosa.load(file_path)
+    # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
+    frames = librosa.onset.onset_detect(y=x, sr=sr, units='frames')  # Librosa Frames
+
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    onset_hash = hash_array(bin_array)
+    songs[element]["onset_hash"] = onset_hash
+
+    """PERFORM PEAK ONSET HASHING"""
+    y, sr = librosa.load(file_path)
+    onset_env = librosa.onset.onset_strength(y=y, sr=22050)
+    peaks = librosa.util.peak_pick(onset_env, 3, 3, 3, 5, .5, 10)
+
+    bin_array = []
+    increment = 0
+    for x in range(0, peaks[len(peaks) - 1]):
+        if (peaks[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    peak_onset_hash = hash_array(bin_array)
+    songs[element]["peak_hash"] = peak_onset_hash
+
+    element += 1
+
+print(songs[0])
