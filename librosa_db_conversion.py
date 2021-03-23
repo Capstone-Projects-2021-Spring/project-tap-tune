@@ -6,6 +6,7 @@ from ipywidgets import interact
 
 import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
+from database_sep import mydb, get_cursor
 import soundfile as sf
 
 def print_test(str, title):
@@ -204,18 +205,6 @@ def binToFrames(bin_array):
 
 # Loads waveform of song into x
 x, sr = librosa.load('Mr.Brightside_TheKillers.wav')
-
-# # Changes audio into harmonic/percussive wave forms
-# y_harmonic, y_percussive = librosa.effects.hpss(x, margin = (1.0, 10.0))
-
-''' Not required as well to create new audio files
-# Creates and saves in a file
-sf.write('ex1.wav', y_harmonic,sr) #Melody Audio
-sf.write('ex2.wav', y_percussive, sr) #Beat Audio
-
-# Overwrite/load the percussive beat audio
-x, sr = librosa.load('ex2.wav')
-'''
 
 # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
 tempo, frames = librosa.beat.beat_track(x, sr=sr, units = 'frames') # Librosa Frames
