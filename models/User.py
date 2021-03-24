@@ -9,8 +9,6 @@ import secrets
 User class models and contains information about a user.
 Including their identifying information and their login information.
 """
-
-
 class User:
     UNKNOWN_ERROR = 'generic error'
 
@@ -84,7 +82,7 @@ class User:
         try:
             # get user info from database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM user WHERE email = %s', (email, ))
+            cursor.execute('SELECT * FROM user WHERE email = %s', (email,))
             user_data = cursor.fetchone()
 
             # if user found verify password
@@ -167,7 +165,8 @@ class User:
                             Hello, %s<br>
                             Follow the link below to reset your password.
                         </p>
-                        <a href="taptune.live/reset-password?token=%s">Reset Password</a>''' % (data['name'], reset_token)
+                        <a href="taptune.live/reset-password?token=%s">Reset Password</a>''' % (
+                    data['name'], reset_token)
                 msg = Message()
                 msg.add_recipient(data['email'])
                 msg.subject = "TapTune - Reset Password Link"
@@ -215,7 +214,7 @@ class User:
         try:
             # check if reset_token in database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM user WHERE reset_token = %s', (reset_token, ))
+            cursor.execute('SELECT * FROM user WHERE reset_token = %s', (reset_token,))
             data = cursor.fetchone()
 
             # if data found token is valid
@@ -256,11 +255,44 @@ class User:
     initializes them into Song class and returns an array containing the search results. 
     Returns an array with the songs from the user’s song log. 
     The array can be empty.
+    Returns None on failure
     """
     def get_song_log(self):
-        # TODO IMPLEMENT GET SONG LOG
-        return []
+        song_log = []
+        try:
+            cursor = get_cursor()
+            cursor.execute('SELECT usl.*, song.title, song.artist, song.release_date, song.genre FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
+                           (self.id,))
+            results = cursor.fetchall()
+            for song in results:
+                print(song)
+                song_log.append({"song_id": song['song_id'], "percent_match": song['percent_match']
+                                , "result_date": song['result_date'], "title": song['title'], "artist": song['artist']
+                                , "genre": song['genre']})
+        except Exception as e:
+            print(e)
+            return None
+        return song_log
+
+    """
+    This method takes the results of song matches and add it to the user song search history in the database
+    expected input: song_results[]{ song_id, percent_match }
+    db store: user_id, song_id, percent_match [Decimal(5,4) -> d.dddd]
+    Returns True on success and False on failure
+    """
+    def add_song_long(self, song_results):
+        try:
+            cursor = get_cursor()
+            for song in song_results:
+                print(song)
+                cursor.execute('INSERT INTO user_song_log (user_id, song_id, percent_match) VALUES (%s,%s,%s)',
+                               (self.id, song.get('song_id'), song.get('percent_match')))
+            db.connection.commit()
+        except Exception as e:
+            print(e)
+            return False
+        return True
+
 
 if __name__ == ("__main__"):
     print("HELLO WORLD")
-    
