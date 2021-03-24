@@ -292,7 +292,3 @@ class User:
             print(e)
             return False
         return True
-
-
-if __name__ == ("__main__"):
-    print("HELLO WORLD")
