@@ -326,8 +326,6 @@ for filename in os.listdir("test_music"):
     results_2 = spotify.search(q=track_title, limit=10, type="track", market=None)
     for albums in results_2["tracks"]["items"]:
         for artist in albums["artists"]:
-            print("\nARTIST NAME:\n",artist["name"])
-            print(artist["name"] in track_artists)
             if(artist["name"] in track_artists):
                 track_id = albums["id"]
                 track_release = albums["album"]["release_date"]
@@ -402,8 +400,8 @@ if(choice == "y"):
         for track in songs:
             isDup = False
             # statement to search for matching song titles
-            dup_statement = 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track["title"])
-            cursor.execute(dup_statement)
+            dup_sql= 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track["title"])
+            cursor.execute(dup_sql)
             results = cursor.fetchall()
             # converting track artist string to list
             track_artists = track["artist"].split(", ")
@@ -418,9 +416,17 @@ if(choice == "y"):
 
             if(isDup):
                 print("DUPLICATE FOUND")
+                print(track)
+                print("SCRIPT ENDING")
 
             else:
                 print("NO DUPLICATE FOUND")
+                """INSERT THE NEW RECORD INTO DATABASE"""
+
+                insert_sql = "INSERT INTO song (title, artist, release_date, genre, onset_hash, peak_hash) VALUES (%s, %s, %s, %s, %s, %s)"
+                vals = (track["title"], track["artist"], track["release_date"], track["genre"], track["onset_hash"], track["peak_hash"])
+                cursor.execute(insert_sql, vals)
+                mydb.commit()
     except Exception as e:
         print(e)
 
