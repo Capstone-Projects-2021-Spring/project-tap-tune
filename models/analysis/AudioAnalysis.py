@@ -73,31 +73,41 @@ def process_timestamp_ratio(timestamp):
     return beat_diff_over_avg
 
 
-# Purpose: Compare two ratio pattern
-# Principle: if user_pattern[i] / song_pattern[i] is very close t 1, it is a match beat
+# Purpose: Compare two ratio pattern and calculate matching rate
+# Principle: if user_pattern[i] / song_pattern[i] is very close t 1, it is a match beat, record that result for
+#            matching rate calculation
 # Status: In progess, error range need more testing to determine
 # Note: round both item to same decimal precision to compare?
 def compare_ratio(user_pattern, song_pattern):
-    mark = len(user_pattern) * 0.7
+    mark = round(len(user_pattern) * 0.7)
     numOfHit = 0
     error = 0.2  # Working process
+    j = 0
+    match_rate = 0
     for i in range(len(song_pattern) - len(user_pattern)):
-        numOfHit = 0
-        temp = i
-        for j in range(len(user_pattern)):
-            if user_pattern[j] / song_pattern[i] >= 0.8:
+
+        while j < len(user_pattern):
+            match_rate_this_beat = round(1 - (abs(1 - user_pattern[j] / song_pattern[i])), 4)
+            if match_rate_this_beat >= 0.8:
+                print("It's a hit!")
                 numOfHit += 1
+                match_rate += match_rate_this_beat
+                print('Update match_rate: {}'.format(match_rate))
                 i += 1
+                j += 1
+                break
+            elif j < len(user_pattern) - 1:
+                j += 1
             else:
-                i = temp + 1
+                j = 0
                 break
 
-        if numOfHit >= mark:
-            return 1
+        # if numOfHit >= mark:
+        #     return 1
     if numOfHit >= mark:
-        return 1
+        return 1, round(match_rate / len(user_pattern),4)
     else:
-        return 0;
+        return 0, round(match_rate / len(user_pattern), 4)
 
 
 # Purpose: Split a song into three section as a list. Iterate through the list for compare, provide early exit if song
@@ -264,12 +274,13 @@ def process_recording_peaks(userInput, peakFrames):
     song_pattern = process_timestamp_ratio(timestamp)
 
     # ---Decision making---
-    if compare_ratio(new_input_pattern, song_pattern) == 1:
+    decision, matching_rate = compare_ratio(new_input_pattern, song_pattern)
+    if decision == 1:
         print("we have a match!")
-        return 1
+        return 1, matching_rate
     else:
         print("no match found")
-        return 0
+        return 0, matching_rate
 
 
 # process the recording in full
@@ -282,12 +293,13 @@ def process_recording(userInput, onsetFrames):
 
     # compare user input and DB info
     # ---Decision making---
-    if compare_ratio(input_pattern, song_pattern) == 1:
+    decision, matching_rate = compare_ratio(input_pattern, song_pattern)
+    if decision == 1:
         print("we have a match!")
-        return 1
+        return 1, matching_rate
     else:
         print("no match found")
-        return 0
+        return 0, matching_rate
 
 
 class rhythmAnalysis:
@@ -357,7 +369,7 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match = process_recording_peaks(self.user_input, res_frames)
+            match, matching_rate = process_recording_peaks(self.user_input, res_frames)
 
             if match:
                 title = db_results[index]["title"]
@@ -426,7 +438,7 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match = process_recording(self.user_input, res_frames)
+            match, matching_rate = process_recording(self.user_input, res_frames)
 
             if (match):
                 title = db_results[0]["title"]
@@ -521,8 +533,8 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match = process_recording_peaks(self.user_input, peak_frames)
-            match2 = process_recording(self.user_input, onset_frames)
+            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
+            match2, matching_rate = process_recording(self.user_input, onset_frames)
 
             print(match, match2)
 
