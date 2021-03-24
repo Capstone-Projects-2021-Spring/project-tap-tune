@@ -421,5 +421,15 @@
   document.querySelector('#stop').onclick = (e) => {
     stop();
   }
+  /**************************************************************************************/
+  var stopButton = document.querySelector('#stop');
+  stopButton.onclick = (e) => {
+    stop();
+    stopButton.innerHTML = 'Resume';
+    stopButton.onclick = (e) =>{
+      goToFiltering();
+    }
+    stopButton.innerHTML = 'Submit';
+  }
 })()
 
