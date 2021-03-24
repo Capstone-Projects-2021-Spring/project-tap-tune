@@ -10,6 +10,7 @@
                     genres: *genres
                 }
             ]
+
     results.append( {"title" : *title, "artist", *artist, "genres":*genre} )
 5. Return the song results to use in the Filtering
 6. data processing: hash from db > bin > frame > timestamp > drop ambiguous > pattern -> compare function
@@ -17,18 +18,7 @@
 
 import librosa
 import math
-from acrcloud.recognizer import ACRCloudRecognizer
-import re
 from models.Database import db, get_cursor
-
-
-def dupCheck(self, dict, target):
-    for track in dict:
-        if target in track:
-            pass
-        else:
-            return False
-    return True
 
 """COMPARISON FUNCTIONS"""
 
@@ -55,6 +45,7 @@ def merge_beats(timestamps):
 
     return new_times
 
+
 # Purpose:  take in timestamp, return pattern
 # Principle: process timestamp and get pattern by getting time differences between each beat
 # Status: clear
@@ -77,45 +68,46 @@ def process_timestamp_ratio(timestamp):
         temp = timestamp[i + 1] - timestamp[i]
         diff += temp
     avg_diff = diff / len(timestamp)
-    print("*****************************")
-    print("average difference = ", avg_diff)
-    print("diff = ", diff)
-    print("timestamp length = ", len(timestamp))
     for i in range(len(timestamp)):
         beat_diff_over_avg.append(timestamp[i] / avg_diff)
     return beat_diff_over_avg
 
 
-# Purpose: Compare two ratio pattern
-# Principle: if user_pattern[i] / song_pattern[i] is very close t 1, it is a match beat
+# Purpose: Compare two ratio pattern and calculate matching rate
+# Principle: if user_pattern[i] / song_pattern[i] is very close t 1, it is a match beat, record that result for
+#            matching rate calculation
 # Status: In progess, error range need more testing to determine
 # Note: round both item to same decimal precision to compare?
 def compare_ratio(user_pattern, song_pattern):
-    mark = len(user_pattern) * 0.7
+    mark = round(len(user_pattern) * 0.7)
     numOfHit = 0
     error = 0.2  # Working process
-
-    checkedPattern = 0
-    matchAVG = 0
-
+    j = 0
+    match_rate = 0
     for i in range(len(song_pattern) - len(user_pattern)):
-        numOfHit = 0
-        temp = i
-        for j in range(len(user_pattern)):
-            if user_pattern[j] / song_pattern[i] >= 0.8:
+
+        while j < len(user_pattern):
+            match_rate_this_beat = round(1 - (abs(1 - user_pattern[j] / song_pattern[i])), 4)
+            if match_rate_this_beat >= 0.8:
+                print("It's a hit!")
                 numOfHit += 1
+                match_rate += match_rate_this_beat
+                print('Update match_rate: {}'.format(match_rate))
                 i += 1
+                j += 1
+                break
+            elif j < len(user_pattern) - 1:
+                j += 1
             else:
-                i = temp + 1
+                j = 0
                 break
 
-        if numOfHit >= mark:
-            print(matchAVG)
-            return 1
+        # if numOfHit >= mark:
+        #     return 1
     if numOfHit >= mark:
-        return 1
+        return 1, round(match_rate / len(user_pattern),4)
     else:
-        return 0
+        return 0, round(match_rate / len(user_pattern), 4)
 
 
 # Purpose: Split a song into three section as a list. Iterate through the list for compare, provide early exit if song
@@ -143,10 +135,6 @@ def synchronize(originalPattern, base):
     return syncedPattern
 
 
-
-"""MODIFIED"""
-
-
 # compare input array to song
 # find out if the userPattern[a1,a2,a3...] can be found in the songPattern[s1,s2,s3...]
 # a multiple C meaning the how much faster/slower userPattern is to songPattern: a1= c*s1, a2=c*s2......
@@ -170,41 +158,21 @@ def compare(userPattern, songPattern):
 
     # keep track of how many match appears
     numOfHit = 0
-    checkedPattern = 0
-    matchAVG = 0
-
-    # match res should accept the matchAVG
-    matchRes = 0
 
     for i in range(len(songSynced) - len(userSynced)):
-        checkedPattern += 1
         for j in range(len(userSynced)):
             if songSynced[j] - error <= userSynced[j] <= songSynced[j] + error:
                 numOfHit += 1
         # print("# of hit : {}".format(numOfHit))
-
-        # calculates the match percentage of the one pattern check
-        # adds the match percentage to the average of previous match percentages
-        match = numOfHit / len(userPattern)
-        match *= 100
-        matchAVG = (matchAVG + match) / checkedPattern
         if numOfHit >= mark:
-            print("\nMATCH AVG:")
-            print(matchAVG)
-            return 1, (matchAVG)
+            return 1
         else:
-            print("\nMATCH AVG:")
-            print(matchAVG)
             numOfHit = 0
-    # print("max # of hit : {}".format(numOfHit))
+    print("max # of hit : {}".format(numOfHit))
     if numOfHit >= mark:
-        print("\nMATCH AVG:")
-        print(matchAVG)
-        return 1, (matchAVG)
+        return 1
     else:
-        print("\nMATCH AVG:")
-        print(matchAVG)
-        return 0, (matchAVG)
+        return 0
 
 
 """CONVERSION FUNCTIONS"""
@@ -272,7 +240,7 @@ def unhash_array(db_string):
     for val in range(0, len(db_tok)):
         frame_val = db_tok[val]
         # if blank flag
-        if frame_val == "":
+        if (frame_val == ""):
             if val != len(db_tok) - 1:
                 bin_array.append(1)
 
@@ -296,62 +264,50 @@ def unhash_array(db_string):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
-    print("IN PROCESS PEAKS")
-    print("user input = ", userInput)
-    print("peak frames = ", peakFrames)
+
     # User input prep
     new_input = merge_beats(userInput)
-    print("merged beats = ", new_input)
     new_input_pattern = process_timestamp_ratio(new_input)
-    print("processed timestamps = ", new_input_pattern)
     # DB song prep
     timestamp = librosa.frames_to_time(peakFrames, sr=22050)
-    # print("frames to timestamp = ", timestamp)
     timestamp = drop_ambiguous(timestamp)
-    print("timestamp ambiguous dropped = ", timestamp)
     song_pattern = process_timestamp_ratio(timestamp)
-    print("song_patter = ", song_pattern)
-
-    # print("*************MATCH AVERAGE****************")
-    # print(match_res)
 
     # ---Decision making---
-    if compare_ratio(new_input_pattern, song_pattern) == 1:
+    decision, matching_rate = compare_ratio(new_input_pattern, song_pattern)
+    if decision == 1:
         print("we have a match!")
-        return 1
+        return 1, matching_rate
     else:
         print("no match found")
-        return 0
+        return 0, matching_rate
 
 
 # process the recording in full
 def process_recording(userInput, onsetFrames):
-    print("IN PROCESS_RECORDING")
     # DB song prep
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
-    songTimestamp = drop_ambiguous(songTimestamp)
     song_pattern = process_timestamp_ratio(songTimestamp)
     # user input prep
     input_pattern = process_timestamp_ratio(userInput)
 
     # compare user input and DB info
     # ---Decision making---
-    if compare_ratio(input_pattern, song_pattern) == 1:
+    decision, matching_rate = compare_ratio(input_pattern, song_pattern)
+    if decision == 1:
         print("we have a match!")
-        return 1
+        return 1, matching_rate
     else:
         print("no match found")
-        return 0
+        return 0, matching_rate
 
 
 class rhythmAnalysis:
 
-    def __init__(self, userTaps=None, filterResults=None):
+    def __init__(self, userTaps=None):
         print(userTaps)
         if (userTaps != None):
             self.user_input = userTaps
-        if (filterResults != None):
-            self.filter_results = filterResults
 
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
@@ -383,6 +339,8 @@ class rhythmAnalysis:
             """
             convert peak_hash to binary array
             """
+            print("**************SONG CHECK*******************")
+            print(db_track["title"])
             bin_array = unhash_array(db_track["peak_hash"])
 
             """
@@ -411,7 +369,7 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match = process_recording_peaks(self.user_input, res_frames)
+            match, matching_rate = process_recording_peaks(self.user_input, res_frames)
 
             if match:
                 title = db_results[index]["title"]
@@ -480,7 +438,7 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match = process_recording(self.user_input, res_frames)
+            match, matching_rate = process_recording(self.user_input, res_frames)
 
             if (match):
                 title = db_results[0]["title"]
@@ -503,243 +461,92 @@ class rhythmAnalysis:
 
     def onset_peak_func(self):
         song_results = []
-# try catch here
-        try:
-            # retrieves cursor from Database.py
-            cursor = get_cursor()
-            cursor.execute('SELECT title, artist, genre, onset_hash, peak_hash FROM song')
-            # fetch all results and save in song_data list
 
-            """GO THROUGH DB DATA"""
-            song_data = cursor.fetchall()
-            db_results = []
-            for track in song_data:
-                title = track["title"]
-                artist = track['artist']
-                genres = track["genre"]
-                onset_hash = track['onset_hash']
-                peak_hash = track['peak_hash']
+        # retrieves cursor from Database.py
+        cursor = get_cursor()
+        cursor.execute('SELECT title, artist, genre, onset_hash, peak_hash FROM song')
+        # fetch all results and save in song_data list
 
-                db_results.append({"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash, "peak_hash": peak_hash})
+        """GO THROUGH DB DATA"""
+        song_data = cursor.fetchall()
+        db_results = []
+        for track in song_data:
+            title = track["title"]
+            artist = track['artist']
+            genres = track["genre"]
+            onset_hash = track['onset_hash']
+            peak_hash = track['peak_hash']
 
-            # for loop to go through the song_data
-            # for track in db_results:
-            index = 0
-            for db_track in db_results:
-                """
-                convert onset_hash to binary array
-                """
-                peak_array = unhash_array(db_track["peak_hash"])
-                onset_array = unhash_array(db_track["onset_hash"])
-                print("\n================================================================")
-                print(db_track)
-                """
-                convert binary array to frames
-                """
-                # frames from bin
-                onset_frames = []
-                track = 0
-                offset = 0
-                check = 0
+            db_results.append(
+                {"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash, "peak_hash": peak_hash})
 
-                for bin in onset_array:
-                    if (bin == 0) and (check != len(peak_array) - 1):
-                        track += 1
+        # for loop to go through the song_data
+        # for track in db_results:
+        index = 0
+        for db_track in db_results:
+            """
+            convert onset_hash to binary array
+            """
+            peak_array = unhash_array(db_track["peak_hash"])
+            onset_array = unhash_array(db_track["onset_hash"])
+            print(db_track)
 
-                    elif (bin == 1):
-                        onset_frames.append(track + offset)
-                        offset += 1
+            """
+            convert binary array to frames
+            """
+            # frames from bin
+            onset_frames = []
+            track = 0
+            offset = 0
+            check = 0
 
-                    else:
-                        onset_frames.append(track + offset + 1)
-                        offset += 1
-                    check += 1
+            for bin in onset_array:
+                if (bin == 0) and (check != len(peak_array) - 1):
+                    track += 1
 
-                peak_frames = []
-                track = 0
-                offset = 0
-                check = 0
-                for bin in peak_array:
-                    if (bin == 0) and (check != len(peak_array) - 1):
-                        track += 1
+                elif (bin == 1):
+                    onset_frames.append(track + offset)
+                    offset += 1
 
-                    elif (bin == 1):
-                        peak_frames.append(track + offset)
-                        offset += 1
+                else:
+                    onset_frames.append(track + offset + 1)
+                    offset += 1
+                check += 1
 
-                    else:
-                        peak_frames.append(track + offset + 1)
-                        offset += 1
-                    check += 1
+            peak_frames = []
+            track = 0
+            offset = 0
+            check = 0
+            for bin in peak_array:
+                if (bin == 0) and (check != len(peak_array) - 1):
+                    track += 1
 
+                elif (bin == 1):
+                    peak_frames.append(track + offset)
+                    offset += 1
 
-                """
-                compare with the user input
-                """
-                match = process_recording_peaks(self.user_input, peak_frames)
-                match2 = process_recording(self.user_input, onset_frames)
+                else:
+                    peak_frames.append(track + offset + 1)
+                    offset += 1
+                check += 1
 
+            """
+            compare with the user input
+            """
+            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
+            match2, matching_rate = process_recording(self.user_input, onset_frames)
 
-                if (match or match2):
-                    title = db_results[index]["title"]
-                    artist = db_results[index]["artist"]
-                    genres = db_results[index]["genres"]
+            print(match, match2)
 
-                    song_results.append({"title": title, "artist": artist, "genres": genres})
-                index += 1
-            if (self.filter_results):
-                # if there is a list of songs from filtering
-                # compare the filter_results list to song_results
-                final_result = []
-                for filter_track in self.filter_results:
-                    for analysis_track in song_results:
-                        if (filter_track["title"] == analysis_track["title"]):
-                            if (dupCheck(final_result, analysis_track["title"])):
-                                final_result.append(analysis_track)
+            if (match or match2):
+                title = db_results[index]["title"]
+                artist = db_results[index]["artist"]
+                genres = db_results[index]["genres"]
 
-            if (len(song_results) < 1):
-                return None
-            else:
-                return song_results
-        except Exception as e:
-            print(e)
+                song_results.append({"title": title, "artist": artist, "genres": genres})
+            index += 1
 
-
-
-'''
-Start of Melody Analysis
-'''
-
-
-# Function to turn array of individual strings from split function into one string
-def arrayToString(array):
-
-    string = ""
-
-    # eliminate special characters from each string and add to temp string. Skip if element is empty
-    for elements in array:
-        text = re.sub('[^A-Za-z0-9-_]+', '', elements)
-        if elements == "":
-            continue
+        if (len(song_results) < 1):
+            return None
         else:
-            string += text + ","
-    # if the string ends with a comma, remove from final string
-    if string[len(string) - 1] == ',':
-        string = string[:len(string) - 1]
-
-    return string
-
-
-
-# Song object for returning the song found from ACRCloud
-# Can Add attributes if extra metadata extraction is needed
-# Function to turn array of individual strings from split function into one string
-def arrayToString(array):
-
-    string = ""
-
-    # eliminate special characters from each string and add to temp string. Skip if element is empty
-    for elements in array:
-        text = re.sub('[^A-Za-z0-9-_]+', '', elements)
-        if elements == "":
-            continue
-        else:
-            string += text + ","
-
-    # if the string ends with a comma, remove from final string
-    if string[len(string) - 1] == ',':
-        string = string[:len(string) - 1]
-
-    return string
-
-class foundsong:
-    def __init__(self):
-        self.title = ""
-        self.artists = ""
-        self.genres = ""
-
-        # Only for auto database input
-        self.path = ""
-
-    def set_title(self, title):
-        self.title = title
-
-    def set_artist(self, artists):
-        self.artists = artists
-
-    def set_genre(self, genres):
-        self.genres = genres
-
-    # Only for auto database input
-    def set_path(self, path):
-        self.path = path
-
-class acrCloudRequest:
-    def __init__(self):
-        config = {
-            # Should replace this with a more secure way of accessing identifiers maybe
-            'host': 'identify-eu-west-1.acrcloud.com',
-            'access_key': '5b08c65b811b20cfdfa300bca6c8a093',
-            'access_secret': '8CLfpgyw75EcTqe9UWhhs821hemenq0NiiB4bVhn',
-            'timeout': 10  # seconds
-        }
-        self.acr = ACRCloudRecognizer(config)
-
-    def getACRSongFingerprint(self, userfile):
-        # @param userfile: audio file path
-
-        # Get fingerprinted song string from ACR Cloud
-        fingerprinted = self.acr.recognize_by_file(userfile, 0)
-        # print(fingerprinted)
-
-        # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
-        fingerprinted = re.sub('[^A-Za-z0-9,-_]+', '', fingerprinted)
-        fingerprinted = re.sub(r'[\[\]\\\/]', '', fingerprinted)
-
-        # Object for song metadata return
-        songmetadata = foundsong()
-        songStrings = ["title", "artists", "genres"]
-
-        # Goes through to search for each metadata identifier from songStrings
-        for identifiers in range(0, len(songStrings)):
-            try:
-                # String manipulation for each metadata field
-                substr = fingerprinted[fingerprinted.index(songStrings[identifiers]) + len(songStrings[identifiers]) + 1:]
-                # print(substr)
-
-                # Searches for multiple entries in each field like multiple genres or artists
-                # multiple fields in identifier are separated by string "name:".
-                # Will check until next ":" is not after "name", thus ending multiple fields for said identifier
-                flag = 0
-                counter = 8
-                while flag == 0:
-                    if substr[counter] == ':':
-                        if "name" in substr[counter - 8:counter]:
-                            counter += 1
-                        else:
-                            flag = 1
-                    counter += 1
-
-                # More String clean up. Counter will have an index that will encompass all the fields of identifier
-                # Splits string to get names of each field
-                substr = substr[:counter]
-                substr = substr[:substr.rindex(",")]
-                substr = substr.split("name:")
-
-                # Cleans up elements in each split string and puts into a single string
-                substr = arrayToString(substr)
-
-            # If metadata identifier is not found, sets string to empty and prints error
-            except ValueError:
-                print("No " + songStrings[identifiers] + " found")
-                substr = ""
-
-            # Bunch of if statements to make sure correct identifier is set to each attribute in the song object
-            if songStrings[identifiers] == "title":
-                songmetadata.set_title(substr)
-            if songStrings[identifiers] == "artists":
-                songmetadata.set_artist(substr)
-            if songStrings[identifiers] == "genres":
-                songmetadata.set_genre(substr)
-
-        return songmetadata
+            return song_results
