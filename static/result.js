@@ -1,7 +1,7 @@
 var table = document.getElementById("resultsSecondaryTable");
 var mainSearchTitle = document.getElementById("resultsMainSearchTitle");
 var mainSearchArtist = document.getElementById("resultsMainSearchArtist");
-var mainSearchLyrics = document.getElementById("resultsMainSearchArtist");
+var mainSearchLyrics = document.getElementById("resultsMainSearchLyrics");
 var data = document.getElementById("filteredResultsList").getAttribute("data-filtered");
 var data2 = data.replace(/'/g, '"');
 if (data2.length > 0)
@@ -36,3 +36,18 @@ for(var i = 0; i < jsonObj.length; i++) {
     
 }
 
+    var lyrics = {"title": mainSearchTitle.textContent, "artist": mainSearchArtist.textContent}
+    console.log("AJAX"+JSON.stringify(lyrics));
+            $.ajax({
+                url: '/lyrics',
+                type : 'post',
+                contentType: 'application/json',
+                dataType : 'json',
+                data : JSON.stringify(lyrics) //passing the variable
+            }).done(function(result) {
+                console.log("success: " + result);
+                //goToFiltering();
+
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("fail: ",textStatus, errorThrown);
+            });
