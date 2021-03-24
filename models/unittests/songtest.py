@@ -150,7 +150,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                            (songs[1].get('title'), songs[1].get('artist'), songs[1].get('genre')))
 
             # test get all
-            r = Song.get_by_artist('artist b')
+            r = Song.get_by_artist('b')
             self.assertIsNotNone(r)
             self.assertEqual(r[0].artist, 'Artist B')
 

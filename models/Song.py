@@ -80,13 +80,15 @@ class Song:
     """
     @staticmethod
     def get_by_artist(artist):
+        # format genre for like query
+        artist_f = '%' + artist + '%'
 
         try:
             songs = []
 
             # get songs from database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM song WHERE artist = %s', (artist,))
+            cursor.execute('SELECT * FROM song WHERE artist LIKE %s', (artist_f,))
             song_rows = cursor.fetchall()
 
             # create song classes and append to songs array
