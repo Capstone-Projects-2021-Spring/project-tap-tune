@@ -3,6 +3,7 @@ import librosa, librosa.display
 import soundfile as sf
 import os
 import spotipy
+from database_sep import mydb, get_cursor
 
 def print_test(str, title):
     print("******************************"+title+"************************")
@@ -235,6 +236,13 @@ def artistMod(artist):
     else:
         return artist
 
+def printSongs(songs):
+    for song in songs:
+        print("++++++++++++++++++++++++++++++++")
+        print(song["title"])
+        print(song["artist"])
+        print(song["release_date"])
+        print(song["genre"])
 """
 GOES THROUGH MUSIC FOLDER AND PRODUCES HASH VALUES
 """
@@ -291,23 +299,36 @@ creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41
 spotify = spotipy.Spotify(client_credentials_manager=creds)
 
 songs = []
+"""GATHERING INFORMATION ON SONG FILES
+- SPOTIFY TESTER TO GET METADATA
+- RUN LIBROSA AND HASHING ON FILES 
+- SAVE INFORMATION IN SONGS LIST
+"""
 element = 0
-"""SPOTIFY TESTER TO GET METADATA"""
 for filename in os.listdir("test_music"):
+    # parse scheme for splitting title and artist (separated by an underscore)
     filename_split = filename.split("_")
     track_id = ""
     artist_id = ""
     track_artist = str(filename_split[0])
+
+    # parse scheme for multiple artists (separated by a comma)
+    track_artists = track_artist.split(",")
+    # mod any artists names
+    for ele in range(len(track_artists)):
+        track_artists[ele] = artistMod(track_artists[ele])
+
     track_title = str(filename_split[1])[0:len(filename_split[1])-4]
-    track_artist = artistMod(track_artist)
-    songs.append( {"title": track_title, "artist": track_artist, "release_date": "", "genre":"", "onset_hash": "", "peak_hash": ""})
+    songs.append( {"title": track_title, "artist": ", ".join(track_artists), "release_date": "", "genre":"", "onset_hash": "", "peak_hash": ""})
 
     """SEARCH THROUGH SPOTIFY AND CHECK ARTISTS"""
     found = False
     results_2 = spotify.search(q=track_title, limit=10, type="track", market=None)
     for albums in results_2["tracks"]["items"]:
         for artist in albums["artists"]:
-            if(artist["name"] == track_artist):
+            print("\nARTIST NAME:\n",artist["name"])
+            print(artist["name"] in track_artists)
+            if(artist["name"] in track_artists):
                 track_id = albums["id"]
                 track_release = albums["album"]["release_date"]
                 artist_id = artist["id"]
@@ -365,4 +386,48 @@ for filename in os.listdir("test_music"):
 
     element += 1
 
-print(songs[0])
+"""CHECKPOINT BEFORE INSERTING INTO DB"""
+printSongs(songs)
+choice = input("\nVerified Information and Ready to Insert into Database? (y/n)")
+
+if(choice == "y"):
+    """INSERT INTO DATABASE
+    - SEARCH TO MAKE SURE THERE ARE NO DUPLICATES
+    - INSERT INFORMATION INTO THE DATABASE
+    """
+    try:
+        cursor = get_cursor()
+
+        # iterate through the songs
+        for track in songs:
+            isDup = False
+            # statement to search for matching song titles
+            dup_statement = 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track["title"])
+            cursor.execute(dup_statement)
+            results = cursor.fetchall()
+            # converting track artist string to list
+            track_artists = track["artist"].split(", ")
+            # loops through resulting rows
+            for res_record in results:
+                # loops thorugh the
+                for res_artist in res_record[0].split(", "):
+
+                    if(res_artist in track_artists):
+                        isDup = True
+                        break
+
+            if(isDup):
+                print("DUPLICATE FOUND")
+
+            else:
+                print("NO DUPLICATE FOUND")
+    except Exception as e:
+        print(e)
+
+else:
+    print("NOPE")
+
+"""INSERT INTO DATABASE
+- SEARCH TO MAKE SURE THERE ARE NO DUPLICATES
+- INSERT INFORMATION INTO THE DATABASE
+"""
