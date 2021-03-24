@@ -305,7 +305,7 @@ songs = []
 - SAVE INFORMATION IN SONGS LIST
 """
 element = 0
-for filename in os.listdir("test_music"):
+for filename in os.listdir("music"):
     # parse scheme for splitting title and artist (separated by an underscore)
     filename_split = filename.split("_")
     track_id = ""
@@ -341,7 +341,7 @@ for filename in os.listdir("test_music"):
             break
 
     """PERFORM ONSET HASHING"""
-    file_path = "test_music/" + filename
+    file_path = "music/" + filename
     # Loads waveform of song into x
     x, sr = librosa.load(file_path)
     # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
