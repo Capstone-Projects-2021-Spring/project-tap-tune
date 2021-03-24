@@ -44,7 +44,8 @@ class Filtering:
         try:
             # retrieves cursor from Database.py
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM song WHERE artist = %s', (self.input_artist,))
+            sql = 'SELECT * FROM song WHERE artist LIKE "%{0}%"'.format(self.input_artist)
+            cursor.execute(sql)
             # fetch al results and save in song_data list
 
             """GO THROUGH DB DATA"""
