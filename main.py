@@ -69,7 +69,8 @@ def result_page():
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     user = User.current_user()
-    return render_template('userProfilePage.html', user=user)
+    user_song_log = user.get_song_log()
+    return render_template('userProfilePage.html', user=user, user_song_log=user_song_log)
 
 
 @app.route('/register', methods=['GET', 'POST'])
