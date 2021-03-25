@@ -3,6 +3,7 @@ from models.Mail import mail
 from flask_mail import Message
 from passlib.context import CryptContext
 from flask import session
+from models.Song import Song
 import secrets
 
 """
@@ -264,11 +265,11 @@ class User:
             cursor.execute('SELECT usl.*, song.title, song.artist, song.release_date, song.genre FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
                            (self.id,))
             results = cursor.fetchall()
-            for song in results:
-                print(song)
-                song_log.append({"song_id": song['song_id'], "percent_match": song['percent_match']
-                                , "result_date": song['result_date'], "title": song['title'], "artist": song['artist']
-                                , "genre": song['genre']})
+            for song_data in results:
+                print(song_data)
+                song = Song.create(song_data)
+                song_log.append({"song": song, "percent_match": song_data['percent_match']
+                                , "result_date": song_data['result_date']})
         except Exception as e:
             print(e)
             return None
@@ -276,7 +277,7 @@ class User:
 
     """
     This method takes the results of song matches and add it to the user song search history in the database
-    expected input: song_results[]{ song_id, percent_match }
+    expected input: song_results[...]{ song <Song Object>, percent_match }
     db store: user_id, song_id, percent_match [Decimal(5,4) -> d.dddd]
     Returns True on success and False on failure
     """
@@ -286,7 +287,7 @@ class User:
             for song in song_results:
                 print(song)
                 cursor.execute('INSERT INTO user_song_log (user_id, song_id, percent_match) VALUES (%s,%s,%s)',
-                               (self.id, song.get('song_id'), song.get('percent_match')))
+                               (self.id, song.get('song').id, song.get('percent_match')))
             db.connection.commit()
         except Exception as e:
             print(e)

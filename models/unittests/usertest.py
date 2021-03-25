@@ -4,6 +4,7 @@ import flask.globals
 from flask import Flask
 from models.Database import db, get_cursor
 from models.User import User
+from models.Song import Song
 
 
 class UserTestCase(flask_unittest.AppClientTestCase):
@@ -236,13 +237,12 @@ class UserTestCase(flask_unittest.AppClientTestCase):
 
             # setup songs
             song_results = []
-            song_results.append({"song_id": 1, "percent_match": 0.75, "title": "Song 1", "artist": "Artist A", "genres": "genre1"})
-            song_results.append({"song_id": 2, "percent_match": 0.862, "title": "Song 2", "artist": "Artist B", "genres": "genre1, genre2"})
-
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (song_results[0].get('title'), song_results[0].get('artist'), song_results[0].get('genres')))
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (song_results[1].get('title'), song_results[1].get('artist'), song_results[1].get('genres')))
+            song_results.append({"song_id": 1, "percent_match": 0.75, "title": "Song 1", "artist": "Artist A", "genre": "genre1"})
+            song_results.append({"song_id": 2, "percent_match": 0.862, "title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
+            s1 = Song.insert(song_results[0])
+            s2 = Song.insert(song_results[1])
+            song_results[0]['song'] = s1
+            song_results[1]['song'] = s2
 
             # test add log
             r = user.add_song_long(song_results)
@@ -251,6 +251,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             # test get log
             rs = user.get_song_log()
             self.assertIsNotNone(rs)
+            self.assertEqual(len(song_results), len(rs))
 
 
 

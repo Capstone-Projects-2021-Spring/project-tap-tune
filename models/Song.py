@@ -28,11 +28,12 @@ class Song:
     @staticmethod
     def create(attr_d: dict):
         # set non required values to null if not provided
+        genre = attr_d.get('genre') if attr_d.get('genre') else attr_d.get('genres')
         release_date = attr_d.get('release_date')
         onset_hash = attr_d.get('onset_hash')
         peak_hash = attr_d.get('peak_hash')
 
-        return Song(attr_d['id'], attr_d['title'], attr_d['artist'], release_date, attr_d['genre']
+        return Song(attr_d['id'], attr_d['title'], attr_d['artist'], release_date, genre
                     , onset_hash, peak_hash)
 
     """
@@ -46,11 +47,13 @@ class Song:
     @staticmethod
     def insert(attr_d: dict):
         try:
+            genre = attr_d.get('genre') if attr_d.get('genre') else attr_d.get('genres')
+
             # insert song into db
             cursor = get_cursor()
             cursor.execute(
                 'INSERT INTO song (title,artist,genre,release_date,onset_hash,peak_hash) VALUES (%s,%s,%s,%s,%s,%s)'
-                , (attr_d.get('title'), attr_d.get('artist'), attr_d.get('genre'), attr_d.get('release_date')
+                , (attr_d.get('title'), attr_d.get('artist'), genre, attr_d.get('release_date')
                    , attr_d.get('onset_hash'), attr_d.get('peak_hash')))
             db.connection.commit()
 
@@ -58,6 +61,10 @@ class Song:
             attr_d['id'] = cursor.lastrowid
 
             return Song.create(attr_d)
+        except KeyError as e:
+            print(e)
+            error = 'Missing required value'
+            return error
         except Exception as e:
             print(e)
             error = Song.UNKNOWN_ERROR
