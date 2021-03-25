@@ -9,6 +9,7 @@ from flask_mail import Message
 import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
 app.config['MYSQL_USER'] = 'ttapp'
@@ -238,5 +239,4 @@ def reset_pass():
 
 
 if __name__ == '__main__':
-    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
     app.run(debug=True)
