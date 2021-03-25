@@ -50,9 +50,11 @@ def process_music(filename):
 def process_music_split(filename):
     y, sr = librosa.load(filename)
     y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
-
-    sf.write('sample_harmonic.wav', y_harm, sr)
-    sf.write('sample_percussive.wav', y_harm, sr)
+    timestamp_harmonic = librosa.onset.onset_detect(y=y_harm, sr=sr, units = 'time')
+    timestamp_percussive = librosa.onset.onset_detect(y=y_perc,sr=sr, units = 'time')
+    return timestamp_harmonic, timestamp_percussive
+    # sf.write('sample_harmonic.wav', y_harm, sr)
+    # sf.write('sample_percussive.wav', y_harm, sr)
 
 
 # process beat by finding predominant local pulse
@@ -234,12 +236,15 @@ def drop_ambigious(timestamp):
 
 if __name__ == "__main__":
     # ---song file processing---
-    filepath = '../../sampleMusic/birthdaySong.wav'
-    songName = filepath[12:-4]
-    songTimestamp = process_music_onset(filepath)
-    songTimestamp = drop_ambigious(songTimestamp)
-    # showBeatOnALine(songTimestamp, songName)
-    songP1, songP2 = process_timestamp2(songTimestamp)
+    filepath = '../../sampleMusic/backInBlack.wav'
+    songName = filepath[18:-4]
+    timestamp_harmonic, timestamp_percussive = process_music_split(filepath)
+    timestamp_harmonic = drop_ambigious(timestamp_harmonic)
+    timestamp_percussive = drop_ambigious(timestamp_percussive)
+    timestamp_harmonic =  drop_ambigious(timestamp_harmonic)
+    # print(timestamp_harmonic)
+    showBeatOnALine(timestamp_harmonic, songName)
+    # songP1, songP2 = process_timestamp2(songTimestamp)
     userInput = [2.377,3.073,3.476,3.752,4.452,4.809,5.117,5.759,6.458,7.127]
     twinkleStarInput = [0.261, 0.725, 1.391, 2.046, 2.736, 3.325, 4.084, 5.197, 5.941, 6.550, 7.254, 7.957, 8.604,9.294]
     jingleBellInput = [0.830, 1.190, 1.600, 2.456, 2.878, 3.335, 4.190, 4.655, 5.088, 5.497, 5.946]
@@ -250,7 +255,11 @@ if __name__ == "__main__":
     #     print("nomatch")
 
     # processRecoring(twinkleStarInput)
-    processRecoringPeaks(userInput)
+    # processRecoringPeaks(userInput)
+
+
+
+
 
 # ########################### Testing area ############################
 # beat_num = [0]
