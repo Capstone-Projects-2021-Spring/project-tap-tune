@@ -21,7 +21,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
         app.config['MYSQL_USER'] = 'root'
         app.config['MYSQL_PASSWORD'] = ''
         app.config['MYSQL_DB'] = ''
-        app.secret_key = 'test'
+        app.config['SECRET_KEY'] = 'test'
 
         return app
 
@@ -63,7 +63,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             # create song table
             create_song_table_q = """
                 CREATE TABLE `song` (
-                  `id` int NOT NULL AUTO_INCREMENT,
+                  `id` int(11) NOT NULL AUTO_INCREMENT,
                   `title` varchar(128) NOT NULL,
                   `artist` varchar(64) NOT NULL,
                   `release_date` date DEFAULT NULL,
@@ -71,7 +71,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                   `onset_hash` varchar(4096) DEFAULT NULL,
                   `peak_hash` varchar(4096) DEFAULT NULL,
                   PRIMARY KEY (`id`),
-                  UNIQUE KEY `title_UNIQUE` (`title`)
+                  UNIQUE KEY `song_title_artist_uidx` (`title`,`artist`) /*!80000 INVISIBLE */
                 )"""
             cursor.execute(create_song_table_q)
             db.connection.commit()
@@ -108,6 +108,62 @@ class UserTestCase(flask_unittest.AppClientTestCase):
         pass
 
     """
+    test song insert into db
+    """
+    def test_song_insert(self, app, client):
+        # mock client request to setup session use
+        rv = client.get('/')
+
+        with app.app_context():
+            # setup
+            attr = dict()
+            attr['genre'] = 'genre1, genre2'
+
+            # test title required
+            re = Song.insert(attr)
+            self.assertTrue(re, Song.SONG_TITLE_REQUIRED)
+
+            # test artist required
+            attr['title'] = 'Song 1'
+            re = Song.insert(attr)
+            self.assertTrue(re, Song.SONG_ARTIST_REQUIRED)
+
+            # test insert song
+            attr['artist'] = 'Artist A'
+            song = Song.insert(attr)
+            self.assertIsInstance(song, Song)
+
+            # test duplicate entry error
+            re = Song.insert(attr)
+            self.assertEqual(re, Song.DUPLICATE_SONG_ERROR)
+
+    """
+    test song update hash
+    """
+    def test_song_update_hash(self, app, client):
+        # mock client request to setup session use
+        rv = client.get('/')
+
+        with app.app_context():
+            # setup
+            attr = dict()
+            attr['title'] = 'Song 1'
+            attr['artist'] = 'Artist A'
+            attr['genre'] = 'genre1, genre2'
+            song = Song.insert(attr)
+            attr['artist'] += 'B'
+            song = Song.insert(attr)
+            self.assertIsInstance(song, Song)
+
+            # test update onset hash
+            ro = song.set_onset_hash('abc1')
+            self.assertTrue(ro)
+
+            # test update peak hash
+            rp = song.set_peak_hash('123x')
+            self.assertTrue(rp)
+
+    """
     test get all
     """
     def test_song_all(self, app, client):
@@ -119,16 +175,13 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             songs = []
             songs.append({"title": "Song 1", "artist": "Artist A", "genre": "genre1"})
             songs.append({"title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
-
-            cursor = get_cursor()
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[0].get('title'), songs[0].get('artist'), songs[0].get('genre')))
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[1].get('title'), songs[1].get('artist'), songs[1].get('genre')))
+            s = Song.insert(songs[0])
+            s = Song.insert(songs[1])
 
             # test get all
             r = Song.get_all()
             self.assertIsNotNone(r)
+            self.assertEqual(len(songs), len(r))
 
     """
     test get by artist
@@ -142,17 +195,13 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             songs = []
             songs.append({"title": "Song 1", "artist": "Artist A", "genre": "genre1"})
             songs.append({"title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
+            s1 = Song.insert(songs[0])
+            s2 = Song.insert(songs[1])
 
-            cursor = get_cursor()
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[0].get('title'), songs[0].get('artist'), songs[0].get('genre')))
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[1].get('title'), songs[1].get('artist'), songs[1].get('genre')))
-
-            # test get all
+            # test get by artist
             r = Song.get_by_artist('b')
             self.assertIsNotNone(r)
-            self.assertEqual(r[0].artist, 'Artist B')
+            self.assertEqual(r[0].artist, s2.artist)
 
     """
     test get by genre
@@ -166,17 +215,13 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             songs = []
             songs.append({"title": "Song 1", "artist": "Artist A", "genre": "genre1"})
             songs.append({"title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
+            s1 = Song.insert(songs[0])
+            s2 = Song.insert(songs[1])
 
-            cursor = get_cursor()
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[0].get('title'), songs[0].get('artist'), songs[0].get('genre')))
-            cursor.execute('INSERT INTO song (title,artist,genre) VALUES (%s,%s,%s)',
-                           (songs[1].get('title'), songs[1].get('artist'), songs[1].get('genre')))
-
-            # test get all
+            # test get by genre
             r = Song.get_by_genre('2')
             self.assertIsNotNone(r)
-            self.assertEqual(r[0].genre, "genre1, genre2")
+            self.assertEqual(r[0].genre, s2.genre)
 
     if __name__ == '__main__':
         unittest.main()
