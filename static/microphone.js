@@ -385,13 +385,13 @@
   }
 
 /******************************************************************************************/
-  function pause() {
-    console.log('Pause');
-    recording = false;
-    document.querySelector('#msg').style.visibility = 'hidden'
-    document.querySelector('#msg2').style.visibility = 'visible'
-    context.suspend()
-  }
+  // function pause() {
+  //   console.log('Pause');
+  //   recording = false;
+  //   document.querySelector('#msg').style.visibility = 'hidden'
+  //   document.querySelector('#msg2').style.visibility = 'visible'
+  //   context.suspend()
+  // }
 
 /******************************************************************************************/
   function resume() {
@@ -408,28 +408,50 @@
     start();
   }
 /******************************************************************************************/
-  var pauseButton = document.querySelector('#pause');
-  pauseButton.onclick = (e) => {
-    pause();
-    pauseButton.innerHTML = 'Resume';
-  pauseButton.onclick = (e) =>{
-    resume();
-    }
-    pauseButton.innerHTML = 'Pause';
-  }
+  // var pauseButton = document.querySelector('#pause');
+  // pauseButton.onclick = (e) => {
+  //   pause();
+  //   pauseButton.innerHTML = 'Resume';
+  // pauseButton.onclick = (e) =>{
+  //   resume();
+  //   }
+  //   pauseButton.innerHTML = 'Pause';
+  // }
 /******************************************************************************************/
   document.querySelector('#stop').onclick = (e) => {
     stop();
   }
   /**************************************************************************************/
   var stopButton = document.querySelector('#stop');
-  stopButton.onclick = (e) => {
-    stop();
-    stopButton.innerHTML = 'Resume';
-    stopButton.onclick = (e) =>{
-      goToFiltering();
+  stopButton.onclick = (e) =>
+  {
+    if (stopButton.innerHTML == "Submit")
+    {
+      //stop();      goToFiltering();
+    } else {
+        stop();
+        stopButton.innerHTML = 'Submit'
     }
-    stopButton.innerHTML = 'Submit';
   }
+
+  var clearButton = document.querySelector('#clear');
+  clearButton.onclick =  (e) => {
+     clear();
+  }
+
+
+
+  function clear() {
+    recording = false;
+    //document.querySelector('#msg3').style.visibility = 'visible'
+    // reset the buffers for the new recording
+    leftchannel.length = 0;
+    rightchannel.length = 0;
+    recordingLength = 0;
+    console.log('context: ', !!context);
+    stopButton.innerHTML = 'Stop';
+    console.log("AFTER STOP");
+     // if (!context) setUpRecording();
+  }//end of start
 })()
 
