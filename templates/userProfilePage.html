@@ -134,9 +134,22 @@
                                         </li>
                                         <li>
                                             <a href="#">Song 3</a>
-                                            <a href="#" class="float-right">00 Jan, 0000</a>
-                                            <p>Song description</p>
+                                            <a href="#" class="float-right">80.01% | 00 Jan, 0000</a>
+                                            <p>
+                                                Artist: AC/DC<br>
+                                                Genre: australian rock, hard rock, rock
+                                            </p>
                                         </li>
+                                        {%for song_result in user_song_log%}
+                                            <li>
+                                            <a href="#">{{song_result['song'].title}}</a>
+                                            <a href="#" class="float-right">{{(song_result['percent_match']*100)|round(2)}}% | {{song_result['result_date'].strftime('%x')}}</a>
+                                            <p>
+                                                Artist: {{song_result['song'].artist}}<br>
+                                                Genre: {{song_result['song'].genre}}
+                                            </p>
+                                        </li>
+                                        {%endfor%}
                                     </ul>
                                 </div>
                             </div>

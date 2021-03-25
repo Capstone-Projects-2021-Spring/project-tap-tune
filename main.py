@@ -9,6 +9,7 @@ from flask_mail import Message
 import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
 app.config['MYSQL_USER'] = 'ttapp'
@@ -68,7 +69,8 @@ def result_page():
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     user = User.current_user()
-    return render_template('userProfilePage.html', user=user)
+    user_song_log = user.get_song_log()
+    return render_template('userProfilePage.html', user=user, user_song_log=user_song_log)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -238,5 +240,4 @@ def reset_pass():
 
 
 if __name__ == '__main__':
-    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
     app.run(debug=True)
