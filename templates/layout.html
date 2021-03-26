@@ -29,6 +29,9 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
 
+    <!-- Dropdown Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
     <!-- Bootstrap-->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
@@ -50,13 +53,18 @@
           <li class="nav-item active">
             <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
           </li>
+{#        if statement so profile will only show if user is logged in#}
+            {% if user %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('user_page') }}">Profile</a>
           </li>
+            {% endif %}
+{#        end if statement#}
           <li class="nav-item">
             <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">History</a>
           </li>
         </ul>
+{#      if user is logged in then log out button will show#}
         {% if user %}
           <span>
             <span>{{user.username}}</span>
@@ -70,6 +78,7 @@
 
           </form>
         {% endif %}
+{#      end if statement#}
       </div>
     </nav>
     <div id="content">{% block content %}{% endblock %}</div>

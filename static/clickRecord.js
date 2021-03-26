@@ -8,17 +8,15 @@ let startButton = null;
 let tapButton = null;
 let stopButton = null;
 let finishButton = null;
+let playButton = null;
 $( document ).ready(function() {
     startButton = document.getElementById("startRecordingBtn");
     tapButton = document.getElementById("tapScreenButton");
     resetButton = document.getElementById("resetRecordingBtn");
     finishButton = document.getElementById("finishRecordingBtn");
+    playButton = document.getElementById("playRecordingBtn");
 
     startButton.onclick = function () {
-        startTime = new Date();
-        console.log(startTime);
-
-
         document.getElementById("counter-number").className = "py-5 counter-text-active";
         document.getElementById("counter-number").style.opacity = "1";
         document.getElementById("finishRecordingBtn").className = "btn btn-success ml-3";
@@ -31,13 +29,19 @@ $( document ).ready(function() {
 
     tapButton.onclick = function () {
         if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
-            //console.log(startTime);
-            instanceTime = new Date();
-            dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-
-        times.push(dif);
-        console.log("TAP TIME: "+dif);
-        console.log(times);
+            if (startTime) {
+                //console.log(startTime);
+                instanceTime = new Date();
+                dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
+                
+                times.push(dif);
+                console.log("TAP TIME: "+dif);
+                console.log(times);
+            }
+            else { //record the first tap
+                startTime = new Date();
+                console.log(startTime);
+            }
         }//end of if
 
         return dif;
@@ -65,6 +69,7 @@ $( document ).ready(function() {
 
             timeArray = [];
             times = new Array();
+            startTime = null;
 
             //animation
             var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
@@ -87,6 +92,9 @@ $( document ).ready(function() {
             y = ((resetButtonRect.bottom - resetButtonRect.top) / 2) + resetButtonRect.top - circle.height()/2;
             circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
 
+            //also set playbutton to disabled again
+            playButton.disabled = true;
+
         }//enf of if
 
         else{
@@ -100,9 +108,9 @@ $( document ).ready(function() {
     finishButton.onclick = function () {
         if (startTime){
 
-        console.log("Time Stop");
-        console.log("Stop: "+dif);
-        console.log("END ARRAY: "+returnTimes());
+            console.log("Time Stop");
+            console.log("Stop: "+dif);
+            console.log("END ARRAY: "+returnTimes());
 
         }//enf of if
 
@@ -118,17 +126,20 @@ $( document ).ready(function() {
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
+                data : js_data //passing the variable
+            }).done(function(result) {
+                console.log("success: " + result);
+                goToFiltering();
 
                 //return result;
                 //$("#data").html(result);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
             });
-            
+
             //goToFiltering();
         }
         else {
-            //Change text of button for confirmation
             //animation
             var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
             var element, circle, d, x, y;
@@ -151,8 +162,10 @@ $( document ).ready(function() {
             circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
             
             //change text class to be stagnat and confirm user submit 
+            //Also enable playback button
             document.getElementById("counter-number").className = "py-5 counter-text";
             finishButton.innerHTML = "Submit";
+            playButton.disabled = false;
         }
 
 
@@ -160,30 +173,40 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function returnTimes(){
-
-        for(var i = 0; i < times.length; i++){
-            timeArray[i] = times[i];
-        }//end of for
-
-        return timeArray;
+        var returnArray = adjustArray(times);
+        console.log("finished array " + returnArray)
+        times = returnArray;
+        return returnArray;
     }//end of returnTimes
 
+    /************************************************************************/
+    function adjustArray(array){
+        //adjust array times so that the first array does not count
+        var newArray = new Array();
+        var dif = array[0];
+        for(var i = 0; i < array.length; i++){
+            var num = array[i] - dif;
+            newArray[i] = parseFloat(num.toFixed(3));
+        }//end of for
+
+        return newArray;
+    }//end of returnTimes
     
     
     document.addEventListener("keydown", function(){
         record();
     });
-    
+
     /***************************************************************************/
     function record(){
-        
+
         //32 is the space bar
         if(event.keyCode == 82){
             if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
                 //console.log(startTime);
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-                
+
                 times.push(dif);
                 console.log("TAP TIME: "+dif);
                 console.log(times);
@@ -204,8 +227,8 @@ $( document ).ready(function() {
                 }
                 x = ((element.offset().right - element.offset().left) / 2)  - circle.width()/2;
                 y = ((element.offset().bottom - element.offset().top) / 2) - circle.height()/2;
-                
-        
+
+
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                 var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
                 document.getElementById("counter-number").innerHTML = incrementBeatCount;
@@ -224,7 +247,7 @@ $( document ).ready(function() {
 
 
 
-    $('.material-click').on('click', function(e) { 
+    $('.material-click').on('click', function(e) {
         var colorBox = getColor(e);
         if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
             var element, circle, d, x, y;
@@ -243,20 +266,16 @@ $( document ).ready(function() {
             }
             x = e.pageX - element.offset().left - circle.width()/2;
             y = e.pageY - element.offset().top - circle.height()/2;
-            
+
             switch (colorBox) {
                 case -1:
-                    break; 
-    
+                    break;
+
                 case 1:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                    document.getElementById("counter-number").innerHTML = incrementBeatCount;
-                    var healthCountg = Math.floor((incrementBeatCount / 10) * 153);
-                    var healthCountb = Math.floor((incrementBeatCount / 10) * 255);
-                    document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
+                    document.getElementById("counter-number").style.color = RGBToHex(0, 0, 0);
                     break;
-            
+
                 default:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
@@ -272,23 +291,23 @@ $( document ).ready(function() {
                     }
                     break;
             }
-            
+
         }
-    
+
     });
-    
+
     function RGBToHex(r,g,b) {
         r = r.toString(16);
         g = g.toString(16);
         b = b.toString(16);
-      
+
         if (r.length == 1)
           r = "0" + r;
         if (g.length == 1)
           g = "0" + g;
         if (b.length == 1)
           b = "0" + b;
-      
+
         return "#" + r + g + b;
     }
 
@@ -296,7 +315,7 @@ $( document ).ready(function() {
         //well first of all are we even in button territory
         var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
         var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
-    
+
         if (finishButton.innerHTML == "Submit") return -1;
         if (e.pageY > startButtonRect.top && e.pageY < startButtonRect.bottom) {
             if (e.pageX > startButtonRect.left) {
@@ -309,5 +328,64 @@ $( document ).ready(function() {
         return 0;
     }
     
+    $('#recordingTypeDropdown a').click(function(){
+        var selected = $(this).text();
+        if (selected == "Harmonics") {
+            document.getElementById("tapKeyDropdown").disabled = false;
+        }
+        else {
+            document.getElementById("tapKeyDropdown").disabled = true;
+        }
+        $('#selected1').text($(this).text());
+    });
+
+    $('#recordingKeyDropdown a').click(function(){
+        $('#selected2').text($(this).text());
+    });
+
 });
+
+function playSound() {
+    var recordingType = $('#selected1').text();
+    console.log("recording type is " + recordingType);
+
+    // Make Playback sound drums
+    if (recordingType == "Percussion") {
+        var sound = document.getElementById("percussion");
+    }
+
+    // Make Playback sound a specific key
+    else if (recordingType == "Harmonics") {
+        var tapKey = $('#selected2').text();
+        switch (tapKey) {
+            case "F":
+                var sound = document.getElementById("harmony1");
+                break;
+        
+            default:
+                var sound = document.getElementById("percussion");
+                break;
+        }
+    }
+
+    // Make Playback sound a default sound beat
+    else {
+        var sound = document.getElementById("percussion");
+    }
+
+    for (var i = 0; i < times.length; i++) {
+        var millisecondsTime = times[i] * 1000;
+        setTimeout(() => {
+            var audio = document.createElement('audio');
+            audio.src = sound.src;
+            audio.volume = 0.3;
+            document.body.appendChild(audio);
+            audio.play();
+            
+            audio.onended = function () {
+                this.parentNode.removeChild(this);
+            }
+        }, millisecondsTime);
+    }
+}
 

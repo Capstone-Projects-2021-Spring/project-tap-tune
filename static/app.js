@@ -22,7 +22,11 @@ function goToFiltering() {
 }
 
 function goToRhythm() {
-      window.location.href= "/recordingRhythm"; //link from rhythm button
+  window.location.href= "/recordingRhythm"; //link from rhythm button
+}
+
+function goToMelody() {
+  window.location.href= "/recordingMelody"; //link from rhythm button
 }
 
 function goToRegister() {

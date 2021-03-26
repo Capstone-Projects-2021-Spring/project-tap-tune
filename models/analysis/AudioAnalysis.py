@@ -10,7 +10,6 @@
                     genres: *genres
                 }
             ]
-
     results.append( {"title" : *title, "artist", *artist, "genres":*genre} )
 5. Return the song results to use in the Filtering
 6. data processing: hash from db > bin > frame > timestamp > drop ambiguous > pattern -> compare function
