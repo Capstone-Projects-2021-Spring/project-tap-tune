@@ -55,38 +55,24 @@ class Filtering:
 
         # if no song results create new set of song results
         if(pop_check == False):
-            try:
-                # retrieves cursor from Database.py
-                cursor = get_cursor()
-                sql = 'SELECT * FROM song WHERE artist LIKE "%{0}%"'.format(self.input_artist)
-                cursor.execute(sql)
-                # fetch al results and save in song_data list
+            """GO THROUGH DB DATA"""
+            song_data = Song.get_by_artist(self.input_artist)
+            for track in song_data:
+                title = track.title
+                artist = track.artist
 
-                """GO THROUGH DB DATA"""
-                song_data = cursor.fetchall()
-                for track in song_data:
-                    title = track["title"]
-                    artist = track["artist"]
-                    genres = track["genre"]
+                """SEARCH THROUGH SPOTIFY FOR AUDIO SAMPLE FILES"""
+                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+                preview = "None"
+                for album in results_1["tracks"]["items"]:
+                    albumArtist = album["artists"][0]
+                    if(albumArtist["name"] == artist):
+                        if (album["preview_url"]):
+                            preview = album["preview_url"]
+                        break
+                track.set_preview(preview=preview)
+                result_data.append(track)
 
-                    song = Song(song_id=track["id"], title=title, artist=artist, release_date=track["release_date"],
-                                genre=genres, onset_hash=track["onset_hash"], peak_hash=track["peak_hash"])
-
-                    """SEARCH THROUGH SPOTIFY FOR AUDIO SAMPLE FILES"""
-                    results_1 = spotify.search(q=title, limit=10, type="track", market=None)
-                    preview = "None"
-                    for album in results_1["tracks"]["items"]:
-                        albumArtist = album["artists"][0]
-                        if(albumArtist["name"] == artist):
-                            if (album["preview_url"]):
-                                preview = album["preview_url"]
-                            break
-                    song.set_preview(preview=preview)
-                    result_data.append(song)
-
-            except Exception as e:
-                print(e)
-                return None
 
         return result_data
 
@@ -98,41 +84,29 @@ class Filtering:
     """
 
     def filterGenre(self):
-        try:
-            # retrieves cursor from Database.py
-            cursor = get_cursor()
-            cursor.execute(('SELECT * FROM song WHERE genre LIKE "%{0}%"').format(self.input_genre))
-            # fetch al results and save in song_data list
-            song_data = cursor.fetchall()
+        song_data = Song.get_by_genre(self.input_genre)
+        """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
+        result_data = []
+        for track in song_data:
+            title = track.title
+            artist = track.artist
 
-            """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
-            result_data = []
-            for track in song_data:
-                title = track["title"]
-                artist = track["artist"]
-                genres = track["genre"]
+            """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
+            results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+            preview = "None"
+            for album in results_1["tracks"]["items"]:
+                albumArtist = album["artists"][0]
+                if(albumArtist["name"] == artist):
+                    if (album["preview_url"]):
+                        preview = album["preview_url"]
+                    break
 
-                song = Song(song_id=track["id"], title=title, artist=artist, release_date=track["release_date"], genre=genres, onset_hash=track["onset_hash"], peak_hash=track["peak_hash"])
+            """APPEND NEW SET OF TRACKS TO THE LIST"""
+            track.set_preview(preview=preview)
+            result_data.append(track)
 
-                """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
-                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
-                preview = "None"
-                for album in results_1["tracks"]["items"]:
-                    albumArtist = album["artists"][0]
-                    if(albumArtist["name"] == artist):
-                        if (album["preview_url"]):  
-                            preview = album["preview_url"]
-                        break 
+        return result_data
 
-                """APPEND NEW SET OF TRACKS TO THE LIST"""
-                song.set_preview(preview=preview)
-                result_data.append(song)
-
-            return result_data
-
-        except Exception as e:
-            print(e)
-            return None
 
     """
     Function to create a basically empty song for the lyric filter
@@ -249,3 +223,8 @@ class Filtering:
 
         # returns the list filtered by provided fields
         return r_list
+
+if __name__ == "__main__":
+    obj = Filtering(Artist="Prince")
+    results = obj.filterRecording()
+    print(results)

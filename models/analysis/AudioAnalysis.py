@@ -19,6 +19,7 @@
 import librosa
 import math
 from models.Database import db, get_cursor
+from models.Song import Song
 
 """COMPARISON FUNCTIONS"""
 
@@ -325,15 +326,8 @@ class rhythmAnalysis:
         song_data = cursor.fetchall()
         db_results = []
         for track in song_data:
-            # song = Song(song_id=track["id"], title=track["title"] artist=track['artist'], release_date=track["release_date"], genre=genres = track["genre"], onset_hash=track["onset_hash"], peak_hash=track["peak_hash"])
-            title = track["title"]
-            artist = track['artist']
-            genres = track["genre"]
-            onset_hash = track['onset_hash']
-            peak_hash = track['peak_hash']
-            # db_results.append(song)
-            db_results.append(
-                {"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash, "peak_hash": peak_hash})
+            song = Song(song_id=track["id"], title=track["title"], artist=track["artist"], release_date=track["release_date"], genre=track["genre"], peak_hash=track["peak_hash"], onset_hash=track["onset_hash"])
+            db_results.append(song)
 
         # for loop to go through the song_data
         # for track in db_results:
@@ -343,10 +337,8 @@ class rhythmAnalysis:
             convert onset_hash to binary array
             """
 
-            # peak_array = unhash_array(db_track.peak_hash)
-            # onset_array = unhash_array(db_track.onet_hash)
-            peak_array = unhash_array(db_track["peak_hash"])
-            onset_array = unhash_array(db_track["onset_hash"])
+            peak_array = unhash_array(db_track.peak_hash)
+            onset_array = unhash_array(db_track.onet_hash)
 
             """
             convert binary array to frames
@@ -396,11 +388,8 @@ class rhythmAnalysis:
             print(match, match2)
 
             if (match or match2):
-                title = db_results[index]["title"]
-                artist = db_results[index]["artist"]
-                genres = db_results[index]["genres"]
-                # song_results.append(song)
-                song_results.append({"title": title, "artist": artist, "genres": genres})
+                song_results.append({"song": song,
+                                     "percent_match": matching_rate})
             index += 1
 
         if (len(song_results) < 1):

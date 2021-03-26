@@ -63,11 +63,11 @@ def result_page():
     user = User.current_user()
     #Filter the Song Results if there are any inputs from request form 
     objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
-    filterResults = objF.filterRecording()
+    filterResults = objF.filterRecording()# returns list of Song objects
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()
+    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
 
     #Todo: After getting results, store in user_log 
     return render_template('results.html', filterResults=final_res)

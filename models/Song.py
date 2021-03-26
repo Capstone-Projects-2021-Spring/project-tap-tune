@@ -1,4 +1,5 @@
 from models.Database import db, get_cursor
+# from database_sep import db, get_cursor
 
 """
 Song class models and contains information about a song.
@@ -150,7 +151,6 @@ class Song:
     def get_by_artist(artist):
         # format genre for like query
         artist_f = '%' + artist + '%'
-
         try:
             songs = []
 
@@ -158,7 +158,6 @@ class Song:
             cursor = get_cursor()
             cursor.execute('SELECT * FROM song WHERE artist LIKE %s', (artist_f,))
             song_rows = cursor.fetchall()
-
             # create song classes and append to songs array
             for song_r in song_rows:
                 print(song_r)
