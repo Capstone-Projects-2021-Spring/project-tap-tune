@@ -13,7 +13,7 @@ class Song:
     SONG_ARTIST_REQUIRED = 'song artist not specified'
     DUPLICATE_SONG_ERROR = 'duplicate title and artist'
 
-    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash):
+    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, preview=None):
         self.id = song_id
         self.title = title
         self.artist = artist
@@ -21,6 +21,11 @@ class Song:
         self.genre = genre
         self.onset_hash = onset_hash
         self.peak_hash = peak_hash
+        self.preview = preview
+
+
+    def set_preview(self, preview):
+        self.preview = preview
 
     """
     used to create an instance of the song class from an associative array of attributes
