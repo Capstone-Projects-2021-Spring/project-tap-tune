@@ -59,10 +59,15 @@ def result_page():
     # Filter the Song Results if there are any inputs from request form
     obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                     Lyrics=request.form['input_lyrics'])
-    print(user_result)
-    filterResults = obj.filterRecording(user_result)
 
-    # Todo: After getting results, store in user_log
+    #if this is Rhythm Recording
+    if (user_result):
+        filterResults = obj.filterRecording(user_result)
+    #else this is Melody Recording
+    else :
+        filterResults = obj.filterRecording()
+        print("it was melody")
+         
     return render_template('results.html', filterResults=filterResults)
 
 
@@ -154,13 +159,12 @@ def receiveRhythm():
 def test():
     if request.method == 'POST':
         out = receiveRhythm()
+        #data = json.loads(request.data)
+        #obj = rhythmAnalysis(userTaps=data)
 
-    data = json.loads(request.data)
-    obj = rhythmAnalysis(userTaps=data)
-
-    global user_result
-    user_result = obj.onset_peak_func()
-    return out
+        #global user_result
+        #user_result = obj.onset_peak_func()
+        return out
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
@@ -173,6 +177,15 @@ def melody():
 
         outFile.save(fileName)
         print("Hoping it uploads")
+        global user_result
+        user_result = 0
+        global melody_result
+        #insert melody_result here
+        #obj = melodyAnalysis(inputFile=outFile)
+        #melody_result = obj.getList()
+        
+        melody_result = "testing"
+
         return jsonify(fileName)
 
 

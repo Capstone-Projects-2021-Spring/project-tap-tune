@@ -408,29 +408,27 @@
     start();
   }
 /******************************************************************************************/
-  // var pauseButton = document.querySelector('#pause');
-  // pauseButton.onclick = (e) => {
-  //   pause();
-  //   pauseButton.innerHTML = 'Resume';
-  // pauseButton.onclick = (e) =>{
-  //   resume();
-  //   }
-  //   pauseButton.innerHTML = 'Pause';
-  // }
-/******************************************************************************************/
-  document.querySelector('#stop').onclick = (e) => {
-    stop();
+  var pauseButton = document.querySelector('#pause');
+  pauseButton.onclick = (e) => {
+    if (pauseButton.innerHTML == "Pause") {
+      pause();
+      pauseButton.innerHTML = 'Resume';
+    }
+    else {
+      resume();
+      pauseButton.innerHTML = 'Pause';
+    }
   }
-  /**************************************************************************************/
+/******************************************************************************************/
   var stopButton = document.querySelector('#stop');
   stopButton.onclick = (e) =>
   {
     if (stopButton.innerHTML == "Submit")
     {
-      //stop();      goToFiltering();
+      goToFiltering();
     } else {
-        stop();
-        stopButton.innerHTML = 'Submit'
+      stop();
+      stopButton.innerHTML = 'Submit'
     }
   }
 
