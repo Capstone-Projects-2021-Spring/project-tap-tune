@@ -304,10 +304,12 @@ def process_recording(userInput, onsetFrames):
 
 class rhythmAnalysis:
 
-    def __init__(self, userTaps=None):
-        print(userTaps)
-        if (userTaps != None):
-            self.user_input = userTaps
+    def __init__(self, userHarmonicTaps=None, userPercussiveTaps = None):
+        # print(userTaps)
+        if (userHarmonicTaps != None):
+            self.user_input_harmonic = userHarmonicTaps
+        if(userPercussiveTaps != None):
+            self.user_input_percussive = userPercussiveTaps
 
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
@@ -441,11 +443,6 @@ class rhythmAnalysis:
             match, matching_rate = process_recording(self.user_input, res_frames)
 
             if (match):
-                title = db_results[0]["title"]
-                artist = db_results[0]["artist"]
-                genres = db_results[0]["genres"]
-
-                song_results.append({"title": title, "artist": artist, "genres": genres})
 
                 title = db_results[index]["title"]
                 artist = db_results[index]["artist"]
@@ -533,17 +530,20 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
-            match2, matching_rate = process_recording(self.user_input, onset_frames)
 
-            print(match, match2)
+            match_peak, matching_rate_peak = process_recording_peaks(self.user_input, peak_frames)
+            match_onset, matching_rate_onset = process_recording(self.user_input, onset_frames)
+            match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
+            match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
+            matching_rate = max(matching_rate_peak,matching_rate_onset,matching_rate_harmonic,matching_rate_percussive)
+            # print(match, match2)
 
-            if (match or match2):
+            if match_peak or match_onset or match_percussive or match_harmonic:
                 title = db_results[index]["title"]
                 artist = db_results[index]["artist"]
                 genres = db_results[index]["genres"]
 
-                song_results.append({"title": title, "artist": artist, "genres": genres})
+                song_results.append({"title": title, "artist": artist, "genres": genres, "matching rate": matching_rate})
             index += 1
 
         if (len(song_results) < 1):

@@ -105,7 +105,7 @@ def compare_ratio(user_pattern, song_pattern):
         # if numOfHit >= mark:
         #     return 1
     if numOfHit >= mark:
-        return 1, round(match_rate / len(user_pattern),4)
+        return 1, round(match_rate / len(user_pattern), 4)
     else:
         return 0, round(match_rate / len(user_pattern), 4)
 
@@ -441,11 +441,6 @@ class rhythmAnalysis:
             match, matching_rate = process_recording(self.user_input, res_frames)
 
             if (match):
-                title = db_results[0]["title"]
-                artist = db_results[0]["artist"]
-                genres = db_results[0]["genres"]
-
-                song_results.append({"title": title, "artist": artist, "genres": genres})
 
                 title = db_results[index]["title"]
                 artist = db_results[index]["artist"]
@@ -533,9 +528,9 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
-            match2, matching_rate = process_recording(self.user_input, onset_frames)
-
+            match, matching_rate1 = process_recording_peaks(self.user_input, peak_frames)
+            match2, matching_rate2 = process_recording(self.user_input, onset_frames)
+            matching_rate = max(matching_rate1, matching_rate2)
             print(match, match2)
 
             if (match or match2):
@@ -543,7 +538,7 @@ class rhythmAnalysis:
                 artist = db_results[index]["artist"]
                 genres = db_results[index]["genres"]
 
-                song_results.append({"title": title, "artist": artist, "genres": genres})
+                song_results.append({"title": title, "artist": artist, "genres": genres, "matching rate": matching_rate})
             index += 1
 
         if (len(song_results) < 1):
