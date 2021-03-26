@@ -7,6 +7,7 @@
 import lyricsgenius
 import spotipy
 import json
+from models.Song import Song
 from models.Database import db, get_cursor
 
 # Set user's credencials to access Spotify data
@@ -41,51 +42,39 @@ class Filtering:
     def filterArtist(self, song_results):
         # checks that field is valid
         match = 0
-        try:
-            # retrieves cursor from Database.py
-            cursor = get_cursor()
-            cursor.execute('SELECT * FROM song WHERE artist = %s', (self.input_artist,))
-            # fetch al results and save in song_data list
+        pop_check = False
+        result_data = []
 
+        # if there is a valid song resutls
+        # loop through song_results and filter out artist names
+        if( song_results != None):
+            for track in song_results:
+                if(track.artist == self.input_artist):
+                    result_data.append(track)
+                    pop_check = True
+
+        # if no song results create new set of song results
+        if(pop_check == False):
             """GO THROUGH DB DATA"""
-            song_data = cursor.fetchall()
-            return_data = []
-            result_data = []
+            song_data = Song.get_by_artist(self.input_artist)
             for track in song_data:
-                title = track["title"]
-                artist = track["artist"]
-                genres = track["genre"]
-                
+                title = track.title
+                artist = track.artist
+
+                """SEARCH THROUGH SPOTIFY FOR AUDIO SAMPLE FILES"""
                 results_1 = spotify.search(q=title, limit=10, type="track", market=None)
                 preview = "None"
                 for album in results_1["tracks"]["items"]:
                     albumArtist = album["artists"][0]
                     if(albumArtist["name"] == artist):
-                        if (album["preview_url"]):  
+                        if (album["preview_url"]):
                             preview = album["preview_url"]
-                        break 
+                        break
+                track.set_preview(preview=preview)
+                result_data.append(track)
 
-                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
 
-            # if there was a valid list of songs passed through
-            if (song_results != None):
-                # go through song_results and look for a song match
-                for artist_track in result_data:
-                    for genre_track in song_results:
-                        if (genre_track["title"] == artist_track["title"]):
-                            return_data.append(artist_track)
-                            match = match + 1
-                if match > 0:
-                    return return_data
-                else:
-                    return song_results
-            # if no valid song_results is passed
-            else:
-                return result_data
-
-        except Exception as e:
-            print(e)
-            return None
+        return result_data
 
     """
     Filter through database for records by input_genre
@@ -94,52 +83,40 @@ class Filtering:
     Return : 0 (failure)
     """
 
-    def filterGenre(self, song_results):
-        try:
-            # retrieves cursor from Database.py
-            cursor = get_cursor()
-            cursor.execute(('SELECT * FROM song WHERE genre LIKE "%{0}%"').format(self.input_genre))
-            # fetch al results and save in song_data list
-            song_data = cursor.fetchall()
+    def filterGenre(self):
+        song_data = Song.get_by_genre(self.input_genre)
+        """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
+        result_data = []
+        for track in song_data:
+            title = track.title
+            artist = track.artist
 
-            """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
-            result_data = []
-            for track in song_data:
-                title = track["title"]
-                artist = track["artist"]
-                genres = track["genre"]
-                
-                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
-                preview = "None"
-                for album in results_1["tracks"]["items"]:
-                    albumArtist = album["artists"][0]
-                    if(albumArtist["name"] == artist):
-                        if (album["preview_url"]):  
-                            preview = album["preview_url"]
-                        break 
+            """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
+            results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+            preview = "None"
+            for album in results_1["tracks"]["items"]:
+                albumArtist = album["artists"][0]
+                if(albumArtist["name"] == artist):
+                    if (album["preview_url"]):
+                        preview = album["preview_url"]
+                    break
 
-                """APPEND NEW SET OF TRACKS TO THE LIST"""
-                result_data.append({"title": title, "artist": artist, "genres": genres, "spotifyPreview": preview})
-            result_final = []
-            if(song_results != None):
-                for track_1 in song_results:
-                    for track_2 in result_data:
-                        if(track_1["title"] == track_2["title"]):
-                            if (self.dupCheck(result_final, track_2["title"])):
-                                result_final.append(track_2)
-                if (len(result_final) > 0):
-                    return result_data
+            """APPEND NEW SET OF TRACKS TO THE LIST"""
+            track.set_preview(preview=preview)
+            result_data.append(track)
 
-                else:
-                    return result_final
+        return result_data
 
 
-            else:
-                return result_data
+    """
+    Function to create a basically empty song for the lyric filter
+    """
+    def lyric_song(self, artist, title):
+        song = Song(song_id=None, title=title, artist=artist, release_date=None, genre=None, onset_hash=None,
+                    peak_hash=None)
 
-        except Exception as e:
-            print(e)
-            return None
+        return song
+
 
     """
     use lyricsgenius package to webscrape the Genius song collection based on input_lyrics
@@ -147,11 +124,10 @@ class Filtering:
     Return : List of artist/title pairs found from the lyric filtering (success)
     Return : None (failure)
     """
-
     def filterLyrics(self, song_results):
         match = 0
 
-        """LYRICGENIUS SSTUP"""
+        """LYRICGENIUS SETUP"""
         client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
         genius = lyricsgenius.Genius(client_access_token)
         result_data = []
@@ -164,6 +140,7 @@ class Filtering:
             artist_name = hit['result']['primary_artist']['name']
             song_title = hit['result']['title']
 
+            """SEARCH SPOTIFY FOR AUDIO SAMPLE FILES"""
             results_1 = spotify.search(q=song_title, limit=10, type="track", market=None)
             preview = "None"
             for album in results_1["tracks"]["items"]:
@@ -173,52 +150,48 @@ class Filtering:
                         preview = album["preview_url"]
                     break  
 
-            result_data.append({"title": song_title, "artist": artist_name, "spotifyPreview": preview})
+            song = self.lyric_song(artist=artist_name, title=song_title)
+            song.set_preview(preview=preview)
+            result_data.append(song)
 
-        """CHECKS TO SEE IF VALID LIST OF SONGS WAS PASSED"""
+        """CROSS COMPARE LYRIC SEARCHES WITH SONG RESULTS"""
+        # if there was a valid song list passed
         if (song_results != None):
             return_data = []
 
             # go through song_results and look for a song match
-            for res_track in song_results:
-                print("\n****************\n checking the list", res_track)
+            for para_track in song_results:
                 for lyric_track in result_data:
-
                     # CHECK IF SONG TITLES MATHC, ADD THE TRACK TO THE RESULT AND INCREMENT MATCH
-                    if (lyric_track["title"] == res_track["title"]):
-                        if (self.dupCheck(return_data, lyric_track["title"])):
-                            return_data.append(res_track)
-                            match = match + 1
-            # CHECK IF THERE WERE ANY MATCHES
+                    if (lyric_track.title == para_track.title):
+                        return_data.append(para_track)
+                        match += 1
+
+            # if there are matches found return the cross compared list
             if match > 0:
                 return return_data
             else:
                 return song_results
 
-        # if no valid song_results is passed
+        # if no valid song_results is passed DON'T RETURN LIST BECASUE WE DON'T HAVE THEM
         else:
             return result_data
 
-        return song_data
 
-
-    def dupCheck(self, dict, target):
-        for track in dict:
-            if target in track:
-                pass
-            else:
-                return False
-        return True
     """
     Execution function, ordered so that most specific field is followed by least specific
+    EDITS TO MAKE
+    - DOES NOT ACCEPT A_LIST
+    - FILTER FLOW IS GENRE->ARTIST->LYRICS --> SONG ANALYSIS
+    - STORE THE SONG ID
+    - RETURN A LIST OF SONGS [ {"TITLE", "ARTIST", "GENRES", "ID"] }
     """
-    def filterRecording(self, a_list=None):
-        r_list = a_list
+    def filterRecording(self):
+        r_list = []
 
         """
         CHECKS FOR ANY GENRE INPUT
         """
-        print(self.input_genre)
         if(self.input_genre) and (self.input_genre != "Metal"):
             r_list = self.filterGenre(r_list)
             print("*****LIST FILTERED BY GENRE")
@@ -250,3 +223,8 @@ class Filtering:
 
         # returns the list filtered by provided fields
         return r_list
+
+if __name__ == "__main__":
+    obj = Filtering(Artist="Prince")
+    results = obj.filterRecording()
+    print(results)
