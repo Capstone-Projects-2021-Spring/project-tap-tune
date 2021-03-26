@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import json
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
 app.config['MYSQL_HOST'] = 'taptune.cqo4soz29he6.us-east-1.rds.amazonaws.com'
 app.config['MYSQL_USER'] = 'ttapp'
@@ -49,6 +50,12 @@ def melody_page():
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
+    ''' This was for AudioAnalysis Testing. Remove later on
+    from models.analysis import AudioAnalysis as test
+    userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
+    custobj = test.rhythmAnalysis(userinput)
+    print(custobj.onset_peak_func())
+    '''
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
@@ -70,22 +77,21 @@ def getLyrics():
     url = 'https://genius.com/Traditional-happy-birthday-to-you-lyrics'
     soup = BeautifulSoup(requests.get(url).content, 'html.parser')
     text = soup.select_one('div[class^="Lyrics__Container"], .lyrics').get_text(strip=True, separator='\n')
-    stuff = request.json
-    print("Woo"+stuff)
     return text
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
+    #Filter the Song Results if there are any inputs from request form 
+    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    filterResults = objF.filterRecording()# returns list of Song objects
 
-    # Filter the Song Results if there are any inputs from request form
-    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
-                    Lyrics=request.form['input_lyrics'])
-    print(user_result)
-    filterResults = obj.filterRecording(user_result)
+    # Running Rhythm analysis on userTaps, includes filterResults to cross check
+    objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
+    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
 
-    # Todo: After getting results, store in user_log
-    return render_template('results.html', filterResults=filterResults, x=getLyrics())
+    #Todo: After getting results, store in user_log 
+    return render_template('results.html', filterResults=final_res)
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -95,15 +101,13 @@ def melody_result_page():
     obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                     Lyrics=request.form['input_lyrics'])
 
-
-    # Todo: After getting results, store in user_log
     return render_template('melodyResults.html', x=getLyrics())
-
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
     user = User.current_user()
-    return render_template('userProfilePage.html', user=user)
+    user_song_log = user.get_song_log()
+    return render_template('userProfilePage.html', user=user, user_song_log=user_song_log)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -188,11 +192,12 @@ def test():
     if request.method == 'POST':
         out = receiveRhythm()
 
-    data = json.loads(request.data)
-    obj = rhythmAnalysis(userTaps=data)
-
     global user_result
-    user_result = obj.onset_peak_func()
+    user_result = json.loads(request.data)
+    # obj = rhythmAnalysis(userTaps=data)
+    #
+    # global user_result
+    # user_result = obj.onset_peak_func()
     return out
 
 @app.route('/melody', methods=['GET', 'POST'])
@@ -273,5 +278,4 @@ def reset_pass():
 
 
 if __name__ == '__main__':
-    app.secret_key = 'KQ^wDan3@3aEiTEgqGUr3'  # required to use session
     app.run(debug=True)
