@@ -99,6 +99,46 @@ class FingerprintRequest:
         song = parseJSON(result.text, songStrings)
         return song
 
+    def searchFingerprintAll(self, userfile):
+        audDfoundSong = self.getAudDFingerprint(userfile)
+        ACRfoundSong = self.getACRSongFingerprint(userfile)
+
+        mergedSong = foundsong()
+
+        if (audDfoundSong.title == ""):
+            return ACRfoundSong
+        elif (ACRfoundSong.title == ""):
+            return audDfoundSong
+
+
+        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.title)
+        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.title)
+
+        if (text > text2 or text == text2):
+            mergedSong.title = audDfoundSong.title
+        else:
+            mergedSong.title = ACRfoundSong.title
+
+        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.artists)
+        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.artists)
+
+        if (text > text2 or text == text2):
+            mergedSong.title = audDfoundSong.artists
+        else:
+            mergedSong.title = ACRfoundSong.artists
+
+        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.genres)
+        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.genres)
+
+        if (text > text2 or text == text2):
+            mergedSong.title = audDfoundSong.genres
+        else:
+            mergedSong.title = ACRfoundSong.genres
+
+        return mergedSong
+
+
+
 
     # This will NOT be used for final implementation. This will primarily be used for backend automatic database insert
     # Returns a list of song objects with respective metadata and path to actual song file
@@ -131,6 +171,7 @@ class FingerprintRequest:
 
         print("Task Complete!")
         return file_returnList
+
 
 
 def parseJSON(fingerprinted, songStrings):
@@ -202,7 +243,7 @@ def parseJSON(fingerprinted, songStrings):
 
 obj = FingerprintRequest()
 
-file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\intro.mp3"
+file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
 
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
@@ -214,6 +255,10 @@ print(audDSong.title)
 print(audDSong.artists)
 print(audDSong.genres)
 
+lastTest = obj.searchFingerprintAll(file)
+print(lastTest.title)
+print(lastTest.artists)
+print(lastTest.genres)
 
 '''
 folderDir = ""
