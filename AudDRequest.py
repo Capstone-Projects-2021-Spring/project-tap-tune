@@ -4,7 +4,7 @@ data = {
 }
 
 files = {
-    'file': open('C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\LOL.mp3', 'rb'),
+    'file': open('C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\Cringe_Singing.mp3', 'rb'),
 }
 
 result = requests.post('https://api.audd.io/recognizeWithOffset/', data=data, files=files)

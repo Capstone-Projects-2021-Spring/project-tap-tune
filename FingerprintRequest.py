@@ -35,6 +35,7 @@ class foundsong:
         self.title = ""
         self.artists = ""
         self.genres = ""
+        self.score = ""
 
         # Only for auto database input
         self.path = ""
@@ -47,6 +48,9 @@ class foundsong:
 
     def set_genre(self, genres):
         self.genres = genres
+
+    def set_score(self, score):
+        self.score = score
 
     # Only for auto database input
     def set_path(self, path):
@@ -74,10 +78,10 @@ class FingerprintRequest:
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
-        print(fingerprinted)
+        #print(fingerprinted)
 
         #Service Specific naming convention
-        songStrings = ["title", "artists", "genres"]
+        songStrings = ["title", "artists", "genres","score"]
 
         song = parseJSON(fingerprinted, songStrings)
         return song
@@ -94,7 +98,7 @@ class FingerprintRequest:
         # result = requests.post('https://api.audd.io/ ', data=self.data, files=files)
 
         # Service Specific naming convention
-        songStrings = ["title", "artists", "genreNames"]
+        songStrings = ["title", "artists", "genreNames", "score"]
 
         song = parseJSON(result.text, songStrings)
         return song
@@ -176,6 +180,7 @@ class FingerprintRequest:
 
 def parseJSON(fingerprinted, songStrings):
     # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
+    print(fingerprinted)
     fingerprinted = re.sub('[^A-Za-z0-9,-_]+', '', fingerprinted)
     fingerprinted = re.sub(r'[\[\]\\\/]', '', fingerprinted)
 
@@ -196,11 +201,14 @@ def parseJSON(fingerprinted, songStrings):
             counter = 8
             while flag == 0:
                 #print(substr[counter - 8:counter])
-                if substr[counter] == ':':
-                    if "name" in substr[counter - 8:counter]:
-                        counter += 1
-                    else:
-                        flag = 1
+                if len(substr) == counter:
+                    flag = 1
+                else:
+                    if substr[counter] == ':':
+                        if "name" in substr[counter - 8:counter]:
+                            counter += 1
+                        else:
+                            flag = 1
                 counter += 1
 
             # More String clean up. Counter will have an index that will encompass all the fields of identifier
@@ -217,7 +225,7 @@ def parseJSON(fingerprinted, songStrings):
 
         # If metadata identifier is not found, sets string to empty and prints error
         except ValueError:
-            print("No " + songStrings[identifiers] + " found")
+            #print("No " + songStrings[identifiers] + " found")
             substr = ""
 
         # Bunch of if statements to make sure correct identifier is set to each attribute in the song object
@@ -227,6 +235,8 @@ def parseJSON(fingerprinted, songStrings):
             songmetadata.set_artist(substr)
         if "genre" in songStrings[identifiers]:
             songmetadata.set_genre(substr)
+        if "score" in songStrings[identifiers]:
+            songmetadata.set_score(substr)
 
     return songmetadata
 
@@ -249,16 +259,19 @@ acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
 print(acrSong.artists)
 print(acrSong.genres)
+print(acrSong.score)
 
 audDSong = obj.getAudDFingerprint(file)
 print(audDSong.title)
 print(audDSong.artists)
 print(audDSong.genres)
+print(audDSong.score)
 
 lastTest = obj.searchFingerprintAll(file)
 print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
+print(lastTest.score)
 
 '''
 folderDir = ""
