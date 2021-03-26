@@ -326,7 +326,7 @@ class rhythmAnalysis:
         song_data = cursor.fetchall()
         db_results = []
         for track in song_data:
-            song = Song(song_id=track["id"], title=track["title"], artist=track["artist"], release_date=track["release_date"], genre=track["genre"], peak_hash=track["peak_hash"], onset_hash=track["onset_hash"])
+            song = Song.create(track)
             db_results.append(song)
 
         # for loop to go through the song_data
@@ -338,7 +338,7 @@ class rhythmAnalysis:
             """
 
             peak_array = unhash_array(db_track.peak_hash)
-            onset_array = unhash_array(db_track.onet_hash)
+            onset_array = unhash_array(db_track.onset_hash)
 
             """
             convert binary array to frames
