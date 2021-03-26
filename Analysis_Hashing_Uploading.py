@@ -6,10 +6,6 @@ import spotipy
 from database_sep import mydb, get_cursor
 from models.Song import Song
 
-def print_test(str, title):
-    print("******************************"+title+"************************")
-    print(str)
-
 
 def countToVal(count):
     dict = {
@@ -237,13 +233,91 @@ def artistMod(artist):
     else:
         return artist
 
+
 def printSongs(songs):
     for song in songs:
         print("++++++++++++++++++++++++++++++++")
-        print(song["title"])
-        print(song["artist"])
-        print(song["release_date"])
-        print(song["genre"])
+        print(song.title)
+        print(song.artist)
+        print(song.release_date)
+        print(song.genre)
+
+def onset_hash(file_path, songs):
+    # Loads waveform of song into x
+    x, sr = librosa.load(file_path)
+    # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
+    frames = librosa.onset.onset_detect(y=x, sr=sr, units='frames')  # Librosa Frames
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    # converting to Hash
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    onset_hash = hash_array(bin_array)
+    songs[element].onset_hash = onset_hash
+
+def peak_hash(file_path, songs):
+    y, sr = librosa.load(file_path)
+    onset_env = librosa.onset.onset_strength(y=y, sr=22050)
+    peaks = librosa.util.peak_pick(onset_env, 3, 3, 3, 5, .5, 10)
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, peaks[len(peaks) - 1]):
+        if (peaks[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    # converting to Hash
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    peak_onset_hash = hash_array(bin_array)
+    songs[element].peak_hash = peak_onset_hash
+
+def harm_hash(y_harm, sr, songs):
+    frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    # converting to Hash
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    harmonic_hash = hash_array(bin_array)
+    songs[element].harmonic_hash = harmonic_hash
+
+def perc_hash(y_perc, sr, songs):
+    frames = librosa.onset.onset_detect(y=y_perc, sr=sr, units='frames')  # Librosa Frames
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    # converting to Hash
+    test_array = binToFrames(bin_array)
+    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    percussive_hash = hash_array(bin_array)
+    songs[element].percussive_hash = percussive_hash
 
 
 creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
@@ -256,7 +330,7 @@ songs = []
 - SAVE INFORMATION IN SONGS LIST
 """
 element = 0
-for filename in os.listdir("music"):
+for filename in os.listdir("test_music"):
     # parse scheme for splitting title and artist (separated by an underscore)
     filename_split = filename.split("_")
     track_id = ""
@@ -270,8 +344,8 @@ for filename in os.listdir("music"):
         track_artists[ele] = artistMod(track_artists[ele])
 
     track_title = str(filename_split[1])[0:len(filename_split[1])-4]
-    song = Song(title=track_title, artist=", ".join(track_artists), release_date=None, genre=None, onset_hash=None,
-                peak_hash=None)
+    song = Song(song_id=None, title=track_title, artist=", ".join(track_artists), release_date=None, genre=None, onset_hash=None,
+                peak_hash=None, percussive_hash=None, harmonic_hash=None)
     songs.append(song)
     """SEARCH THROUGH SPOTIFY AND CHECK ARTISTS"""
     found = False
@@ -293,85 +367,21 @@ for filename in os.listdir("music"):
             break
 
     """PERFORM ONSET HASHING"""
-    file_path = "music/" + filename
-    # Loads waveform of song into x
-    x, sr = librosa.load(file_path)
-    # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
-    frames = librosa.onset.onset_detect(y=x, sr=sr, units='frames')  # Librosa Frames
-    # frames to binary
-    bin_array = []
-    increment = 0
-    for x in range(0, frames[len(frames) - 1]):
-        if (frames[increment] == x):
-            bin_array.append(1)
-            increment += 1
-        else:
-            bin_array.append(0)
-    bin_array.append(1)
-    # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
-    onset_hash = hash_array(bin_array)
-    songs[element].onset_hash = onset_hash
+    file_path = "test_music/" + filename
+    onset_hash(file_path=file_path, songs=songs)
 
     """PERFORM PEAK ONSET HASHING"""
-    y, sr = librosa.load(file_path)
-    onset_env = librosa.onset.onset_strength(y=y, sr=22050)
-    peaks = librosa.util.peak_pick(onset_env, 3, 3, 3, 5, .5, 10)
-    # frames to binary
-    bin_array = []
-    increment = 0
-    for x in range(0, peaks[len(peaks) - 1]):
-        if (peaks[increment] == x):
-            bin_array.append(1)
-            increment += 1
-        else:
-            bin_array.append(0)
-    bin_array.append(1)
-    # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
-    peak_onset_hash = hash_array(bin_array)
-    songs[element].peak_hash = peak_onset_hash
+    peak_hash(file_path=file_path, songs=songs)
 
     """SPLITTING SONG INTO HARMONICS AND PERCUSSIVE"""
-    y_harm, y_perc = librosa.effect.hpss(y, margins=(1.0, 5.0))
+    y, sr = librosa.load(file_path)
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
 
     """PERFORM HARMONIC HASHING"""
-    frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
-    # frames to binary
-    bin_array = []
-    increment = 0
-    for x in range(0, frames[len(frames) - 1]):
-        if (frames[increment] == x):
-            bin_array.append(1)
-            increment += 1
-        else:
-            bin_array.append(0)
-    bin_array.append(1)
-    # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
-    harmonic_hash = hash_array(bin_array)
-    songs[element].harmonic_hash = harmonic_hash
+    harm_hash(y_harm=y_harm, sr=sr, songs=songs)
 
     """PERFORM PERCUSSIVE HASHING"""
-    frames = librosa.onset.onset_detect(y=y_perc, sr=sr, units='frames')  # Librosa Frames
-    # frames to binary
-    bin_array = []
-    increment = 0
-    for x in range(0, frames[len(frames) - 1]):
-        if (frames[increment] == x):
-            bin_array.append(1)
-            increment += 1
-        else:
-            bin_array.append(0)
-    bin_array.append(1)
-    # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
-    percussive_hash = hash_array(bin_array)
-    songs[element].percussive_hash = percussive_hash
+    perc_hash(y_perc=y_perc, sr=sr, songs=songs)
 
     element += 1
 
@@ -391,11 +401,11 @@ if(choice == "y"):
         for track in songs:
             isDup = False
             # statement to search for matching song titles
-            dup_sql= 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track.get("title"))
+            dup_sql= 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track.title)
             cursor.execute(dup_sql)
             results = cursor.fetchall()
             # converting track artist string to list
-            track_artists = track.get("artist").split(", ")
+            track_artists = track.artist.split(", ")
             # loops through resulting rows
             for res_record in results:
                 # loops thorugh the
@@ -413,15 +423,14 @@ if(choice == "y"):
             else:
                 print("NO DUPLICATE FOUND")
                 """INSERT THE NEW RECORD INTO DATABASE"""
-                insert = Song.insert(track)
+                insert_sql = "INSERT INTO song (title, artist, release_date, genre, onset_hash, peak_hash) VALUES (%s, %s, %s, %s, %s, %s)"
+                vals = (track["title"], track["artist"], track["release_date"], track["genre"], track["onset_hash"],
+                        track["peak_hash"])
+                cursor.execute(insert_sql, vals)
+                mydb.commit()
 
     except Exception as e:
         print(e)
 
 else:
     print("NOPE")
-
-"""INSERT INTO DATABASE
-- SEARCH TO MAKE SURE THERE ARE NO DUPLICATES
-- INSERT INFORMATION INTO THE DATABASE
-"""
