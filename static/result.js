@@ -3,6 +3,7 @@ var mainSearchTitle = document.getElementById("resultsMainSearchTitle");
 var mainSearchArtist = document.getElementById("resultsMainSearchArtist");
 var mainSearchLyrics = document.getElementById("resultsMainSearchLyrics");
 var data = document.getElementById("filteredResultsList").getAttribute("data-filtered");
+var lyrics = new Array();
 var data2 = data.replace(/'/g, '"');
 if (data2.length > 0)
     var jsonObj = $.parseJSON(data2);
@@ -13,13 +14,12 @@ for(var i = 0; i < jsonObj.length; i++) {
 
     var obj = jsonObj[i];
     console.log(obj);
-
     //Main Search in main view
     if (i == 0) {
         mainSearchTitle.textContent = obj.title;
         mainSearchArtist.textContent = obj.artist;
     }
-
+    lyrics.push(obj);
     //Secondary searches in table
     var row = table.insertRow(-1);
     var titleCell = row.insertCell(0);
@@ -36,8 +36,6 @@ for(var i = 0; i < jsonObj.length; i++) {
     
 }
 
-    var lyrics = {"title": mainSearchTitle.textContent, "artist": mainSearchArtist.textContent}
-    console.log("AJAX"+JSON.stringify(lyrics));
             $.ajax({
                 url: '/lyrics',
                 type : 'post',
@@ -45,9 +43,8 @@ for(var i = 0; i < jsonObj.length; i++) {
                 dataType : 'json',
                 data : JSON.stringify(lyrics) //passing the variable
             }).done(function(result) {
-                console.log("success: " + result);
-                //goToFiltering();
-
+                console.log("success: " + JSON.stringify(result[0].title));
+                console.log("success: " + JSON.stringify(result[0].artist));
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
             });

@@ -5,6 +5,8 @@ from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
+import requests
+from bs4 import BeautifulSoup
 
 import json
 
@@ -50,6 +52,27 @@ def filter_page():
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
+@app.route('/melodyFiltering', methods=['GET', 'POST'])
+def melody_filter_page():
+    user = User.current_user()
+    return render_template('melodyFiltering.html', user=user)
+
+@app.route('/lyrics', methods=['GET', 'POST'])
+def retreiveLyrics():
+    if request.method == 'POST':
+        #lyricData = request.json
+        lyricData = json.loads(request.data)
+        print(lyricData)
+        return jsonify(lyricData)
+
+def getLyrics():
+
+    url = 'https://genius.com/Traditional-happy-birthday-to-you-lyrics'
+    soup = BeautifulSoup(requests.get(url).content, 'html.parser')
+    text = soup.select_one('div[class^="Lyrics__Container"], .lyrics').get_text(strip=True, separator='\n')
+    stuff = request.json
+    print("Woo"+stuff)
+    return text
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
@@ -62,7 +85,19 @@ def result_page():
     filterResults = obj.filterRecording(user_result)
 
     # Todo: After getting results, store in user_log
-    return render_template('results.html', filterResults=filterResults)
+    return render_template('results.html', filterResults=filterResults, x=getLyrics())
+
+@app.route('/melodyResults', methods=['GET', 'POST'])
+def melody_result_page():
+    user = User.current_user()
+
+    # Filter the Song Results if there are any inputs from request form
+    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                    Lyrics=request.form['input_lyrics'])
+
+
+    # Todo: After getting results, store in user_log
+    return render_template('melodyResults.html', x=getLyrics())
 
 
 @app.route('/user', methods=['GET', 'POST'])
