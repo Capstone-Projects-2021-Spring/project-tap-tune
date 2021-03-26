@@ -1,4 +1,5 @@
 from models.Database import db, get_cursor
+# from database_sep import db, get_cursor
 
 """
 Song class models and contains information about a song.
@@ -13,7 +14,7 @@ class Song:
     SONG_ARTIST_REQUIRED = 'song artist not specified'
     DUPLICATE_SONG_ERROR = 'duplicate title and artist'
 
-    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash):
+    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, preview=None):
         self.id = song_id
         self.title = title
         self.artist = artist
@@ -21,6 +22,11 @@ class Song:
         self.genre = genre
         self.onset_hash = onset_hash
         self.peak_hash = peak_hash
+        self.preview = preview
+
+
+    def set_preview(self, preview):
+        self.preview = preview
 
     """
     used to create an instance of the song class from an associative array of attributes
@@ -145,7 +151,6 @@ class Song:
     def get_by_artist(artist):
         # format genre for like query
         artist_f = '%' + artist + '%'
-
         try:
             songs = []
 
@@ -153,7 +158,6 @@ class Song:
             cursor = get_cursor()
             cursor.execute('SELECT * FROM song WHERE artist LIKE %s', (artist_f,))
             song_rows = cursor.fetchall()
-
             # create song classes and append to songs array
             for song_r in song_rows:
                 print(song_r)
