@@ -242,6 +242,7 @@ def printSongs(songs):
         print(song.release_date)
         print(song.genre)
 
+
 def onset_hash(file_path, songs):
     # Loads waveform of song into x
     x, sr = librosa.load(file_path)
@@ -263,6 +264,7 @@ def onset_hash(file_path, songs):
     onset_hash = hash_array(bin_array)
     songs[element].onset_hash = onset_hash
 
+
 def peak_hash(file_path, songs):
     y, sr = librosa.load(file_path)
     onset_env = librosa.onset.onset_strength(y=y, sr=22050)
@@ -283,6 +285,7 @@ def peak_hash(file_path, songs):
     peak_onset_hash = hash_array(bin_array)
     songs[element].peak_hash = peak_onset_hash
 
+
 def harm_hash(y_harm, sr, songs):
     frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
@@ -300,6 +303,7 @@ def harm_hash(y_harm, sr, songs):
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     harmonic_hash = hash_array(bin_array)
     songs[element].harmonic_hash = harmonic_hash
+
 
 def perc_hash(y_perc, sr, songs):
     frames = librosa.onset.onset_detect(y=y_perc, sr=sr, units='frames')  # Librosa Frames
@@ -424,8 +428,8 @@ if(choice == "y"):
                 print("NO DUPLICATE FOUND")
                 """INSERT THE NEW RECORD INTO DATABASE"""
                 insert_sql = "INSERT INTO song (title, artist, release_date, genre, onset_hash, peak_hash) VALUES (%s, %s, %s, %s, %s, %s)"
-                vals = (track["title"], track["artist"], track["release_date"], track["genre"], track["onset_hash"],
-                        track["peak_hash"])
+                vals = (track.title, track.artist, track.release_date, track.genre, track.onset_hash,
+                        track.peak_hash)
                 cursor.execute(insert_sql, vals)
                 mydb.commit()
 
