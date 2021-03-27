@@ -3,7 +3,7 @@ import librosa, librosa.display
 import soundfile as sf
 import os
 import spotipy
-from database_sep import mydb, get_cursor
+from database_sep import db, get_cursor
 from models.Song import Song
 
 
@@ -241,6 +241,11 @@ def printSongs(songs):
         print(song.artist)
         print(song.release_date)
         print(song.genre)
+        print("HASHES:")
+        print(song.onset_hash)
+        print(song.peak_hash)
+        print(song.harm_hash)
+        print(song.perc_hash)
 
 
 def onset_hash(file_path, songs):
@@ -302,7 +307,7 @@ def harm_hash(y_harm, sr, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     harmonic_hash = hash_array(bin_array)
-    songs[element].harmonic_hash = harmonic_hash
+    songs[element].harm_hash = harmonic_hash
 
 
 def perc_hash(y_perc, sr, songs):
@@ -321,7 +326,7 @@ def perc_hash(y_perc, sr, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     percussive_hash = hash_array(bin_array)
-    songs[element].percussive_hash = percussive_hash
+    songs[element].perc_hash = percussive_hash
 
 
 creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
@@ -349,7 +354,7 @@ for filename in os.listdir("test_music"):
 
     track_title = str(filename_split[1])[0:len(filename_split[1])-4]
     song = Song(song_id=None, title=track_title, artist=", ".join(track_artists), release_date=None, genre=None, onset_hash=None,
-                peak_hash=None, percussive_hash=None, harmonic_hash=None)
+                peak_hash=None, perc_hash=None, harm_hash=None)
     songs.append(song)
     """SEARCH THROUGH SPOTIFY AND CHECK ARTISTS"""
     found = False
@@ -421,17 +426,24 @@ if(choice == "y"):
 
             if(isDup):
                 print("DUPLICATE FOUND")
-                print(track)
-                print("SCRIPT ENDING")
 
             else:
                 print("NO DUPLICATE FOUND")
+
                 """INSERT THE NEW RECORD INTO DATABASE"""
                 insert_sql = "INSERT INTO song (title, artist, release_date, genre, onset_hash, peak_hash) VALUES (%s, %s, %s, %s, %s, %s)"
                 vals = (track.title, track.artist, track.release_date, track.genre, track.onset_hash,
                         track.peak_hash)
                 cursor.execute(insert_sql, vals)
-                mydb.commit()
+                db.commit()
+
+                cursor.execute('SELECT id FROM song WHERE artist = %s and title = %s', (track.artist, track.title))
+                track.id = cursor.fetchall()[0][0]
+
+                insert_sql = "INSERT INTO fingerprint (song_id, perc_hash, harm_hash) VALUES(%s, %s, %s)"
+                vals = (track.id, track.perc_hash, track.harm_hash)
+                cursor.execute(insert_sql, vals)
+                db.commit()
 
     except Exception as e:
         print(e)

@@ -1,5 +1,5 @@
-from models.Database import db, get_cursor
-# from database_sep import db, get_cursor
+# from models.Database import db, get_cursor
+from database_sep import db, get_cursor
 
 """
 Song class models and contains information about a song.
@@ -13,8 +13,11 @@ class Song:
     SONG_TITLE_REQUIRED = 'song title not specified'
     SONG_ARTIST_REQUIRED = 'song artist not specified'
     DUPLICATE_SONG_ERROR = 'duplicate title and artist'
+    DUPLICATE_FINGERPRINT_ERROR = 'song already has associated fingerprint'
 
-    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, harmonic_hash, percussive_hash, preview=None):
+    BASE_SELECT_QUERY = 'SELECT song.*,fp.perc_hash,fp.harm_hash FROM song LEFT JOIN fingerprint AS fp ON song.`id` = fp.song_id'
+
+    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, perc_hash, harm_hash, preview=None):
         self.id = song_id
         self.title = title
         self.artist = artist
@@ -22,12 +25,8 @@ class Song:
         self.genre = genre
         self.onset_hash = onset_hash
         self.peak_hash = peak_hash
-        self.percussive_hash = percussive_hash
-        self.harmonic_hash = harmonic_hash
-        self.preview = preview
-
-
-    def set_preview(self, preview):
+        self.perc_hash = perc_hash
+        self.harm_hash = harm_hash
         self.preview = preview
 
     """
@@ -40,9 +39,11 @@ class Song:
         release_date = attr_d.get('release_date')
         onset_hash = attr_d.get('onset_hash')
         peak_hash = attr_d.get('peak_hash')
+        perc_hash = attr_d.get('perc_hash')
+        harm_hash = attr_d.get('harm_hash')
 
         return Song(attr_d['id'], attr_d['title'], attr_d['artist'], release_date, genre
-                    , onset_hash, peak_hash)
+                    , onset_hash, peak_hash, perc_hash, harm_hash, attr_d.get('preview'))
 
     """
     insert song into database
@@ -60,13 +61,19 @@ class Song:
             # insert song into db
             cursor = get_cursor()
             cursor.execute(
-                'INSERT INTO song (title,artist,genre,release_date,onset_hash,peak_hash) VALUES (%s,%s,%s,%s,%s,%s)'
-                , (attr_d.get('title'), attr_d.get('artist'), genre, attr_d.get('release_date')
+                'INSERT INTO song (title,artist,genre,release_date,preview,onset_hash,peak_hash) VALUES (%s,%s,%s,%s,%s,%s,%s)'
+                , (attr_d.get('title'), attr_d.get('artist'), genre, attr_d.get('release_date'), attr_d.get('preview')
                    , attr_d.get('onset_hash'), attr_d.get('peak_hash')))
             db.connection.commit()
 
             # get/set inserted id
             attr_d['id'] = cursor.lastrowid
+
+            # insert fingerprint row
+            cursor.execute(
+                'INSERT INTO fingerprint (song_id,perc_hash,harm_hash) VALUES (%s,%s,%s)'
+                , (attr_d['id'], attr_d.get('perch_hash'), attr_d.get('harm_hash')))
+            db.connection.commit()
 
             return Song.create(attr_d)
         except KeyError as e:
@@ -87,6 +94,8 @@ class Song:
             elif e.args[0] == 1062:
                 if 'title' in e.args[1]:
                     error = Song.DUPLICATE_SONG_ERROR
+                elif 'song_id' in e.args[1]:
+                    error = Song.DUPLICATE_FINGERPRINT_ERROR
             return error
 
     """
@@ -96,24 +105,26 @@ class Song:
     """
     @staticmethod
     def get_all():
-        try:
-            songs = []
+        # get songs from database
+        return Song.__get_songs(Song.BASE_SELECT_QUERY, [])
 
-            # get songs from database
-            cursor = get_cursor()
-            cursor.execute('SELECT * FROM song', ())
-            song_rows = cursor.fetchall()
+    """
+    get all songs by id
+    input array of songs ids
+    returns None on failure
+    returns array of songs on success (array can be empty)
+    """
+    @staticmethod
+    def get_by_ids(ids: list):
+        # create query
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.`id` IN '
+        placeholder = []
+        for id in ids:
+            placeholder.append('%s')
+        query += '(' + ','.join(placeholder) + ')'
 
-            # create song classes and append to songs array
-            for song_r in song_rows:
-                print(song_r)
-                songs.append(Song.create(song_r))
-
-        except Exception as e:
-            print(e)
-            return None
-
-        return songs
+        # get songs from database
+        return Song.__get_songs(query, ids)
 
     """
     get all songs by genre 
@@ -125,24 +136,11 @@ class Song:
         # format genre for like query
         genre_f = '%' + genre + '%'
 
-        try:
-            songs = []
+        # setup query
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.genre LIKE %s'
 
-            # get songs from database
-            cursor = get_cursor()
-            cursor.execute('SELECT * FROM song WHERE genre LIKE %s', (genre_f,))
-            song_rows = cursor.fetchall()
-
-            # create song classes and append to songs array
-            for song_r in song_rows:
-                print(song_r)
-                songs.append(Song.create(song_r))
-
-        except Exception as e:
-            print(e)
-            return None
-
-        return songs
+        # get songs from database
+        return Song.__get_songs(query, [genre_f])
 
     """
     get all songs by artist
@@ -153,13 +151,29 @@ class Song:
     def get_by_artist(artist):
         # format genre for like query
         artist_f = '%' + artist + '%'
+
+        # setup query
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist LIKE %s'
+
+        # get songs from database
+        return Song.__get_songs(query, [artist_f])
+
+    """
+    private method
+    used to get songs from database
+    returns array of songs on success (array can be empty)
+    returns None on failure
+    """
+    @staticmethod
+    def __get_songs(query, data: list):
         try:
             songs = []
 
             # get songs from database
             cursor = get_cursor()
-            cursor.execute('SELECT * FROM song WHERE artist LIKE %s', (artist_f,))
+            cursor.execute(query, data)
             song_rows = cursor.fetchall()
+
             # create song classes and append to songs array
             for song_r in song_rows:
                 print(song_r)
@@ -172,39 +186,72 @@ class Song:
         return songs
 
     """
+    set preview for song
+    return false on failure, true on success
+    """
+    def set_preview(self, preview):
+        return self.__update_song_val('preview', preview)
+
+    """
     set onset hash for song
     return false on failure, true on success
     """
-    def set_onset_hash(self, hashs):
-        try:
-            # update song hash
-            cursor = get_cursor()
-            cursor.execute('UPDATE song set onset_hash = %s WHERE id = %s', (hashs, self.id))
-            db.connection.commit()
-
-            if cursor.rowcount < 1:
-                print('update failed')
-                return False
-
-        except Exception as e:
-            print(e)
-            return False
-        return True
+    def set_onset_hash(self, hash):
+        return self.__update_song_val('onset_hash', hash)
 
     """
     set peak hash for song
     return false on failure, true on success
     """
-    def set_peak_hash(self, hashs):
+    def set_peak_hash(self, hash):
+        return self.__update_song_val('peak_hash', hash)
+
+    """
+    set percussion hash for song
+    return false on failure, true on success
+    """
+    def set_perc_hash(self, hash):
+        return self.__update_song_val('perc_hash', hash)
+
+    """
+    set harmonic hash for song
+    return false on failure, true on success
+    """
+    def set_harm_hash(self, hash):
+        return self.__update_song_val('harm_hash', hash)
+
+    """
+    private method
+    used to update single song attribute value in database
+    """
+    def __update_song_val(self, col, val):
+        # set fingerprint attributes
+        fp_attr = ['perc_hash', 'harm_hash']
+
+        if col in fp_attr:
+            table = 'fingerprint'
+            rel_id = 'song_id'
+        else:
+            table = 'song'
+            rel_id = 'id'
+
         try:
+            # set query
+            query = 'UPDATE %s set %s' % (table, col)
+            query += ' = %s WHERE ' + rel_id + ' = %s'
+
             # update song hash
             cursor = get_cursor()
-            cursor.execute('UPDATE song set peak_hash = %s WHERE id = %s', (hashs, self.id))
-            db.connection.commit()
+            cursor.execute(query, (val, self.id))
+            # db.connection.commit()
+            db.commit()
 
             if cursor.rowcount < 1:
                 print('update failed')
                 return False
+
+            # set the attribute to provided value
+            setattr(self, col, val)
 
         except Exception as e:
             print(e)
