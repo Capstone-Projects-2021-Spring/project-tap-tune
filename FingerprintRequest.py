@@ -73,7 +73,7 @@ class FingerprintRequest:
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
-        #print(fingerprinted)
+        print(fingerprinted)
 
         fingerprintJson = json.loads(fingerprinted)
 
@@ -99,7 +99,7 @@ class FingerprintRequest:
         # result = requests.post('https://api.audd.io/recognizeWithOffset/  ', data=self.data, files=files)
         result = requests.post('https://api.audd.io/ ', data=self.data, files=files)
 
-        #print(result.text)
+        print(result.text)
 
         fingerprintJson = json.loads(result.text)
 
@@ -129,6 +129,7 @@ class FingerprintRequest:
         # result = requests.post('https://api.audd.io/ ', data=self.data, files=files)
 
         fingerprintJson = json.loads(result.text)
+        print(fingerprintJson)
 
         if 'success' not in fingerprintJson['status']:
             print('AudD Humming: not found')
@@ -152,6 +153,7 @@ class FingerprintRequest:
         audDfoundSong = self.getAudDFingerprint(userfile)
         ACRfoundSong = self.getACRSongFingerprint(userfile)
         hummingFingerprint = self.getHummingFingerprint(userfile)
+
 
         result = foundsong()
 
@@ -222,7 +224,7 @@ class FingerprintRequest:
 
 obj = FingerprintRequest()
 
-file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
+file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\smashmouth.mp3"
 
 '''
 acrSong = obj.getACRSongFingerprint(file)
@@ -239,10 +241,9 @@ print(audDSong.genres)
 print(audDSong.score)
 '''
 
-'''
 lastTest = obj.searchFingerprintAll(file)
 print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
-'''
+
