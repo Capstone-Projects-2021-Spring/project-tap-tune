@@ -63,15 +63,16 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             # create song table
             create_song_table_q = """
                 CREATE TABLE `song` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                  `id` int NOT NULL AUTO_INCREMENT,
                   `title` varchar(128) NOT NULL,
                   `artist` varchar(64) NOT NULL,
                   `release_date` date DEFAULT NULL,
                   `genre` varchar(45) DEFAULT NULL,
+                  `preview` varchar(255) DEFAULT NULL,
                   `onset_hash` varchar(4096) DEFAULT NULL,
                   `peak_hash` varchar(4096) DEFAULT NULL,
                   PRIMARY KEY (`id`),
-                  UNIQUE KEY `song_title_artist_uidx` (`title`,`artist`) /*!80000 INVISIBLE */
+                  UNIQUE KEY `song_title_artist_uidx` (`title`,`artist`)
                 )"""
             cursor.execute(create_song_table_q)
             db.connection.commit()
@@ -91,6 +92,23 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                   CONSTRAINT `fk_usl_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
                 )"""
             cursor.execute(create_song_log_table_q)
+            db.connection.commit()
+
+            # create fingerprint table
+            create_fingerprint_table_q = """
+                CREATE TABLE `fingerprint` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `song_id` int NOT NULL,
+                  `perc_hash` varchar(4096) DEFAULT NULL,
+                  `harm_hash` varchar(4096) DEFAULT NULL,
+                  `date_created` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+                  `date_modified` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `fp_song_id_uidx` (`song_id`),
+                  KEY `fk_fp_song_id_idx` (`song_id`),
+                  CONSTRAINT `fk_fp_song_id` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`)
+                )"""
+            cursor.execute(create_fingerprint_table_q)
             db.connection.commit()
         pass
 
@@ -138,9 +156,9 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             self.assertEqual(re, Song.DUPLICATE_SONG_ERROR)
 
     """
-    test song update hash
+    test song update methods
     """
-    def test_song_update_hash(self, app, client):
+    def test_song_update(self, app, client):
         # mock client request to setup session use
         rv = client.get('/')
 
@@ -153,15 +171,37 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             song = Song.insert(attr)
             attr['artist'] += 'B'
             song = Song.insert(attr)
-            self.assertIsInstance(song, Song)
+
+            preview = 'preview.com/example?s=va4as'
+            onset_hash = 'abc1'
+            peak_hash = '123x'
+            perc_hash = 'fff'
+            harm_hash = 'xxx'
+
+            # test update preview
+            rpv = song.set_preview(preview)
+            self.assertTrue(rpv)
+            self.assertEqual(song.preview, preview)
 
             # test update onset hash
-            ro = song.set_onset_hash('abc1')
+            ro = song.set_onset_hash(onset_hash)
             self.assertTrue(ro)
+            self.assertEqual(song.onset_hash, onset_hash)
 
             # test update peak hash
-            rp = song.set_peak_hash('123x')
+            rp = song.set_peak_hash(peak_hash)
             self.assertTrue(rp)
+            self.assertEqual(song.peak_hash, peak_hash)
+
+            # test update percussion hash
+            rpc = song.set_perc_hash(perc_hash)
+            self.assertTrue(rpc)
+            self.assertEqual(song.perc_hash, perc_hash)
+
+            # test update harmonic hash
+            rh = song.set_harm_hash(harm_hash)
+            self.assertTrue(rh)
+            self.assertEqual(song.harm_hash, harm_hash)
 
     """
     test get all
@@ -182,6 +222,29 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             r = Song.get_all()
             self.assertIsNotNone(r)
             self.assertEqual(len(songs), len(r))
+
+    """
+    test get by ids
+    """
+    def test_song_by_ids(self, app, client):
+        # mock client request to setup session use
+        rv = client.get('/')
+
+        with app.app_context():
+            # setup songs
+            songs = []
+            songs.append({"title": "Song 1", "artist": "Artist A", "genre": "genre1"})
+            songs.append({"title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
+            s1 = Song.insert(songs[0])
+            s2 = Song.insert(songs[1])
+            ids = []
+            ids.append(s1.id)
+            ids.append(s2.id)
+
+            # test get by ids
+            r = Song.get_by_ids(ids)
+            self.assertIsNotNone(r)
+            self.assertEqual(len(ids), len(r))
 
     """
     test get by artist

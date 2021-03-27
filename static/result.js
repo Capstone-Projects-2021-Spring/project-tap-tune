@@ -36,7 +36,7 @@ for(var i = 0; i < jsonObj.length; i++) {
     
 }
 
-            $.ajax({
+        /*    $.ajax({
                 url: '/lyrics',
                 type : 'post',
                 contentType: 'application/json',
@@ -47,4 +47,4 @@ for(var i = 0; i < jsonObj.length; i++) {
                 console.log("success: " + JSON.stringify(result[0].artist));
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
-            });
+            });*/

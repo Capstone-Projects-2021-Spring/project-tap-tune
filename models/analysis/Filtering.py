@@ -193,7 +193,7 @@ class Filtering:
         CHECKS FOR ANY GENRE INPUT
         """
         if(self.input_genre) and (self.input_genre != "Metal"):
-            r_list = self.filterGenre(r_list)
+            r_list = self.filterGenre()
             print("*****LIST FILTERED BY GENRE")
             print(r_list)
         else:
@@ -222,6 +222,7 @@ class Filtering:
             print("NO LYRICS INPUT")
 
         # returns the list filtered by provided fields
+        print(r_list)
         return r_list
 
 if __name__ == "__main__":
