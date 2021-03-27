@@ -323,16 +323,8 @@ class rhythmAnalysis:
             db_results = Song.get_by_ids(filter_ids)
 
         else:
-            # retrieves cursor from Database.py
-            cursor = get_cursor()
-            cursor.execute('SELECT id, title, artist, genre, onset_hash, peak_hash FROM song')
             # fetch all results and save in song_data list
-
-            """GO THROUGH DB DATA"""
-            song_data = cursor.fetchall()
-            for track in song_data:
-                song = Song.create(track)
-                db_results.append(song)
+            db_results = Song.get_all()
 
         # for loop to go through the song_data
         # for track in db_results:
