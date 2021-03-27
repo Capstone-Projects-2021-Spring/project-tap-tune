@@ -115,6 +115,7 @@ def melody_result_page():
                     Lyrics=request.form['input_lyrics'])
 
     result = FingerprintRequest().searchFingerprintAll("output.mp3")
+
     print(result.title)
     print(result.artists)
     print(result.genres)
