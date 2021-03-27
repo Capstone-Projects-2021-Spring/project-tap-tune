@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
+from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
+import lyricsgenius
 
 import json
 
@@ -64,6 +66,19 @@ def sort_results(e):
     return e['percent_match']
 
 
+"""
+get song lyrics using genius api
+"""
+def get_lyrics(song: Song):
+    client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
+    genius = lyricsgenius.Genius(client_access_token)
+    song = genius.search_song(title=song.title, artist=song.artist)
+    lyrics = ''
+    if song:
+        lyrics = song.lyrics
+    return lyrics
+
+
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
@@ -76,11 +91,14 @@ def result_page():
     final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     final_res.sort(reverse=True, key=sort_results)
     print(final_res)
-    if user:
-        user.add_song_long(final_res)
+    lyrics = ''
+    if final_res and len(final_res) > 0:
+        lyrics = get_lyrics(final_res[0]['song'])
+        if user:
+            user.add_song_long(final_res)
 
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, filterResults=final_res)
+    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
 
 @app.route('/user', methods=['GET', 'POST'])
