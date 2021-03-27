@@ -20,7 +20,6 @@ def cleanString(string):
 
     return returnString
 
-
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
 class foundsong:
@@ -70,6 +69,7 @@ class FingerprintRequest:
         # @param userfile: audio file path
 
         songArray = list()
+        returnsong = foundsong()
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
@@ -77,13 +77,12 @@ class FingerprintRequest:
 
         fingerprintJson = json.loads(fingerprinted)
 
-        if 'success' not in fingerprintJson['status']:
+        if 'Success' not in fingerprintJson['status']['msg']:
             print('ACRCloud: not found')
         else:
 
             songlist = (fingerprintJson['metadata']['music'][0])
 
-            returnsong = foundsong()
             returnsong.set_title(cleanString(str(songlist['title'])))
             returnsong.set_artist(cleanString(str(songlist['artists'])))
             returnsong.set_genre(cleanString(str(songlist['genres'])))
@@ -94,12 +93,13 @@ class FingerprintRequest:
         files = {
             'file': open(userpath, 'rb'),
         }
+        returnsong = foundsong()
 
         # Apparently this one is use for humming and such, but has low accuracy.
         # result = requests.post('https://api.audd.io/recognizeWithOffset/  ', data=self.data, files=files)
         result = requests.post('https://api.audd.io/ ', data=self.data, files=files)
 
-        print(result.text)
+        #print(result.text)
 
         fingerprintJson = json.loads(result.text)
 
@@ -108,7 +108,6 @@ class FingerprintRequest:
         else:
             songlist = (fingerprintJson['result'])
 
-            returnsong = foundsong()
             returnsong.set_title(cleanString(str(songlist['title'])))
             returnsong.set_artist(cleanString(str(songlist['apple_music']['artistName'])))
             returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
@@ -148,42 +147,32 @@ class FingerprintRequest:
 
 
     def searchFingerprintAll(self, userfile):
+
+        #Weighted AudD first, then ACR, then humming
         audDfoundSong = self.getAudDFingerprint(userfile)
         ACRfoundSong = self.getACRSongFingerprint(userfile)
+        hummingFingerprint = self.getHummingFingerprint(userfile)
 
-        mergedSong = foundsong()
+        result = foundsong()
 
-        if (audDfoundSong.title == ""):
-            return ACRfoundSong
-        elif (ACRfoundSong.title == ""):
-            return audDfoundSong
-
-
-        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.title)
-        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.title)
-
-        if (text > text2 or text == text2):
-            mergedSong.title = audDfoundSong.title
+        if audDfoundSong.title:
+            result.set_title(audDfoundSong.title)
+            result.set_artist(audDfoundSong.artists)
+            result.set_genre(audDfoundSong.genres)
+            result.set_score(audDfoundSong.score)
         else:
-            mergedSong.title = ACRfoundSong.title
+            if ACRfoundSong.title:
+                result.set_title(ACRfoundSong.title)
+                result.set_artist(ACRfoundSong.artists)
+                result.set_genre(ACRfoundSong.genres)
+                result.set_score(ACRfoundSong.score)
+            else:
+                result.set_title(hummingFingerprint[0].title)
+                result.set_artist(hummingFingerprint[0].artists)
+                result.set_genre(hummingFingerprint[0].genres)
+                result.set_score(hummingFingerprint[0].score)
 
-        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.artists)
-        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.artists)
-
-        if (text > text2 or text == text2):
-            mergedSong.title = audDfoundSong.artists
-        else:
-            mergedSong.title = ACRfoundSong.artists
-
-        text = re.sub('[^A-Za-z0-9-_]+', '', audDfoundSong.genres)
-        text2 = re.sub('[^A-Za-z0-9-_]+', '', ACRfoundSong.genres)
-
-        if (text > text2 or text == text2):
-            mergedSong.title = audDfoundSong.genres
-        else:
-            mergedSong.title = ACRfoundSong.genres
-
-        return mergedSong
+        return result
 
 
 
@@ -234,6 +223,7 @@ class FingerprintRequest:
 obj = FingerprintRequest()
 
 file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
+
 '''
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
@@ -241,12 +231,13 @@ print(acrSong.artists)
 print(acrSong.genres)
 print(acrSong.score)
 '''
-
+'''
 audDSong = obj.getAudDFingerprint(file)
 print(audDSong.title)
 print(audDSong.artists)
 print(audDSong.genres)
 print(audDSong.score)
+'''
 
 '''
 lastTest = obj.searchFingerprintAll(file)
@@ -254,8 +245,4 @@ print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
-'''
-'''
-folderDir = ""
-foldersonglist = obj.getACRFingerPrint_Folder(folderDir)
 '''
