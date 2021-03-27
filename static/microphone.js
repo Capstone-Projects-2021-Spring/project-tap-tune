@@ -209,7 +209,7 @@
 
 
     // our final binary blob
-    const blob = new Blob ( [ view ], { type : 'audio/mp3' } );
+    const blob = new Blob ( [ view ], { type : 'audio/mpeg' } );
 
     const audioUrl = URL.createObjectURL(blob);
     console.log('BLOB ', blob);

@@ -8,6 +8,8 @@ from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 import lyricsgenius
 import json
+from FingerprintRequest import FingerprintRequest
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -112,7 +114,12 @@ def melody_result_page():
     obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                     Lyrics=request.form['input_lyrics'])
 
-    return render_template('melodyResults.html')
+    result = FingerprintRequest().searchFingerprintAll("output.mp3")
+    print(result.title)
+    print(result.artists)
+    print(result.genres)
+
+    return render_template('melodyResults.html', artist=result.artists, title=result.title)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
