@@ -1,4 +1,3 @@
-import os, sys
 
 from acrcloud.recognizer import ACRCloudRecognizer
 import re
@@ -23,7 +22,6 @@ def cleanString(string):
 
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
-
 class foundsong:
     def __init__(self):
         self.title = ""
@@ -71,7 +69,7 @@ class FingerprintRequest:
         # @param userfile: audio file path
 
         songArray = list()
-        returnsong = Song()
+        returnsong = foundsong()
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
@@ -95,7 +93,7 @@ class FingerprintRequest:
         files = {
             'file': open(userpath, 'rb'),
         }
-        returnsong = Song()
+        returnsong = foundsong()
 
         # Apparently this one is use for humming and such, but has low accuracy.
         # result = requests.post('https://api.audd.io/recognizeWithOffset/  ', data=self.data, files=files)
@@ -137,7 +135,7 @@ class FingerprintRequest:
         else:
             songlist = (fingerprintJson['result']['list'])
             for songs in range(len(songlist)):
-                returnsong = Song()
+                returnsong = foundsong()
                 returnsong.set_title(cleanString(str(songlist[songs]['title'])))
                 returnsong.set_artist(cleanString(str(songlist[songs]['artist'])))
                 # returnsong.set_genre(cleanString(songlist[songs]['genre']))))
@@ -155,7 +153,7 @@ class FingerprintRequest:
         ACRfoundSong = self.getACRSongFingerprint(userfile)
         hummingFingerprint = self.getHummingFingerprint(userfile)
 
-        result = Song()
+        result = foundsong()
 
         if audDfoundSong.title:
             result.title = audDfoundSong.title
@@ -223,12 +221,11 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
-
 obj = FingerprintRequest()
 
 file = r"C:\\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
 
-
+'''
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
 print(acrSong.artists)
@@ -249,4 +246,4 @@ print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
-
+'''
