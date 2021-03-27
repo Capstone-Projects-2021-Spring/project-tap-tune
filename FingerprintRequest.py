@@ -103,7 +103,7 @@ class FingerprintRequest:
 
         fingerprintJson = json.loads(result.text)
 
-        if 'success' not in fingerprintJson['status']:
+        if 'success' not in fingerprintJson['status'] or fingerprintJson['result'] is None:
             print('AudD: not found')
         else:
             songlist = (fingerprintJson['result'])
