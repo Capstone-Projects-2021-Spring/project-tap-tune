@@ -5,8 +5,9 @@ from models.User import User
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
-import requests
-from bs4 import BeautifulSoup
+# import requests
+# from bs4 import BeautifulSoup
+
 
 import json
 
@@ -72,12 +73,13 @@ def retreiveLyrics():
         print(lyricData)
         return jsonify(lyricData)
 
-def getLyrics():
 
-    url = 'https://genius.com/Traditional-happy-birthday-to-you-lyrics'
-    soup = BeautifulSoup(requests.get(url).content, 'html.parser')
-    text = soup.select_one('div[class^="Lyrics__Container"], .lyrics').get_text(strip=True, separator='\n')
-    return text
+# def getLyrics():
+#
+#     url = 'https://genius.com/Traditional-happy-birthday-to-you-lyrics'
+#     soup = BeautifulSoup(requests.get(url).content, 'html.parser')
+#     text = soup.select_one('div[class^="Lyrics__Container"], .lyrics').get_text(strip=True, separator='\n')
+#     return text
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
