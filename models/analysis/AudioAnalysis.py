@@ -316,7 +316,7 @@ class rhythmAnalysis:
         song_results = []
         db_results = []
 
-        if(self.filter_results != None):
+        if(self.filter_results != None and len(self.filter_results) > 0):
             filter_ids = []
             for track in self.filter_results:
                 filter_ids.append(track.id)

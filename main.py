@@ -38,12 +38,14 @@ def home_page():
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    return render_template('recordingRhythm.html')
+    user = User.current_user()
+    return render_template('recordingRhythm.html', user=user)
 
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
-    return render_template('recordingMelody.html')
+    user = User.current_user()
+    return render_template('recordingMelody.html', user=user)
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
@@ -58,6 +60,10 @@ def filter_page():
     return render_template('filtering.html', user=user)
 
 
+def sort_results(e):
+    return e['percent_match']
+
+
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
@@ -68,9 +74,13 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    final_res.sort(reverse=True, key=sort_results)
+    print(final_res)
+    if user:
+        user.add_song_long(final_res)
 
-    #Todo: After getting results, store in user_log 
-    return render_template('results.html', filterResults=final_res)
+    # Todo: After getting results, store in user_log
+    return render_template('results.html', user=user, filterResults=final_res)
 
 
 @app.route('/user', methods=['GET', 'POST'])

@@ -181,6 +181,7 @@ class Song:
 
         except Exception as e:
             print(e)
+            print(query)
             return None
 
         return songs
