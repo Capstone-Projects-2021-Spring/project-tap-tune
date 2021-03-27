@@ -23,7 +23,7 @@ import matplotlib.pyplot
 from flask import Flask, render_template, request, json
 import soundfile as sf
 import spotipy
-
+import AudioAnalysis
 
 def get_spotify_analysis(id):
     creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef",
@@ -263,8 +263,12 @@ if __name__ == "__main__":
 
 #----------------------Hash handling Area-------------------------------------------------------------------------------
     song_hash = ".66.*I*I*Z*.36.*Z*.74.*H*I*Z*.37.*Z*.72.*I*I*.36.*Z*.36.*.36.*.55.*H*H*.37.*Z*.36."
-    song_hash = song_hash.split('*')
-    print(song_hash)
+    tok = song_hash.split('*')
+    print(tok)
+    bin_ary = AudioAnalysis.unhash_array(song_hash)
+    print(bin_ary)
+    # for i in song_hash:
+    #     print(i)
 
 
 
