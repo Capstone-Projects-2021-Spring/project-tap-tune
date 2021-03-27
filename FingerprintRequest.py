@@ -222,28 +222,28 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
-obj = FingerprintRequest()
-
-file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\smashmouth.mp3"
-
-'''
-acrSong = obj.getACRSongFingerprint(file)
-print(acrSong.title)
-print(acrSong.artists)
-print(acrSong.genres)
-print(acrSong.score)
-'''
-'''
-audDSong = obj.getAudDFingerprint(file)
-print(audDSong.title)
-print(audDSong.artists)
-print(audDSong.genres)
-print(audDSong.score)
-'''
-
-lastTest = obj.searchFingerprintAll(file)
-print(lastTest.title)
-print(lastTest.artists)
-print(lastTest.genres)
-print(lastTest.score)
+# obj = FingerprintRequest()
+#
+# file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\output.mp3"
+#
+# '''
+# acrSong = obj.getACRSongFingerprint(file)
+# print(acrSong.title)
+# print(acrSong.artists)
+# print(acrSong.genres)
+# print(acrSong.score)
+# '''
+# '''
+# audDSong = obj.getAudDFingerprint(file)
+# print(audDSong.title)
+# print(audDSong.artists)
+# print(audDSong.genres)
+# print(audDSong.score)
+# '''
+#
+# lastTest = obj.searchFingerprintAll(file)
+# print(lastTest.title)
+# print(lastTest.artists)
+# print(lastTest.genres)
+# print(lastTest.score)
 
