@@ -233,7 +233,7 @@
                 data : file_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + result);
-                //goToFiltering();
+                goToMelodyFiltering();
 
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
