@@ -113,7 +113,7 @@ class Filtering:
     """
     def lyric_song(self, artist, title):
         song = Song(song_id=None, title=title, artist=artist, release_date=None, genre=None, onset_hash=None,
-                    peak_hash=None)
+                    peak_hash=None, perc_hash=None, harm_hash=None)
 
         return song
 

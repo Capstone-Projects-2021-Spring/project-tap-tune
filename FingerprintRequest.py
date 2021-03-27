@@ -5,6 +5,7 @@ import re
 import acrcloud.acrcloud_extr_tool as ACRext
 import requests
 import json
+from models.Song import Song
 
 #TODO: Work on more metadata extraction
 
@@ -22,6 +23,7 @@ def cleanString(string):
 
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
+
 class foundsong:
     def __init__(self):
         self.title = ""
@@ -69,7 +71,7 @@ class FingerprintRequest:
         # @param userfile: audio file path
 
         songArray = list()
-        returnsong = foundsong()
+        returnsong = Song()
 
         # Get fingerprinted song string from ACR Cloud
         fingerprinted = self.acr.recognize_by_file(userfile, 0)
@@ -83,17 +85,17 @@ class FingerprintRequest:
 
             songlist = (fingerprintJson['metadata']['music'][0])
 
-            returnsong.set_title(cleanString(str(songlist['title'])))
-            returnsong.set_artist(cleanString(str(songlist['artists'])))
-            returnsong.set_genre(cleanString(str(songlist['genres'])))
-            returnsong.set_score(cleanString(str(songlist['score'])))
+            returnsong.title = cleanString(str(songlist['title']))
+            returnsong.artist = cleanString(str(songlist['artists']))
+            returnsong.genre = cleanString(str(songlist['genres']))
+            # returnsong.set_score(cleanString(str(songlist['score'])))
         return returnsong
 
     def getAudDFingerprint(self, userpath):
         files = {
             'file': open(userpath, 'rb'),
         }
-        returnsong = foundsong()
+        returnsong = Song()
 
         # Apparently this one is use for humming and such, but has low accuracy.
         # result = requests.post('https://api.audd.io/recognizeWithOffset/  ', data=self.data, files=files)
@@ -135,7 +137,7 @@ class FingerprintRequest:
         else:
             songlist = (fingerprintJson['result']['list'])
             for songs in range(len(songlist)):
-                returnsong = foundsong()
+                returnsong = Song()
                 returnsong.set_title(cleanString(str(songlist[songs]['title'])))
                 returnsong.set_artist(cleanString(str(songlist[songs]['artist'])))
                 # returnsong.set_genre(cleanString(songlist[songs]['genre']))))
@@ -153,30 +155,30 @@ class FingerprintRequest:
         ACRfoundSong = self.getACRSongFingerprint(userfile)
         hummingFingerprint = self.getHummingFingerprint(userfile)
 
-        result = foundsong()
+        result = Song()
 
         if audDfoundSong.title:
-            result.set_title(audDfoundSong.title)
-            result.set_artist(audDfoundSong.artists)
-            result.set_genre(audDfoundSong.genres)
-            result.set_score(audDfoundSong.score)
+            result.title = audDfoundSong.title
+            result.artist = audDfoundSong.artists
+            result.genre = audDfoundSong.genres
+            # result.set_score(audDfoundSong.score)
         else:
             if ACRfoundSong.title:
-                result.set_title(ACRfoundSong.title)
-                result.set_artist(ACRfoundSong.artists)
-                result.set_genre(ACRfoundSong.genres)
-                result.set_score(ACRfoundSong.score)
+                result.title = ACRfoundSong.title
+                result.artist = ACRfoundSong.artists
+                result.genre = ACRfoundSong.genres
+                # result.set_score(ACRfoundSong.score)
             else:
-                result.set_title(hummingFingerprint[0].title)
-                result.set_artist(hummingFingerprint[0].artists)
-                result.set_genre(hummingFingerprint[0].genres)
-                result.set_score(hummingFingerprint[0].score)
+                result.title = hummingFingerprint[0].title
+                result.artist = hummingFingerprint[0].artists
+                result.genre = hummingFingerprint[0].genres
+                # result.set_score(hummingFingerprint[0].score)
 
         return result
 
 
 
-
+'''
     # This will NOT be used for final implementation. This will primarily be used for backend automatic database insert
     # Returns a list of song objects with respective metadata and path to actual song file
     def getACRFingerPrint_Folder(self, folder):
@@ -208,6 +210,7 @@ class FingerprintRequest:
 
         print("Task Complete!")
         return file_returnList
+'''
 
 
 
@@ -220,11 +223,12 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
+
 obj = FingerprintRequest()
 
-file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
+file = r"C:\\Users\\2015d\OneDrive\Desktop\.wav files\scuffed.mp3"
 
-'''
+
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
 print(acrSong.artists)
@@ -245,4 +249,4 @@ print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
-'''
+
