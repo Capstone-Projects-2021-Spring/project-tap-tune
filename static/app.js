@@ -21,8 +21,8 @@ function goToFiltering() {
     window.location.href= "/filtering"; //link from rhythm button
 }
 
-function goToMelodyFiltering() {
-    window.location.href= "/melodyFiltering"; //link from melody button
+function goToMelodyResults(){
+    window.location.href= "/melodyResults"; //link from melody button
 }
 
 function goToRhythm() {

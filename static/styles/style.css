@@ -3918,6 +3918,7 @@ input[type=button].btn-block {
   padding-left: 0;
   margin-bottom: 0;
   list-style: none;
+  box-shadow: 0 2px 2px -2px rgba(0,0,0,.4);
 }
 
 .nav-link {
@@ -3999,6 +4000,7 @@ input[type=button].btn-block {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 3px 3px -2px rgba(0,0,0,.2);
   padding: 0.5rem 1rem;
 }
 .navbar .container,
@@ -10350,6 +10352,12 @@ form .row:first-child .floating-label-form-group {
 .counter-text-active {
   font-size: 10.5rem;
   color:rgb(0, 0, 0);
+}
+
+.counter-text-disabled, .counter-text:disabled {
+  color: #d6343480;
+  opacity: 0.5;
+  text-shadow: none;
 }
 
 .md-click-circle {
