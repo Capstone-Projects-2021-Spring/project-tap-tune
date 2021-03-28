@@ -8,17 +8,17 @@ from models.Song import Song
 
 #TODO: Work on more metadata extraction
 
-# def cleanString(string):
-#     # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
-#     newString = re.sub('[^A-Za-z0-9,-_ ]+', '', string)
-#     newerString = re.sub(r'[\[\]]', '', newString)
-#
-#     if "name: " in newString:
-#         returnString = newerString.replace("name: ", '')
-#     else:
-#         returnString = newerString
-#
-#     return returnString
+def cleanString(string):
+    # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
+    newString = re.sub('[^A-Za-z0-9,-_ ]+', '', string)
+    newerString = re.sub(r'[\[\]]', '', newString)
+
+    if "name: " in newString:
+        returnString = newerString.replace("name: ", '')
+    else:
+        returnString = newerString
+
+    return returnString
 
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
