@@ -110,17 +110,14 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-    # Filter the Song Results if there are any inputs from request form
-    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
-                    Lyrics=request.form['input_lyrics'])
-
     result = FingerprintRequest().searchFingerprintAll("output.mp3")
 
     print(result.title)
     print(result.artists)
     print(result.genres)
+    print(result.score)
 
-    return render_template('melodyResults.html', artist=result.artists, title=result.title)
+    return render_template('melodyResults.html', artist=result.artists, title=result.title, score=result.score)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
