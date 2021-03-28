@@ -159,19 +159,19 @@ class FingerprintRequest:
 
         if audDfoundSong.title:
             result.title = audDfoundSong.title
-            result.artist = audDfoundSong.artists
-            result.genre = audDfoundSong.genres
+            result.artists = audDfoundSong.artists
+            result.genres = audDfoundSong.genres
             # result.set_score(audDfoundSong.score)
         else:
             if ACRfoundSong.title:
                 result.title = ACRfoundSong.title
-                result.artist = ACRfoundSong.artists
-                result.genre = ACRfoundSong.genres
+                result.artists = ACRfoundSong.artists
+                result.genres = ACRfoundSong.genres
                 # result.set_score(ACRfoundSong.score)
             else:
                 result.title = hummingFingerprint[0].title
-                result.artist = hummingFingerprint[0].artists
-                result.genre = hummingFingerprint[0].genres
+                result.artists = hummingFingerprint[0].artists
+                result.genres = hummingFingerprint[0].genres
                 # result.set_score(hummingFingerprint[0].score)
 
         return result
@@ -222,12 +222,12 @@ class FingerprintRequest:
 
 
 #   TESTING   ##################################################################################################################
-
+'''
 obj = FingerprintRequest()
 
 
-file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\smashmouth.mp3"
-
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\smashmouth.mp3"
+'''
 
 '''
 acrSong = obj.getACRSongFingerprint(file)
@@ -243,10 +243,10 @@ print(audDSong.artists)
 print(audDSong.genres)
 print(audDSong.score)
 '''
-
+'''
 lastTest = obj.searchFingerprintAll(file)
 print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
-
+'''
