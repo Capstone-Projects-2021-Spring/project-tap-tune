@@ -5,6 +5,8 @@
   <style type="text/css">
     .important { color: #336699; }
   </style>
+  <style type="styles/melody.css">
+  </style>
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
@@ -17,11 +19,10 @@
     </div>
 
     <div id="filteredResultsList" data-filtered="{{filterResults}}"></div>
-    <p>hello</p>
   </div>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md">
+      <div class="col-md ">
         <h2 class="masthead-heading text-uppercase mb-0 mt-4">Main Search</h1>
         <div class="divider-custom2 divider-dark">
           <div class="divider-custom2-line"></div>
@@ -38,7 +39,8 @@
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
               <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
-                N/A
+                {{score}}%
+
               </span>
             </h3>
           </div>
@@ -48,15 +50,15 @@
         </h4>
         <!-- its going to be Filtering results if artist is empty from filtering form-->
         <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
-        {{x}}
+        {{lyrics}}
 </p>
       </div>
 
-      <div class="col-md">
-        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
+<!--      <div class="col-md">-->
+<!--        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
         <div class="divider-custom2 divider-dark">
-          <div class="divider-custom2-line"></div>
-        </div>
+          <div class="divider-custom2-line"></div>-->
+       <!-- </div>
         <table id = "resultsSecondaryTable" class="table">
           <thead>
             <tr>
@@ -70,10 +72,10 @@
             <tr>
             </tr>
           </tbody>
-        </table>
+        </table>-->
         <script type=text/javascript src="{{
           url_for('static', filename='result.js') }}"></script>
-      </div>
+<!--      </div>-->
     </div>
   </div>
 </div>

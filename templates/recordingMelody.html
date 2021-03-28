@@ -7,6 +7,12 @@
 {% block content %}
 
 <div class="app">
+  <!-- Masthead Heading-->
+  <h1 class="masthead-heading text-uppercase mb-0 mt-4">Recording the Melody</h1>
+  <!-- Icon Divider-->
+  <div class="divider-custom divider-dark">
+    <div class="divider-custom-line"></div>
+  </div>
   <select name="" id="micSelect"></select>
 
   <select id="visSelect">
@@ -18,16 +24,14 @@
   <a id="download" >Download</a>
 
     <div class="audio-controls">
-            <button id="record" class="btn btn-primary">Start Recording</button>
-{#            <button id="pause" class="btn btn-secondary ml-3 "><i class="fa fa-pause" aria-hidden="true"></i>  Pause</button>#}
-            <button id="clear" class="btn btn-secondary ml-3 ">Clear</button>
-            <button id="stop" class="btn btn-success ml-3 ">Stop</button>
+            <button id="record" class="btn btn-primary"><i class="fa fa-microphone" aria-hidden="true"></i>  Start Recording</button>
+            <button id="pause" class="btn btn-secondary ml-3 "><i class="fa fa-play" aria-hidden="true"></i>  Playback</button>
+            <button id="stop" class="btn btn-success ml-3 "><i class="fa fa-stop" aria-hidden="true"></i>  Stop</button>
             <audio id="audio" class="js-audio audio audio--hidden" controls></audio>
     </div>
 
   <div id="msg">Recording...</div>
   <div id="msg2">Recording Paused</div>
-{#  <div id="msg3">Cleared..</div></div>#}
   <canvas width="500" height="300"></canvas>
 <div>
 
