@@ -22,7 +22,7 @@
         <button disabled id="finishRecordingBtn" type="button" class="btn btn-success ml-3">Stop</button>
       </div>
       <div class="row justify-content-center mt-3">    
-        <button disabled id="playRecordingBtn" type="button" class="btn btn-success ml-3" onclick="playSound()">Play</button>
+        <button disabled id="playRecordingBtn" type="button" class="btn btn-success ml-3">Play</button>
         <div class="dropdown ml-3">
           <button id="recordingTypeDropdown" class="btn btn-third dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span id="selected1">
@@ -50,8 +50,15 @@
             <a class="dropdown-item" href="#">B</a>
           </div>
         </div>
-        <audio controls id="harmony1" src="{{ url_for('static', filename='assets/playbackNotes/F.wav') }}" volume="0.1" hidden></audio>
+        <audio controls id="harmony1" src="{{ url_for('static', filename='assets/playbackNotes/C.wav') }}" volume="0.1" hidden></audio>
+        <audio controls id="harmony2" src="{{ url_for('static', filename='assets/playbackNotes/D.wav') }}" volume="1" hidden></audio>
+        <audio controls id="harmony3" src="{{ url_for('static', filename='assets/playbackNotes/E.wav') }}" volume="1" hidden></audio>
+        <audio controls id="harmony4" src="{{ url_for('static', filename='assets/playbackNotes/F.wav') }}" volume="1" hidden></audio>
+        <audio controls id="harmony5" src="{{ url_for('static', filename='assets/playbackNotes/G.wav') }}" volume="1" hidden></audio>
+        <audio controls id="harmony6" src="{{ url_for('static', filename='assets/playbackNotes/A.wav') }}" volume="0" hidden></audio>
+        <audio controls id="harmony7" src="{{ url_for('static', filename='assets/playbackNotes/B.wav') }}" volume="0" hidden></audio>
         <audio controls id="percussion" src="{{ url_for('static', filename='assets/playbackNotes/simple-kick.wav') }}" volume="0" hidden></audio>
+        <audio controls id="percussion2" src="{{ url_for('static', filename='assets/playbackNotes/Drum.wav') }}" volume="0" hidden></audio>
       </div>
       <div class="container d-flex align-items-center flex-column">
         <h1 disabled id="counter-number" class="py-5 counter-text">0</h1>

@@ -80,13 +80,12 @@ class FingerprintRequest:
         if 'Success' not in fingerprintJson['status']['msg']:
             print('ACRCloud: not found')
         else:
-
             songlist = (fingerprintJson['metadata']['music'][0])
 
-            returnsong.set_title((str(songlist['title'])))
+            returnsong.set_title(cleanString(str(songlist['title'])))
             returnsong.set_artist((str(songlist['artists'])))
-            returnsong.set_genre((str(songlist['genres'])))
-            returnsong.set_score((str(songlist['score'])))
+            returnsong.set_genre(cleanString(str(songlist['genres'])))
+            returnsong.set_score(cleanString(str(songlist['score'])))
         return returnsong
 
     def getAudDFingerprint(self, userpath):
@@ -108,10 +107,10 @@ class FingerprintRequest:
         else:
             songlist = (fingerprintJson['result'])
 
-            returnsong.set_title((str(songlist['title'])))
+            returnsong.set_title(cleanString(str(songlist['title'])))
             returnsong.set_artist((str(songlist['apple_music']['artistName'])))
-            returnsong.set_genre((str(songlist['apple_music']['genreNames'])))
-            returnsong.set_score((str(songlist['score'])))
+            returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
+            # returnsong.set_score(cleanString(str(songlist['score'])))
 
         return returnsong
 
