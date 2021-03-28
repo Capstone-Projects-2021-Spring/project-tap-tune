@@ -209,7 +209,7 @@
 
 
     // our final binary blob
-    const blob = new Blob ( [ view ], { type : 'audio/wav' } );
+    const blob = new Blob ( [ view ], { type : 'audio/mpeg' } );
 
     const audioUrl = URL.createObjectURL(blob);
     console.log('BLOB ', blob);
@@ -219,7 +219,7 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = 'output.wav';
+    var outFile = 'output.mp3';
     link.download = outFile;
 
     //ajax call to send output wav file
@@ -233,7 +233,7 @@
                 data : file_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + result);
-                //goToFiltering();
+                goToMelodyFiltering();
 
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 console.log("fail: ",textStatus, errorThrown);
