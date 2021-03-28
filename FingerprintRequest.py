@@ -1,10 +1,10 @@
-import os, sys
 
 from acrcloud.recognizer import ACRCloudRecognizer
 import re
 import acrcloud.acrcloud_extr_tool as ACRext
 import requests
 import json
+from models.Song import Song
 
 #TODO: Work on more metadata extraction
 
@@ -178,7 +178,7 @@ class FingerprintRequest:
 
 
 
-
+'''
     # This will NOT be used for final implementation. This will primarily be used for backend automatic database insert
     # Returns a list of song objects with respective metadata and path to actual song file
     def getACRFingerPrint_Folder(self, folder):
@@ -210,6 +210,7 @@ class FingerprintRequest:
 
         print("Task Complete!")
         return file_returnList
+'''
 
 
 
@@ -221,29 +222,31 @@ class FingerprintRequest:
 
 
 #   TESTING   ##################################################################################################################
+'''
+obj = FingerprintRequest()
 
-# obj = FingerprintRequest()
-#
-# file = r"C:\Users\\2015d\OneDrive\Desktop\.wav files\output.mp3"
-#
-# '''
-# acrSong = obj.getACRSongFingerprint(file)
-# print(acrSong.title)
-# print(acrSong.artists)
-# print(acrSong.genres)
-# print(acrSong.score)
-# '''
-# '''
-# audDSong = obj.getAudDFingerprint(file)
-# print(audDSong.title)
-# print(audDSong.artists)
-# print(audDSong.genres)
-# print(audDSong.score)
-# '''
-#
-# lastTest = obj.searchFingerprintAll(file)
-# print(lastTest.title)
-# print(lastTest.artists)
-# print(lastTest.genres)
-# print(lastTest.score)
 
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\smashmouth.mp3"
+'''
+
+'''
+acrSong = obj.getACRSongFingerprint(file)
+print(acrSong.title)
+print(acrSong.artists)
+print(acrSong.genres)
+print(acrSong.score)
+'''
+'''
+audDSong = obj.getAudDFingerprint(file)
+print(audDSong.title)
+print(audDSong.artists)
+print(audDSong.genres)
+print(audDSong.score)
+'''
+'''
+lastTest = obj.searchFingerprintAll(file)
+print(lastTest.title)
+print(lastTest.artists)
+print(lastTest.genres)
+print(lastTest.score)
+'''
