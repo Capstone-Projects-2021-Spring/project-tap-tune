@@ -94,6 +94,7 @@
             </tr>
           </thead>
           <tbody id = "resultsSecondaryTableBody">
+          {% if filterResults %}
             {% for song_result in filterResults %}
               <tr>
                 <td>{{ song_result.song.title }}</td>
@@ -106,6 +107,7 @@
                 </td>
               </tr>
             {% endfor %}
+          {%endif%}
           </tbody>
         </table>
         <script type=text/javascript src="{{

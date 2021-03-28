@@ -281,7 +281,7 @@ class User:
     db store: user_id, song_id, percent_match [Decimal(5,4) -> d.dddd]
     Returns True on success and False on failure
     """
-    def add_song_long(self, song_results):
+    def add_song_log(self, song_results):
         try:
             cursor = get_cursor()
             for song in song_results:

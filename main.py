@@ -94,13 +94,14 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
-    final_res.sort(reverse=True, key=sort_results)
-    print(final_res)
     lyrics = ''
     if final_res and len(final_res) > 0:
-        lyrics = get_lyrics(final_res[0]['song'])
+        final_res.sort(reverse=True, key=sort_results)  # sort results by % match
+        final_res = final_res[:5]  # truncate array to top 5 results
+        print(final_res)
+        lyrics = get_lyrics(final_res[0]['song'])  # get lyrics for top song
         if user:
-            user.add_song_long(final_res)
+            user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
