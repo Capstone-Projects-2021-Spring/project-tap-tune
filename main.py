@@ -5,7 +5,6 @@ from models.User import User
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
-from flask_mail import Message
 import lyricsgenius
 import json
 from FingerprintRequest import FingerprintRequest
