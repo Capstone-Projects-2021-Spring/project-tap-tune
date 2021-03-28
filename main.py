@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
+from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
+import lyricsgenius
 
 import json
 
@@ -38,37 +40,65 @@ def home_page():
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
-    return render_template('recordingRhythm.html')
+    user = User.current_user()
+    return render_template('recordingRhythm.html', user=user)
 
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
-    return render_template('recordingMelody.html')
+    user = User.current_user()
+    return render_template('recordingMelody.html', user=user)
 
 
 @app.route('/filtering', methods=['GET', 'POST'])
 def filter_page():
+    ''' This was for AudioAnalysis Testing. Remove later on
+    from models.analysis import AudioAnalysis as test
+    userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
+    custobj = test.rhythmAnalysis(userinput)
+    print(custobj.onset_peak_func())
+    '''
     user = User.current_user()
     return render_template('filtering.html', user=user)
+
+
+def sort_results(e):
+    return e['percent_match']
+
+
+"""
+get song lyrics using genius api
+"""
+def get_lyrics(song: Song):
+    client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
+    genius = lyricsgenius.Genius(client_access_token)
+    song = genius.search_song(title=song.title, artist=song.artist)
+    lyrics = ''
+    if song:
+        lyrics = song.lyrics
+    return lyrics
 
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
+    #Filter the Song Results if there are any inputs from request form 
+    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    filterResults = objF.filterRecording()# returns list of Song objects
 
-    # Filter the Song Results if there are any inputs from request form
-    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
-                    Lyrics=request.form['input_lyrics'])
+    # Running Rhythm analysis on userTaps, includes filterResults to cross check
+    objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
+    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    final_res.sort(reverse=True, key=sort_results)
+    print(final_res)
+    lyrics = ''
+    if final_res and len(final_res) > 0:
+        lyrics = get_lyrics(final_res[0]['song'])
+        if user:
+            user.add_song_long(final_res)
 
-    #if this is Rhythm Recording
-    if (user_result):
-        filterResults = obj.filterRecording(user_result)
-    #else this is Melody Recording
-    else :
-        filterResults = obj.filterRecording()
-        print("it was melody")
-         
-    return render_template('results.html', filterResults=filterResults)
+    # Todo: After getting results, store in user_log
+    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -162,9 +192,13 @@ def test():
         #data = json.loads(request.data)
         #obj = rhythmAnalysis(userTaps=data)
 
-        #global user_result
-        #user_result = obj.onset_peak_func()
-        return out
+    global user_result
+    user_result = json.loads(request.data)
+    # obj = rhythmAnalysis(userTaps=data)
+    #
+    # global user_result
+    # user_result = obj.onset_peak_func()
+    return out
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
