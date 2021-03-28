@@ -338,7 +338,7 @@ class rhythmAnalysis:
         song_results = []
         db_results = []
 
-        if(self.filter_results != None and len(self.filter_results) > 0):
+        if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
                 filter_ids.append(track.id)
@@ -358,8 +358,12 @@ class rhythmAnalysis:
 
             peak_array = unhash_array(db_track.peak_hash)
             onset_array = unhash_array(db_track.onset_hash)
-            percussive_array = unhash_array(db_track.percussive_hash)
-            harmonic_array = unhash_array(db_track.harmonic_hash)
+            if db_track.perc_hash is not None:
+                percussive_array = unhash_array(db_track.perc_hash)
+                percussive_frames = bin_to_frame(percussive_array)
+            if db_track.harm_hash is not None:
+                harmonic_array = unhash_array(db_track.harm_hash)
+                harmonic_frames = bin_to_frame(harmonic_array)
             """
             convert binary array to frames
             """
@@ -398,8 +402,8 @@ class rhythmAnalysis:
             #         peak_frames.append(track + offset + 1)
             #         offset += 1
             #     check += 1
-            percussive_frames = bin_to_frame(percussive_array)
-            harmonic_frames = bin_to_frame(harmonic_array)
+
+
 
             """
             compare with the user input
@@ -408,9 +412,9 @@ class rhythmAnalysis:
             match_onset, matching_rate_onset = process_recording(self.user_input, onset_frames)
             match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
             match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
-            matching_rate = max(matching_rate_peak,matching_rate_onset,matching_rate_harmonic,matching_rate_percussive)
+            matching_rate = max(matching_rate_peak, matching_rate_onset, matching_rate_harmonic, matching_rate_percussive)
 
-            print(match_peak, match_onset,match_percussive,match_harmonic)
+            print(match_peak, match_onset, match_percussive, match_harmonic)
 
             if match_peak or match_onset or match_percussive or match_harmonic:
                 song_results.append({"song": db_track,

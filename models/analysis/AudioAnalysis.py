@@ -263,6 +263,28 @@ def unhash_array(db_string):
     return bin_array
 
 
+def bin_to_frame(bin_array):
+    frames = []
+    track = 0
+    offset = 0
+    check = 0
+
+    for bin in bin_array:
+        if (bin == 0) and (check != len(bin_array) - 1):
+            track += 1
+
+        elif (bin == 1):
+            frames.append(track + offset)
+            offset += 1
+
+        else:
+            frames.append(track + offset + 1)
+            offset += 1
+        check += 1
+    return frames
+
+
+
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
 
@@ -316,7 +338,7 @@ class rhythmAnalysis:
         song_results = []
         db_results = []
 
-        if(self.filter_results != None and len(self.filter_results) > 0):
+        if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
                 filter_ids.append(track.id)
@@ -333,63 +355,72 @@ class rhythmAnalysis:
             """
             convert onset_hash to binary array
             """
-
+            print('song id:',db_track.id)
+            print('perc_hash:', db_track.perc_hash)
             peak_array = unhash_array(db_track.peak_hash)
             onset_array = unhash_array(db_track.onset_hash)
+            percussive_array = unhash_array(db_track.perc_hash)
+            harmonic_array = unhash_array(db_track.harm_hash)
 
             """
             convert binary array to frames
             """
             # frames from bin
-            onset_frames = []
-            track = 0
-            offset = 0
-            check = 0
+            onset_frames = bin_to_frame(onset_array)
+            # track = 0
+            # offset = 0
+            # check = 0
+            #
+            # for bin in onset_array:
+            #     if (bin == 0) and (check != len(peak_array) - 1):
+            #         track += 1
+            #
+            #     elif (bin == 1):
+            #         onset_frames.append(track + offset)
+            #         offset += 1
+            #
+            #     else:
+            #         onset_frames.append(track + offset + 1)
+            #         offset += 1
+            #     check += 1
 
-            for bin in onset_array:
-                if (bin == 0) and (check != len(onset_array) - 1):
-                    track += 1
+            peak_frames = bin_to_frame(peak_array)
+            # track = 0
+            # offset = 0
+            # check = 0
+            # for bin in peak_array:
+            #     if (bin == 0) and (check != len(peak_array) - 1):
+            #         track += 1
+            #
+            #     elif (bin == 1):
+            #         peak_frames.append(track + offset)
+            #         offset += 1
+            #
+            #     else:
+            #         peak_frames.append(track + offset + 1)
+            #         offset += 1
+            #     check += 1
 
-                elif (bin == 1):
-                    onset_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    onset_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
-
-            peak_frames = []
-            track = 0
-            offset = 0
-            check = 0
-            for bin in peak_array:
-                if (bin == 0) and (check != len(peak_array) - 1):
-                    track += 1
-
-                elif (bin == 1):
-                    peak_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    peak_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
+            percussive_frames = bin_to_frame(percussive_array)
+            harmonic_frames = bin_to_frame(harmonic_array)
 
             """
             compare with the user input
             """
-            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
-            match2, matching_rate = process_recording(self.user_input, onset_frames)
+            match_peak, matching_rate_peak = process_recording_peaks(self.user_input, peak_frames)
+            match_onset, matching_rate_onset = process_recording(self.user_input, onset_frames)
+            match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
+            match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
+            matching_rate = max(matching_rate_peak, matching_rate_onset, matching_rate_harmonic, matching_rate_percussive)
 
-            print(match, match2)
+            print(match_peak, match_onset, match_percussive, match_harmonic)
 
-            if (match or match2):
+            if match_peak or match_onset or match_percussive or match_harmonic:
                 song_results.append({"song": db_track,
                                      "percent_match": matching_rate})
             index += 1
 
-        if (len(song_results) < 1):
+        if len(song_results) < 1:
             return None
         else:
             return song_results
