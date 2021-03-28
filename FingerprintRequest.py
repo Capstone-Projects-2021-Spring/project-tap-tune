@@ -8,17 +8,17 @@ import json
 
 #TODO: Work on more metadata extraction
 
-def cleanString(string):
-    # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
-    newString = re.sub('[^A-Za-z0-9,-_ ]+', '', string)
-    newerString = re.sub(r'[\[\]]', '', newString)
-
-    if "name: " in newString:
-        returnString = newerString.replace("name: ", '')
-    else:
-        returnString = newerString
-
-    return returnString
+# def cleanString(string):
+#     # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
+#     newString = re.sub('[^A-Za-z0-9,-_ ]+', '', string)
+#     newerString = re.sub(r'[\[\]]', '', newString)
+#
+#     if "name: " in newString:
+#         returnString = newerString.replace("name: ", '')
+#     else:
+#         returnString = newerString
+#
+#     return returnString
 
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
@@ -83,10 +83,10 @@ class FingerprintRequest:
 
             songlist = (fingerprintJson['metadata']['music'][0])
 
-            returnsong.set_title(cleanString(str(songlist['title'])))
-            returnsong.set_artist(cleanString(str(songlist['artists'])))
-            returnsong.set_genre(cleanString(str(songlist['genres'])))
-            returnsong.set_score(cleanString(str(songlist['score'])))
+            returnsong.set_title((str(songlist['title'])))
+            returnsong.set_artist((str(songlist['artists'])))
+            returnsong.set_genre((str(songlist['genres'])))
+            returnsong.set_score((str(songlist['score'])))
         return returnsong
 
     def getAudDFingerprint(self, userpath):
@@ -108,10 +108,10 @@ class FingerprintRequest:
         else:
             songlist = (fingerprintJson['result'])
 
-            returnsong.set_title(cleanString(str(songlist['title'])))
-            returnsong.set_artist(cleanString(str(songlist['apple_music']['artistName'])))
-            returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
-            # returnsong.set_score(cleanString(str(songlist['score'])))
+            returnsong.set_title((str(songlist['title'])))
+            returnsong.set_artist((str(songlist['apple_music']['artistName'])))
+            returnsong.set_genre((str(songlist['apple_music']['genreNames'])))
+            returnsong.set_score((str(songlist['score'])))
 
         return returnsong
 
@@ -137,10 +137,10 @@ class FingerprintRequest:
             songlist = (fingerprintJson['result']['list'])
             for songs in range(len(songlist)):
                 returnsong = foundsong()
-                returnsong.set_title(cleanString(str(songlist[songs]['title'])))
-                returnsong.set_artist(cleanString(str(songlist[songs]['artist'])))
-                # returnsong.set_genre(cleanString(songlist[songs]['genre']))))
-                returnsong.set_score(cleanString(str(songlist[songs]['score'])))
+                returnsong.set_title((str(songlist[songs]['title'])))
+                returnsong.set_artist((str(songlist[songs]['artist'])))
+                #returnsong.set_genre((songlist[songs]['genre']))
+                returnsong.set_score(str(songlist[songs]['score']))
 
                 songArray.append(returnsong)
 
