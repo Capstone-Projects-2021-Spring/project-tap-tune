@@ -2,41 +2,69 @@ var startTime;
 var instanceTime;
 var times = new Array();
 var timeArray = [];
+var timeJsonArray = [];
 var dif;
 
+var cursorX = null;
 let startButton = null;
 let tapButton = null;
 let stopButton = null;
 let finishButton = null;
 let playButton = null;
+let recordingTypeDropdown = null;
+let recordingKeyDropdown = null;
+let recordingType = null;
+let beatCountElement = null;
+var dynamicRecordType = "Percussion + Harmonics";
 $( document ).ready(function() {
-    startButton = document.getElementById("startRecordingBtn");
     tapButton = document.getElementById("tapScreenButton");
+    startButton = document.getElementById("startRecordingBtn");
     resetButton = document.getElementById("resetRecordingBtn");
     finishButton = document.getElementById("finishRecordingBtn");
     playButton = document.getElementById("playRecordingBtn");
+    recordingTypeDropdown = document.getElementById("recordingTypeDropdown");
+    recordingKeyDropdown = document.getElementById("tapKeyDropdown");
+    recordingType = document.getElementById("selected1");
+    harmonicsKeyType = document.getElementById("selected2");
+    beatCountElement = document.getElementById("counter-number");
+    //recordingKey = document.getElementById("selected2");
 
     startButton.onclick = function () {
-        document.getElementById("counter-number").className = "py-5 counter-text-active";
-        document.getElementById("counter-number").style.opacity = "1";
-        document.getElementById("finishRecordingBtn").className = "btn btn-success ml-3";
-        document.getElementById("startRecordingBtn").className = "btn btn-primary disabled ml-3";
-        document.getElementById("resetRecordingBtn").className = "btn btn-secondary ml-3";
-
+        setButtonDisables(true);
     }//end of startButton
 
     /*************************************************************************/
 
     tapButton.onclick = function () {
-        if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
+        if (beatCountElement.disabled == false) {
             if (startTime) {
-                //console.log(startTime);
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-                
-                times.push(dif);
-                console.log("TAP TIME: "+dif);
-                console.log(times);
+
+                //Recording Type is HarmonicLeft/PercussionRight
+                if (recordingType.innerHTML == dynamicRecordType) {
+                    var recordingTapType = getRecordingTypeMouse();
+                    if (recordingTapType == 0) {
+                        //this is harmonics
+                        timeJsonArray.push({type: recordingTapType, timestamp: dif})
+                    }
+                    else if (recordingTapType == 1) {
+                        //this is percussion
+                        timeJsonArray.push({type: recordingTapType, timestamp: dif})
+                    }
+                    console.log("TAP TIME: " + dif);
+                    console.log(timeJsonArray);
+                }
+
+                //Recording Type is General 
+                else {
+                    //do general rhythm recording
+                    
+                    times.push(dif);
+                    console.log("TAP TIME: "+dif);
+                    console.log(times); 
+                }
+
             }
             else { //record the first tap
                 startTime = new Date();
@@ -49,16 +77,9 @@ $( document ).ready(function() {
     /*************************************************************************/
     resetButton.onclick = function () {
 
-        document.getElementById("finishRecordingBtn").innerHTML = "Stop";
-        document.getElementById("counter-number").className = "py-5 counter-text";
-        document.getElementById("counter-number").style.color = "#858585";
-        document.getElementById("counter-number").style.opacity = "0.5";
-        document.getElementById("counter-number").style.textShadow = "";
-
-        document.getElementById("counter-number").innerHTML = 0;
-        document.getElementById("finishRecordingBtn").className = "btn btn-success disabled ml-3";
-        document.getElementById("startRecordingBtn").className = "btn btn-primary ml-3";
-        document.getElementById("resetRecordingBtn").className = "btn btn-secondary disabled ml-3";
+        finishButton.innerHTML = "Stop";
+        beatCountElement.innerHTML = 0;
+        setButtonDisables(false);
 
         if (startTime){
 
@@ -69,10 +90,11 @@ $( document ).ready(function() {
 
             timeArray = [];
             times = new Array();
+            timeJsonArray = [];
             startTime = null;
 
             //animation
-            var resetButtonRect = document.getElementById("resetRecordingBtn").getBoundingClientRect();
+            var resetButtonRect = resetButton.getBoundingClientRect();
             var element, circle, d, x, y;
             element = $("#tapScreenButton");
             if(element.find(".md-click-circle").length == 0) {
@@ -110,17 +132,22 @@ $( document ).ready(function() {
 
             console.log("Time Stop");
             console.log("Stop: "+dif);
-            console.log("END ARRAY: "+returnTimes());
+            console.log("END ARRAY: " + returnTimes());
 
         }//enf of if
 
         else{
-        console.log("time has not started");
+            console.log("time has not started");
         }//end of else
 
 
         if (finishButton.innerHTML == "Submit"){
-            var js_data = JSON.stringify(returnTimes());
+            if (recordingType.innerHTML == dynamicRecordType) { 
+                var js_data = returnTimes();
+            } 
+            else {
+                var js_data = JSON.stringify(returnTimes());
+            }
             $.ajax({
                 url: '/rhythm',
                 type : 'post',
@@ -128,7 +155,7 @@ $( document ).ready(function() {
                 dataType : 'json',
                 data : js_data //passing the variable
             }).done(function(result) {
-                console.log("success: " + result);
+                console.log("success: " + JSON.stringify(result));
                 goToFiltering();
 
                 //return result;
@@ -141,7 +168,7 @@ $( document ).ready(function() {
         }
         else {
             //animation
-            var finishButtonRect = document.getElementById("finishRecordingBtn").getBoundingClientRect();
+            var finishButtonRect = finishButton.getBoundingClientRect();
             var element, circle, d, x, y;
             element = $("#tapScreenButton");
             if(element.find(".md-click-circle").length == 0) {
@@ -163,7 +190,7 @@ $( document ).ready(function() {
             
             //change text class to be stagnat and confirm user submit 
             //Also enable playback button
-            document.getElementById("counter-number").className = "py-5 counter-text";
+            beatCountElement.disabled == true;
             finishButton.innerHTML = "Submit";
             playButton.disabled = false;
         }
@@ -173,22 +200,44 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function returnTimes(){
-        var returnArray = adjustArray(times);
-        console.log("finished array " + returnArray)
-        times = returnArray;
-        return returnArray;
+        if (recordingType.innerHTML == dynamicRecordType) { 
+            var returnArray = adjustArray(timeJsonArray);
+            return JSON.stringify(returnArray);
+        }
+        else {
+            //General Recording Return
+            var returnArray = adjustArray(times);
+            console.log("finished array " + returnArray)
+            times = returnArray;
+            return returnArray;
+        }
     }//end of returnTimes
 
     /************************************************************************/
     function adjustArray(array){
         //adjust array times so that the first array does not count
-        var newArray = new Array();
-        var dif = array[0];
-        for(var i = 0; i < array.length; i++){
-            var num = array[i] - dif;
-            newArray[i] = parseFloat(num.toFixed(3));
-        }//end of for
 
+        if (recordingType.innerHTML == dynamicRecordType) { 
+            var jsonArray = array;
+            var dif = jsonArray[0].timestamp;
+            for (var i = 0; i < jsonArray.length; i++) {
+                var num = jsonArray[i].timestamp - dif;
+                jsonArray[i].timestamp = parseFloat(num.toFixed(3));
+            }
+            //console.log("finished array " + timeJsonArray)
+            //times = returnArray;
+            return jsonArray;
+        }
+        else {
+
+            var newArray = new Array();
+            var dif = array[0];
+            for(var i = 0; i < array.length; i++){
+                var num = array[i] - dif;
+                newArray[i] = parseFloat(num.toFixed(3));
+            }//end of for
+        }
+            
         return newArray;
     }//end of returnTimes
     
@@ -202,7 +251,7 @@ $( document ).ready(function() {
 
         //32 is the space bar
         if(event.keyCode == 82){
-            if (document.getElementById("counter-number").className == "py-5 counter-text-active") {
+            if (beatCountElement.disabled == false) {
                 //console.log(startTime);
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
@@ -230,26 +279,24 @@ $( document ).ready(function() {
 
 
                 circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
-                var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                document.getElementById("counter-number").innerHTML = incrementBeatCount;
+                var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
+                beatCountElement.innerHTML = incrementBeatCount;
                 var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
                 var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
                 if (incrementBeatCount >= 12) {
-                    document.getElementById("counter-number").style.color = RGBToHex(0, 153, 255);
-                    document.getElementById("counter-number").style.textShadow = "0 0 16px var(--blue)";
+                    beatCountElement.style.color = RGBToHex(0, 153, 255);
+                    beatCountElement.style.textShadow = "0 0 16px var(--blue)";
                 }
                 else {
-                    document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
+                    beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
                 }
             }//end of if
         }//end of if
     }//end of record
 
-
-
     $('.material-click').on('click', function(e) {
         var colorBox = getColor(e);
-        if (document.getElementById("counter-number").className == "py-5 counter-text-active" || colorBox > 0) {
+        if (beatCountElement.disabled == false || colorBox > 0) {
             var element, circle, d, x, y;
             element = $(this);
             if(element.find(".md-click-circle").length == 0) {
@@ -273,21 +320,21 @@ $( document ).ready(function() {
 
                 case 1:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                    document.getElementById("counter-number").style.color = RGBToHex(0, 0, 0);
+                    beatCountElement.style.color = RGBToHex(0, 0, 0);
                     break;
 
                 default:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
-                    var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML) + 1;
-                    document.getElementById("counter-number").innerHTML = incrementBeatCount;
+                    var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
+                    beatCountElement.innerHTML = incrementBeatCount;
                     var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
                     var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
                     if (incrementBeatCount >= 12) {
-                        document.getElementById("counter-number").style.color = RGBToHex(0, 153, 255);
-                        document.getElementById("counter-number").style.textShadow = "0 0 16px var(--blue)";
+                        beatCountElement.style.color = RGBToHex(0, 153, 255);
+                        beatCountElement.style.textShadow = "0 0 16px var(--blue)";
                     }
                     else {
-                        document.getElementById("counter-number").style.color = RGBToHex(0, healthCountg, healthCountb);
+                        beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
                     }
                     break;
             }
@@ -313,8 +360,8 @@ $( document ).ready(function() {
 
     function getColor(e) {
         //well first of all are we even in button territory
-        var startButtonRect = document.getElementById("startRecordingBtn").getBoundingClientRect();
-        var incrementBeatCount = parseInt(document.getElementById("counter-number").innerHTML);
+        var startButtonRect = startButton.getBoundingClientRect();
+        var incrementBeatCount = parseInt(beatCountElement.innerHTML);
 
         if (finishButton.innerHTML == "Submit") return -1;
         if (e.pageY > startButtonRect.top && e.pageY < startButtonRect.bottom) {
@@ -330,32 +377,54 @@ $( document ).ready(function() {
     
     $('#recordingTypeDropdown a').click(function(){
         var selected = $(this).text();
-        if (selected == "Harmonics") {
-            document.getElementById("tapKeyDropdown").disabled = false;
-        }
-        else {
-            document.getElementById("tapKeyDropdown").disabled = true;
-        }
-        $('#selected1').text($(this).text());
+        var boolean = (selected == dynamicRecordType);
+        recordingKeyDropdown.disabled = !boolean;
+        $('#selected1').text(selected);
     });
 
     $('#recordingKeyDropdown a').click(function(){
         $('#selected2').text($(this).text());
     });
 
+    /***************************************************************************/
+    //Update Mouse Position for Recording both Percussion and Harmonics feature.
+    document.addEventListener('mousemove', onMouseUpdate, false);
+    
+    function onMouseUpdate(e) {
+        cursorX = e.pageX;
+    }
+
+    function getRecordingTypeMouse() {
+        var window_width = $(window).width();
+
+        if (cursorX < (window_width/2)) {
+            console.log("tapped on the left");
+            return 0; //this is harmonics
+        }
+        else {
+            console.log("tapped on the right");
+            return 1; //This is percussion
+        }
+    }
+    //end of mouse position related methods 
+    /***************************************************************************/
+
+    function setButtonDisables(boolean) {
+        startButton.disabled                    = boolean;
+        resetButton.disabled                    = !boolean;
+        finishButton.disabled                   = !boolean;
+        recordingTypeDropdown.disabled          = boolean;
+        recordingKeyDropdown.disabled           = boolean;
+        beatCountElement.disabled               = !boolean;
+    }
 });
 
 function playSound() {
     var recordingType = $('#selected1').text();
     console.log("recording type is " + recordingType);
 
-    // Make Playback sound drums
-    if (recordingType == "Percussion") {
-        var sound = document.getElementById("percussion");
-    }
-
     // Make Playback sound a specific key
-    else if (recordingType == "Harmonics") {
+    if (recordingType == dynamicRecordType) {
         var tapKey = $('#selected2').text();
         switch (tapKey) {
             case "F":
