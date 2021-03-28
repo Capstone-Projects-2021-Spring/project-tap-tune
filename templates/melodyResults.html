@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %} - Home{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+  <style type="styles/melody.css">
+  </style>
+{% endblock %}
+{% block content %}
+<div class="recording-bg h-100">
+  <div class="container d-flex align-items-center flex-column">
+    <!-- Masthead Heading-->
+    <h1 class="masthead-heading text-uppercase mb-0 mt-4">Results</h1>
+    <!-- Icon Divider-->
+    <div class="divider-custom divider-dark">
+      <div class="divider-custom-line"></div>
+    </div>
+
+    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md ">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Main Search</h1>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>
+        </div>
+        <img class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+        <div class="row">
+          <div class="col">
+            <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
+              <span id = "resultsMainSearchTitle">
+                {{title}}
+              </span>
+            </h3>
+          </div>
+          <div class="col">
+            <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
+              <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
+                {{score}}%
+
+              </span>
+            </h3>
+          </div>
+        </div>
+        <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
+          {{artist}}
+        </h4>
+        <!-- its going to be Filtering results if artist is empty from filtering form-->
+        <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
+        {{lyrics}}
+</p>
+      </div>
+
+<!--      <div class="col-md">-->
+<!--        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>-->
+       <!-- </div>
+        <table id = "resultsSecondaryTable" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Song Title</th>
+              <th scope="col">Song Artist</th>
+              <th scope="col">Match Percentage</th>
+              <th scope="col">Sample Audio Preview</th>
+            </tr>
+          </thead>
+          <tbody id = "resultsSecondaryTableBody">
+            <tr>
+            </tr>
+          </tbody>
+        </table>-->
+        <script type=text/javascript src="{{
+          url_for('static', filename='result.js') }}"></script>
+<!--      </div>-->
+    </div>
+  </div>
+</div>
+{% endblock %}

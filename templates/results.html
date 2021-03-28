@@ -31,24 +31,31 @@
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
               <span id = "resultsMainSearchTitle">
-                Aunt Leslie
+                {%if filterResults and filterResults|length > 0%}
+                  {{filterResults[0]['song'].title}}
+                {%endif%}
               </span>
             </h3>
           </div>
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
               <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
-                N/A
+                {%if filterResults and filterResults|length > 0%}
+                  {{(filterResults[0]['percent_match']*100)|round(2)}}%
+                {%endif%}
               </span>
             </h3>
           </div>
         </div>
         <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
-          asdf
+          {%if filterResults and filterResults|length > 0%}
+            {{filterResults[0]['song'].artist}}
+          {%endif%}
         </h4> 
         <!-- its going to be Filtering results if artist is empty from filtering form-->
         <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
-      You were the lens I used to see 
+{{lyrics}}
+<!--      You were the lens I used to see
       Sharpen the view, the news, the color TV
       Filter the truth through you to me
       What's not to trust it's just your family
@@ -66,7 +73,10 @@
       Ring the phone, my dear Aunt Leslie
       Let's have a word, a talk
       What have you sold
-      What have you done with Leone</p>
+      What have you done with Leone-->
+<!--        </p>-->
+<!--          {{lyrics}}-->
+<!--        </p>-->
       </div>
 
       <div class="col-md">
@@ -84,8 +94,20 @@
             </tr>
           </thead>
           <tbody id = "resultsSecondaryTableBody">
-            <tr>
-            </tr>
+          {% if filterResults %}
+            {% for song_result in filterResults %}
+              <tr>
+                <td>{{ song_result.song.title }}</td>
+                <td>{{ song_result.song.artist }}</td>
+                <td>{{ (song_result.percent_match*100)|round(2) }}%</td>
+                <td>
+                  <audio controls="controls">
+                    <source src="{{ song_result.song.preview }}" type="audio/mpeg"/>
+                  </audio>
+                </td>
+              </tr>
+            {% endfor %}
+          {%endif%}
           </tbody>
         </table>
         <script type=text/javascript src="{{
