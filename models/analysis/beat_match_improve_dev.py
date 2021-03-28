@@ -57,13 +57,15 @@ def process_timestamp_diff(timestamp):
 # Status: In-progess
 def process_timestamp_ratio(timestamp):
     beat_diff_over_avg = []
+    beat_diff = []
     diff = 0
     for i in range(len(timestamp) - 1):
         temp = abs(timestamp[i + 1] - timestamp[i])
+        beat_diff.append(temp)
         diff += temp
-    avg_diff = diff / len(timestamp)
-    for i in range(len(timestamp)):
-        beat_diff_over_avg.append(timestamp[i] / avg_diff)
+    avg_diff = diff / (len(timestamp)-1)
+    for i in range(len(beat_diff)):
+        beat_diff_over_avg.append(beat_diff[i] / avg_diff)
     return beat_diff_over_avg
 
 
@@ -100,7 +102,7 @@ def compare_ratio(user_pattern, song_pattern):
                 break
 
         # if numOfHit >= mark:
-        #     return 1, match_rate / len(user_pattern)
+        #     return 1, match_rate / numOfHit
     print('numOfHit: {}, match_rate: {}'.format(numOfHit, match_rate))
     if numOfHit >= mark:
         return 1, round(match_rate / len(user_pattern),4)
@@ -207,7 +209,7 @@ we_will_rock_you_peak_hash = '.58.*C*Q*X*.58.*X*Z*.61.*.36.*R*.63.*Z*T*.61.*.36.
 
 
 # ------------------------------------Recycle Zone-------------------------------------------------------
-userinput = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,17,18,19,20,21,22,23,24,25,26,27,28]
+userinput = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,17,18,19,20,21,22,23,24,25,26,27,28,38,48,58,68]
 input2 = [1, 4, 6, 8, 8.2,8.3,8.4,8.5,12, 14, 16, 17]
 userinput = drop_ambiguous(userinput)
 userinput = process_timestamp_ratio(userinput)

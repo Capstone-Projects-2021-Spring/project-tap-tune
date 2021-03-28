@@ -25,6 +25,7 @@ import soundfile as sf
 import spotipy
 import AudioAnalysis
 
+
 def get_spotify_analysis(id):
     creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef",
                                                     client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
@@ -51,8 +52,8 @@ def process_music_split(filename):
     y, sr = librosa.load(filename)
     # print(y)
     y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
-    timestamp_harmonic = librosa.onset.onset_detect(y=y_harm, sr=sr, units = 'time')
-    timestamp_percussive = librosa.onset.onset_detect(y=y_perc,sr=sr, units = 'time')
+    timestamp_harmonic = librosa.onset.onset_detect(y=y_harm, sr=sr, units='time')
+    timestamp_percussive = librosa.onset.onset_detect(y=y_perc, sr=sr, units='time')
     return timestamp_harmonic, timestamp_percussive
     # sf.write('sample_harmonic.wav', y_harm, sr)
     # sf.write('sample_percussive.wav', y_harm, sr)
@@ -235,22 +236,79 @@ def drop_ambigious(timestamp):
     return result
 
 
+# k = original tempo / target tempo ex: for 80 tempo -> 40 tempo, k = 2
+def change_tempo(timestamp, k):
+    adjusted = [i * k for i in timestamp]
+    return adjusted
+
+
+# get user tempo
+def user_tempo(user_timestamp):
+    ans = len(user_timestamp)*60/user_timestamp[-1]
+    return ans
+
+
 if __name__ == "__main__":
     # ---song file processing---
-    filepath = '../../sampleMusic/backInBlack.wav'
+    filepath = '../../sampleMusic/birthdaySong.wav'
     songName = filepath[18:-4]
 
+    # ----------------------------tempo test-----------------------------------------------------
+    """
+    compare sync approach: 
+    - all song are adjusted to the same standard tempo(ST), then store the adjusted timestamp hash to DB
+    
+    1. get user input's tempo 
+    2. compare user's tempo to standard tempo
+    3. adjust user timestamp to the standard tempo
+    4. get user pattern using time difference between each beat
+    5. iterate through the song to check if there are beats match according to the user pattern
+    [2,2,4,4,6]
+    
+    """
+    y, sr = librosa.load(filepath)
+    # onset_env = librosa.onset.onset_strength(y, sr=sr)
+    # tempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sr)
+    # print(tempo)
+    tempo, beat = librosa.beat.beat_track(y=y, sr=sr, units='time')
+    timestamp_onset = librosa.onset.onset_detect(y=y, sr=sr, units='time')
+    timestamp_onset = drop_ambigious(timestamp_onset)
+
+    #------------speed up or down tempo--------------------
+    # timestamp_onset_slower = [e * 2 for e in timestamp_onset]
+    # temp_cal_onset_slower = len(timestamp_onset_slower) * 60 / timestamp_onset_slower[-1] / (
+    #         len(timestamp_onset_slower) / len(beat))  # <- Important
+    # print(temp_cal_onset_slower)
+    print(tempo)
+
+
+    print('onset timestamp len: ',len(timestamp_onset), 'tempo len: ', len(beat), 'onset_timestamp_len/beat_len: ', len(timestamp_onset)/len(beat))
+    print('onset time len: ', timestamp_onset[-1]/60, 'beat time len: ', beat[-1]/60)
+    #add /(len(timestamp_onset) / len(beat)) for complicated song
+    temp_cal_onset = len(timestamp_onset) * 60 / timestamp_onset[-1]   # <- Important
+    print(temp_cal_onset)
+
+    print('tempo - temp_cal', tempo-temp_cal_onset, 'tempo/tempo_cal_onset= ', tempo/temp_cal_onset)
+    print('onset stamp', timestamp_onset)
+    print('beat stamp: ', beat)
+
+    # tempo1 = librosa.beat.tempo(y=y, sr=sr)
+    # y_2x = librosa.effects.time_stretch(y,2)
+    # tempo2 = librosa.beat.tempo(y=y_2x, sr=sr)
+    # print(tempo1,tempo2)
+
+    # ---------------------------hpss AREA--------------------------------------------------------------
     # timestamp_harmonic, timestamp_percussive = process_music_split(filepath)
     # timestamp_harmonic = drop_ambigious(timestamp_harmonic)
     # timestamp_percussive = drop_ambigious(timestamp_percussive)
     # timestamp_harmonic =  drop_ambigious(timestamp_harmonic)
     # print(timestamp_harmonic)
 
-
     # showBeatOnALine(timestamp_harmonic, songName)
     # songP1, songP2 = process_timestamp2(songTimestamp)
-    userInput = [2.377,3.073,3.476,3.752,4.452,4.809,5.117,5.759,6.458,7.127]
-    twinkleStarInput = [0.261, 0.725, 1.391, 2.046, 2.736, 3.325, 4.084, 5.197, 5.941, 6.550, 7.254, 7.957, 8.604,9.294]
+    userInput = [2.377, 3.073, 3.476, 3.752, 4.452, 4.809, 5.117, 5.759, 6.458, 7.127]
+    twinkleStarInput = [0.261, 0.725, 1.391, 2.046, 2.736, 3.325, 4.084, 5.197, 5.941, 6.550, 7.254, 7.957, 8.604,
+                        9.294]
     jingleBellInput = [0.830, 1.190, 1.600, 2.456, 2.878, 3.335, 4.190, 4.655, 5.088, 5.497, 5.946]
     # userP1, userP2 = process_timestamp2(userInput)
     # if compare(userP1, songP1) == 1:
@@ -261,15 +319,14 @@ if __name__ == "__main__":
     # processRecoring(twinkleStarInput)
     # processRecoringPeaks(userInput)
 
-#----------------------Hash handling Area-------------------------------------------------------------------------------
-    song_hash = ".66.*I*I*Z*.36.*Z*.74.*H*I*Z*.37.*Z*.72.*I*I*.36.*Z*.36.*.36.*.55.*H*H*.37.*Z*.36."
-    tok = song_hash.split('*')
-    print(tok)
-    bin_ary = AudioAnalysis.unhash_array(song_hash)
-    print(bin_ary)
-    # for i in song_hash:
-    #     print(i)
-
+# ----------------------Hash handling Area-------------------------------------------------------------------------------
+# song_hash = ".66.*I*I*Z*.36.*Z*.74.*H*I*Z*.37.*Z*.72.*I*I*.36.*Z*.36.*.36.*.55.*H*H*.37.*Z*.36."
+# tok = song_hash.split('*')
+# print(tok)
+# bin_ary = AudioAnalysis.unhash_array(song_hash)
+# print(bin_ary)
+# # for i in song_hash:
+# #     print(i)
 
 
 # ########################### Testing area ############################
