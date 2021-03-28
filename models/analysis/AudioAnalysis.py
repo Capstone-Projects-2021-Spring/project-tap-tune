@@ -106,7 +106,7 @@ def compare_ratio(user_pattern, song_pattern):
         # if numOfHit >= mark:
         #     return 1
     if numOfHit >= mark:
-        return 1, round(match_rate / len(user_pattern),4)
+        return 1, round(match_rate / numOfHit,4)
     else:
         return 0, round(match_rate / len(user_pattern), 4)
 

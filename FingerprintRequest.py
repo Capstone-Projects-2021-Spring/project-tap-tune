@@ -83,10 +83,10 @@ class FingerprintRequest:
 
             songlist = (fingerprintJson['metadata']['music'][0])
 
-            returnsong.title = cleanString(str(songlist['title']))
-            returnsong.artist = cleanString(str(songlist['artists']))
-            returnsong.genre = cleanString(str(songlist['genres']))
-            # returnsong.set_score(cleanString(str(songlist['score'])))
+            returnsong.set_title(cleanString(str(songlist['title'])))
+            returnsong.set_artist(cleanString(str(songlist['artists'])))
+            returnsong.set_genre(cleanString(str(songlist['genres'])))
+            returnsong.set_score(cleanString(str(songlist['score'])))
         return returnsong
 
     def getAudDFingerprint(self, userpath):
@@ -158,21 +158,21 @@ class FingerprintRequest:
         result = foundsong()
 
         if audDfoundSong.title:
-            result.title = audDfoundSong.title
-            result.artists = audDfoundSong.artists
-            result.genres = audDfoundSong.genres
-            # result.set_score(audDfoundSong.score)
+            result.set_title(audDfoundSong.title)
+            result.set_artist(audDfoundSong.artists)
+            result.set_genre(audDfoundSong.genres)
+            result.set_score(audDfoundSong.score)
         else:
             if ACRfoundSong.title:
-                result.title = ACRfoundSong.title
-                result.artists = ACRfoundSong.artists
-                result.genres = ACRfoundSong.genres
-                # result.set_score(ACRfoundSong.score)
+                result.set_title(ACRfoundSong.title)
+                result.set_artist(ACRfoundSong.artists)
+                result.set_genre(ACRfoundSong.genres)
+                result.set_score(ACRfoundSong.score)
             else:
-                result.title = hummingFingerprint[0].title
-                result.artists = hummingFingerprint[0].artists
-                result.genres = hummingFingerprint[0].genres
-                # result.set_score(hummingFingerprint[0].score)
+                result.set_title(hummingFingerprint[0].title)
+                result.set_artist(hummingFingerprint[0].artists)
+                result.set_genre(hummingFingerprint[0].genres)
+                result.set_score(hummingFingerprint[0].score)
 
         return result
 
