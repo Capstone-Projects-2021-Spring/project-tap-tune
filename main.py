@@ -7,8 +7,9 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 import lyricsgenius
-
 import json
+from FingerprintRequest import FingerprintRequest
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -61,9 +62,14 @@ def filter_page():
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
+@app.route('/melodyFiltering', methods=['GET', 'POST'])
+def melody_filter_page():
+    user = User.current_user()
+    return render_template('melodyFiltering.html', user=user)
+
 
 def sort_results(e):
-    return e['percent_match']
+      return e['percent_match']
 
 
 """
@@ -100,6 +106,21 @@ def result_page():
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
+@app.route('/melodyResults', methods=['GET', 'POST'])
+def melody_result_page():
+    user = User.current_user()
+
+    # Filter the Song Results if there are any inputs from request form
+    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                    Lyrics=request.form['input_lyrics'])
+
+    result = FingerprintRequest().searchFingerprintAll("output.mp3")
+
+    print(result.title)
+    print(result.artists)
+    print(result.genres)
+
+    return render_template('melodyResults.html', artist=result.artists, title=result.title)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():

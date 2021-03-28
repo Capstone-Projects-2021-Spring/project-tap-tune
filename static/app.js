@@ -21,6 +21,10 @@ function goToFiltering() {
     window.location.href= "/filtering"; //link from rhythm button
 }
 
+function goToMelodyFiltering() {
+    window.location.href= "/melodyFiltering"; //link from melody button
+}
+
 function goToRhythm() {
   window.location.href= "/recordingRhythm"; //link from rhythm button
 }
