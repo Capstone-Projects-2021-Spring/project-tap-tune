@@ -106,7 +106,7 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-    result = FingerprintRequest().searchFingerprintAll("output.mp3")
+    # result = FingerprintRequest().searchFingerprintAll("output.mp3")
 
     print(result.title)
     print(result.artists)
@@ -226,8 +226,12 @@ def melody():
         fileName = outFile.filename
         print(fileName)
 
-        outFile.save(fileName)
+        # outFile.save(fileName)
         print("Hoping it uploads")
+        global result
+        result = FingerprintRequest().searchFingerprintAll(outFile)
+        print(result)
+
         global user_result
         user_result = 0
         global melody_result

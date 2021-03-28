@@ -89,9 +89,13 @@ class FingerprintRequest:
         return returnsong
 
     def getAudDFingerprint(self, userpath):
-        files = {
-            'file': open(userpath, 'rb'),
-        }
+        # files = {
+        #     'file': open(userpath, 'rb'),
+        # }
+        #
+        # print("file = ",files)
+
+        files = (userpath, )
         returnsong = foundsong()
 
         # Apparently this one is use for humming and such, but has low accuracy.
@@ -117,10 +121,11 @@ class FingerprintRequest:
 
     def getHummingFingerprint(self, userpath):
 
-        files = {
-            'file': open(userpath, 'rb'),
-        }
+        # files = {
+        #     'file': open(userpath, 'rb'),
+        # }
 
+        files = (userpath, )
         songArray = list()
 
         # Apparently this one is use for humming and such, but has low accuracy.
@@ -149,10 +154,11 @@ class FingerprintRequest:
     def searchFingerprintAll(self, userfile):
 
         #Weighted AudD first, then ACR, then humming
-        audDfoundSong = self.getAudDFingerprint(userfile)
+        # audDfoundSong = self.getAudDFingerprint(userfile)
+        audDfoundSong = foundsong()
         ACRfoundSong = self.getACRSongFingerprint(userfile)
-        hummingFingerprint = self.getHummingFingerprint(userfile)
-
+        # hummingFingerprint = self.getHummingFingerprint(userfile)
+        hummingFingerprint = foundsong()
 
         result = foundsong()
 
@@ -167,11 +173,16 @@ class FingerprintRequest:
                 result.set_artist(ACRfoundSong.artists)
                 result.set_genre(ACRfoundSong.genres)
                 result.set_score(ACRfoundSong.score)
-            else:
+            elif (hummingFingerprint.title != ""):
                 result.set_title(hummingFingerprint[0].title)
                 result.set_artist(hummingFingerprint[0].artists)
                 result.set_genre(hummingFingerprint[0].genres)
                 result.set_score(hummingFingerprint[0].score)
+            else:
+                result.set_title("None")
+                result.set_artist("None")
+                result.set_genre("None")
+                result.set_score("None")
 
         return result
 
