@@ -347,7 +347,7 @@ class rhythmAnalysis:
             check = 0
 
             for bin in onset_array:
-                if (bin == 0) and (check != len(peak_array) - 1):
+                if (bin == 0) and (check != len(onset_array) - 1):
                     track += 1
 
                 elif (bin == 1):
