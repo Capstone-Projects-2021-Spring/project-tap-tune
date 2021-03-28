@@ -142,6 +142,9 @@ $( document ).ready(function() {
             beatCountElement.disabled = true;
             playButton.disabled = false;
             startTime = null;
+            if (parseInt(beatCountElement.innerHTML) < 5) {
+                finishButton.disabled = true;
+            }
         }
 
 
