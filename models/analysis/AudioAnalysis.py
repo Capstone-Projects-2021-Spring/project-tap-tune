@@ -106,7 +106,7 @@ def compare_ratio(user_pattern, song_pattern):
         # if numOfHit >= mark:
         #     return 1
     if numOfHit >= mark:
-        return 1, round(match_rate / len(user_pattern),4)
+        return 1, round(match_rate / numOfHit,4)
     else:
         return 0, round(match_rate / len(user_pattern), 4)
 
@@ -379,14 +379,17 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
-            match2, matching_rate = process_recording(self.user_input, onset_frames)
+            match, matching_rate1 = process_recording_peaks(self.user_input, peak_frames)
+            match2, matching_rate2= process_recording(self.user_input, onset_frames)
 
-            print(match, match2)
-
+            matching_rate = (matching_rate1 + matching_rate2)/2
+            max = 0
+            print(matching_rate)
             if (match or match2):
-                song_results.append({"song": db_track,
+                if(matching_rate > .7):
+                    song_results.append({"song": db_track,
                                      "percent_match": matching_rate})
+                    max += 1
             index += 1
 
         if (len(song_results) < 1):

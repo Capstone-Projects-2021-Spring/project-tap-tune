@@ -5,7 +5,6 @@ from models.User import User
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
-from flask_mail import Message
 import lyricsgenius
 import json
 from FingerprintRequest import FingerprintRequest
@@ -62,10 +61,6 @@ def filter_page():
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
-@app.route('/melodyFiltering', methods=['GET', 'POST'])
-def melody_filter_page():
-    user = User.current_user()
-    return render_template('melodyFiltering.html', user=user)
 
 
 def sort_results(e):
@@ -95,13 +90,14 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
-    final_res.sort(reverse=True, key=sort_results)
-    print(final_res)
     lyrics = ''
     if final_res and len(final_res) > 0:
+        final_res.sort(reverse=True, key=sort_results)  # sort results by % match
+        final_res = final_res[:5]  # truncate array to top 5 results
+        print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
-            user.add_song_long(final_res)
+            user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
@@ -110,20 +106,17 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-    # Filter the Song Results if there are any inputs from request form
-    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
-                    Lyrics=request.form['input_lyrics'])
-
     result = FingerprintRequest().searchFingerprintAll("output.mp3")
 
     print(result.title)
     print(result.artists)
-    print(result.genres)
+    print(result.score)
 
     lyrics = get_lyrics(result.title, result.artists)
     print(lyrics)
 
     return render_template('melodyResults.html', artist=result.artists, title=result.title, lyrics = lyrics, score=result.score)
+
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
