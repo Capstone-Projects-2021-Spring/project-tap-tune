@@ -19,6 +19,7 @@
 import librosa
 import math
 from models.Database import db, get_cursor
+from models.Song import Song
 
 """COMPARISON FUNCTIONS"""
 
@@ -89,10 +90,10 @@ def compare_ratio(user_pattern, song_pattern):
         while j < len(user_pattern):
             match_rate_this_beat = round(1 - (abs(1 - user_pattern[j] / song_pattern[i])), 4)
             if match_rate_this_beat >= 0.8:
-                print("It's a hit!")
+                # print("It's a hit!")
                 numOfHit += 1
                 match_rate += match_rate_this_beat
-                print('Update match_rate: {}'.format(match_rate))
+                # print('Update match_rate: {}'.format(match_rate))
                 i += 1
                 j += 1
                 break
@@ -105,7 +106,7 @@ def compare_ratio(user_pattern, song_pattern):
         # if numOfHit >= mark:
         #     return 1
     if numOfHit >= mark:
-        return 1, round(match_rate / len(user_pattern),4)
+        return 1, round(match_rate / numOfHit,4)
     else:
         return 0, round(match_rate / len(user_pattern), 4)
 
@@ -262,6 +263,28 @@ def unhash_array(db_string):
     return bin_array
 
 
+def bin_to_frame(bin_array):
+    frames = []
+    track = 0
+    offset = 0
+    check = 0
+
+    for bin in bin_array:
+        if (bin == 0) and (check != len(bin_array) - 1):
+            track += 1
+
+        elif (bin == 1):
+            frames.append(track + offset)
+            offset += 1
+
+        else:
+            frames.append(track + offset + 1)
+            offset += 1
+        check += 1
+    return frames
+
+
+
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
 
@@ -279,7 +302,6 @@ def process_recording_peaks(userInput, peakFrames):
         print("we have a match!")
         return 1, matching_rate
     else:
-        print("no match found")
         return 0, matching_rate
 
 
@@ -298,184 +320,33 @@ def process_recording(userInput, onsetFrames):
         print("we have a match!")
         return 1, matching_rate
     else:
-        print("no match found")
         return 0, matching_rate
 
 
 class rhythmAnalysis:
 
-    def __init__(self, userHarmonicTaps=None, userPercussiveTaps = None):
-        # print(userTaps)
-        if (userHarmonicTaps != None):
-            self.user_input_harmonic = userHarmonicTaps
-        if(userPercussiveTaps != None):
-            self.user_input_percussive = userPercussiveTaps
+    def __init__(self, userTaps=None, filterResults=None):
+        if (userTaps != None):
+            self.user_input = userTaps
+        if (filterResults != None):
+            self.filter_results = filterResults
 
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
-
-    def peak_func(self):
-        song_results = []
-
-        # retrieves cursor from Database.py
-        cursor = get_cursor()
-        cursor.execute('SELECT title, artist, genre, peak_hash FROM song')
-        # fetch al results and save in song_data list
-
-        """GO THROUGH DB DATA"""
-        song_data = cursor.fetchall()
-        db_results = []
-        for track in song_data:
-            title = track["title"]
-            artist = track['artist']
-            genres = track["genre"]
-            peak_hash = track['peak_hash']
-
-            db_results.append({"title": title, "artist": artist, "genres": genres, "peak_hash": peak_hash})
-
-        # for loop to go through the song_data
-        # for track in db_results:
-        index = 0
-        for db_track in db_results:
-            """
-            convert peak_hash to binary array
-            """
-            print("**************SONG CHECK*******************")
-            print(db_track["title"])
-            bin_array = unhash_array(db_track["peak_hash"])
-
-            """
-            convert binary array to frames
-            """
-            # frames from bin
-            res_frames = []
-            track = 0
-            offset = 0
-            check = 0
-
-            for bin in bin_array:
-                if (bin == 0) and (check != len(bin_array) - 1):
-                    track += 1
-
-                elif bin == 1:
-                    res_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    res_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
-
-            print(res_frames)
-            """
-            compare with the user input
-            """
-            match, matching_rate = process_recording_peaks(self.user_input, res_frames)
-
-            if match:
-                title = db_results[index]["title"]
-                artist = db_results[index]["artist"]
-                genres = db_results[index]["genres"]
-
-                song_results.append({"title": title, "artist": artist, "genres": genres})
-            index += 1
-
-        if len(song_results) < 1:
-            return None
-        else:
-            return song_results
-
-    def onset_func(self):
-        song_results = []
-
-        # retrieves cursor from Database.py
-        cursor = get_cursor()
-        cursor.execute('SELECT title, artist, genre, onset_hash FROM song')
-        # fetch all results and save in song_data list
-
-        """GO THROUGH DB DATA"""
-        song_data = cursor.fetchall()
-        db_results = []
-        for track in song_data:
-            title = track["title"]
-            artist = track['artist']
-            genres = track["genre"]
-            onset_hash = track['onset_hash']
-
-            db_results.append({"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash})
-
-        # for loop to go through the song_data
-        # for track in db_results:
-        index = 0
-        for db_track in db_results:
-            """
-            convert onset_hash to binary array
-            """
-            bin_array = unhash_array(db_track["onset_hash"])
-            print(db_track)
-
-            """
-            convert binary array to frames
-            """
-            # frames from bin
-            res_frames = []
-            track = 0
-            offset = 0
-            check = 0
-
-            for bin in bin_array:
-                if (bin == 0) and (check != len(bin_array) - 1):
-                    track += 1
-
-                elif (bin == 1):
-                    res_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    res_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
-
-            """
-            compare with the user input
-            """
-            match, matching_rate = process_recording(self.user_input, res_frames)
-
-            if (match):
-
-                title = db_results[index]["title"]
-                artist = db_results[index]["artist"]
-                genres = db_results[index]["genres"]
-
-                song_results.append({"title": title, "artist": artist, "genres": genres})
-            index += 1
-
-        if (len(song_results) < 1):
-            return None
-        else:
-            return song_results
-
     def onset_peak_func(self):
         song_results = []
-
-        # retrieves cursor from Database.py
-        cursor = get_cursor()
-        cursor.execute('SELECT title, artist, genre, onset_hash, peak_hash FROM song')
-        # fetch all results and save in song_data list
-
-        """GO THROUGH DB DATA"""
-        song_data = cursor.fetchall()
         db_results = []
-        for track in song_data:
-            title = track["title"]
-            artist = track['artist']
-            genres = track["genre"]
-            onset_hash = track['onset_hash']
-            peak_hash = track['peak_hash']
 
-            db_results.append(
-                {"title": title, "artist": artist, "genres": genres, "onset_hash": onset_hash, "peak_hash": peak_hash})
+        if(self.filter_results != None and len(self.filter_results) > 0):
+            filter_ids = []
+            for track in self.filter_results:
+                filter_ids.append(track.id)
+            db_results = Song.get_by_ids(filter_ids)
+
+        else:
+            # fetch all results and save in song_data list
+            db_results = Song.get_all()
 
         # for loop to go through the song_data
         # for track in db_results:
@@ -484,69 +355,69 @@ class rhythmAnalysis:
             """
             convert onset_hash to binary array
             """
-            peak_array = unhash_array(db_track["peak_hash"])
-            onset_array = unhash_array(db_track["onset_hash"])
-            print(db_track)
 
+            peak_array = unhash_array(db_track.peak_hash)
+            onset_array = unhash_array(db_track.onset_hash)
+            percussive_array = unhash_array(db_track.percussive_hash)
+            harmonic_array = unhash_array(db_track.harmonic_hash)
             """
             convert binary array to frames
             """
             # frames from bin
-            onset_frames = []
-            track = 0
-            offset = 0
-            check = 0
+            onset_frames = bin_to_frame(onset_array)
+            # track = 0
+            # offset = 0
+            # check = 0
+            #
+            # for bin in onset_array:
+            #     if (bin == 0) and (check != len(peak_array) - 1):
+            #         track += 1
+            #
+            #     elif (bin == 1):
+            #         onset_frames.append(track + offset)
+            #         offset += 1
+            #
+            #     else:
+            #         onset_frames.append(track + offset + 1)
+            #         offset += 1
+            #     check += 1
 
-            for bin in onset_array:
-                if (bin == 0) and (check != len(peak_array) - 1):
-                    track += 1
-
-                elif (bin == 1):
-                    onset_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    onset_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
-
-            peak_frames = []
-            track = 0
-            offset = 0
-            check = 0
-            for bin in peak_array:
-                if (bin == 0) and (check != len(peak_array) - 1):
-                    track += 1
-
-                elif (bin == 1):
-                    peak_frames.append(track + offset)
-                    offset += 1
-
-                else:
-                    peak_frames.append(track + offset + 1)
-                    offset += 1
-                check += 1
+            peak_frames = bin_to_frame(peak_array)
+            # track = 0
+            # offset = 0
+            # check = 0
+            # for bin in peak_array:
+            #     if (bin == 0) and (check != len(peak_array) - 1):
+            #         track += 1
+            #
+            #     elif (bin == 1):
+            #         peak_frames.append(track + offset)
+            #         offset += 1
+            #
+            #     else:
+            #         peak_frames.append(track + offset + 1)
+            #         offset += 1
+            #     check += 1
+            percussive_frames = bin_to_frame(percussive_array)
+            harmonic_frames = bin_to_frame(harmonic_array)
 
             """
             compare with the user input
             """
-
             match_peak, matching_rate_peak = process_recording_peaks(self.user_input, peak_frames)
             match_onset, matching_rate_onset = process_recording(self.user_input, onset_frames)
             match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
             match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
             matching_rate = max(matching_rate_peak,matching_rate_onset,matching_rate_harmonic,matching_rate_percussive)
-            # print(match, match2)
+
+            print(match_peak, match_onset,match_percussive,match_harmonic)
 
             if match_peak or match_onset or match_percussive or match_harmonic:
-                title = db_results[index]["title"]
-                artist = db_results[index]["artist"]
-                genres = db_results[index]["genres"]
-
-                song_results.append({"title": title, "artist": artist, "genres": genres, "matching rate": matching_rate})
+                song_results.append({"song": db_track,
+                                     "percent_match": matching_rate})
             index += 1
 
-        if (len(song_results) < 1):
+        if len(song_results) < 1:
             return None
         else:
             return song_results
