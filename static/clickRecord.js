@@ -151,19 +151,21 @@ $( document ).ready(function() {
         if (finishButton.innerHTML == "Submit"){
             if (recordingType.innerHTML == dynamicRecordType) { 
                 var js_data = returnTimes();
+                var flask_url = '/multiplerhythm';
             } 
             else {
                 var js_data = JSON.stringify(returnTimes());
+                var flask_url = '/rhythm';
             }
             $.ajax({
-                url: '/rhythm',
+                url: flask_url,
                 type : 'post',
                 contentType: 'application/json',
                 dataType : 'json',
                 data : js_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + JSON.stringify(result));
-                goToFiltering();
+                //goToFiltering();
 
                 //return result;
                 //$("#data").html(result);

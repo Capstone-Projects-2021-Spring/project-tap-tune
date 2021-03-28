@@ -201,21 +201,40 @@ def receiveRhythm():
     print(data)
     return jsonify(data)
 
-
+def adjustArray(array):
+    newArray = []
+    dif = array[0]
+    for data in array:
+        num = round((data - dif), 3)
+        newArray.append(num)
+    return newArray
+    
 @app.route('/rhythm', methods=['GET', 'POST'])
-def test():
+def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
-        #data = json.loads(request.data)
-        #obj = rhythmAnalysis(userTaps=data)
+        
+        global user_result
+        user_result = json.loads(request.data)
+        return out
 
-    global user_result
-    user_result = json.loads(request.data)
-    # obj = rhythmAnalysis(userTaps=data)
-    #
-    # global user_result
-    # user_result = obj.onset_peak_func()
-    return out
+@app.route('/multiplerhythm', methods=['GET', 'POST'])
+def multipleRhythmPost():
+    if request.method == 'POST':
+        out = receiveRhythm()
+        data = json.loads(request.data)
+        percussionArray = []
+        harmonicArray = []
+        for recordedBeats in data:
+            if recordedBeats['type'] == 0:
+                percussionArray.append(recordedBeats['timestamp'])
+            else:
+                harmonicArray.append(recordedBeats['timestamp'])
+        
+        global user_result
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        print(user_result)
+        return out
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
