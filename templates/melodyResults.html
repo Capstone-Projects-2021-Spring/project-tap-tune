@@ -47,10 +47,19 @@
         <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
           {{artist}}
         </h4>
+      </div>
+      <div class="col-md">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Lyrics</h2>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>
+        </div>
         <!-- its going to be Filtering results if artist is empty from filtering form-->
-        <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
+        <div id="module" class="container mb-3">
+          <p id = "resultsMainSearchLyrics" class="collapse multiline" aria-expanded="false">
 {{lyrics}}
-        </p>
+          </p>
+          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>
+        </div>
       </div>
     </div>
   </div>
