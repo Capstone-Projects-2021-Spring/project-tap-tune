@@ -7,8 +7,9 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 from flask_mail import Message
 import lyricsgenius
-
 import json
+from FingerprintRequest import FingerprintRequest
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -61,18 +62,23 @@ def filter_page():
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
+@app.route('/melodyFiltering', methods=['GET', 'POST'])
+def melody_filter_page():
+    user = User.current_user()
+    return render_template('melodyFiltering.html', user=user)
+
 
 def sort_results(e):
-    return e['percent_match']
+      return e['percent_match']
 
 
 """
 get song lyrics using genius api
 """
-def get_lyrics(song: Song):
+def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
-    song = genius.search_song(title=song.title, artist=song.artist)
+    song = genius.search_song(title=songtitle, artist=songartist)
     lyrics = ''
     if song:
         lyrics = song.lyrics
@@ -93,13 +99,31 @@ def result_page():
     print(final_res)
     lyrics = ''
     if final_res and len(final_res) > 0:
-        lyrics = get_lyrics(final_res[0]['song'])
+        lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_long(final_res)
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
+@app.route('/melodyResults', methods=['GET', 'POST'])
+def melody_result_page():
+    user = User.current_user()
+
+    # Filter the Song Results if there are any inputs from request form
+    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                    Lyrics=request.form['input_lyrics'])
+
+    result = FingerprintRequest().searchFingerprintAll("output.mp3")
+
+    print(result.title)
+    print(result.artists)
+    print(result.genres)
+
+    lyrics = get_lyrics(result.title, result.artists)
+    print(lyrics)
+
+    return render_template('melodyResults.html', artist=result.artists, title=result.title, lyrics = lyrics, score=result.score)
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
