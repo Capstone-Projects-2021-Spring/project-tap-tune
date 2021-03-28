@@ -31,6 +31,7 @@ $( document ).ready(function() {
 
     startButton.onclick = function () {
         setButtonDisables(true);
+        playButton.disabled = true;
     }//end of startButton
 
     /*************************************************************************/
@@ -79,6 +80,7 @@ $( document ).ready(function() {
 
         finishButton.innerHTML = "Stop";
         beatCountElement.innerHTML = 0;
+        playButton.disabled = true;
         setButtonDisables(false);
 
         if (startTime){
@@ -120,7 +122,11 @@ $( document ).ready(function() {
         }//enf of if
 
         else{
-        console.log("time has not started");
+            console.log("time has not started");
+            timeArray = [];
+            times = new Array();
+            timeJsonArray = [];
+            startTime = null;
         }//end of else
 
 
@@ -133,12 +139,10 @@ $( document ).ready(function() {
             console.log("Time Stop");
             console.log("Stop: "+dif);
             console.log("END ARRAY: " + returnTimes());
-
-        }//enf of if
-
-        else{
-            console.log("time has not started");
-        }//end of else
+            beatCountElement.disabled = true;
+            playButton.disabled = false;
+            startTime = null;
+        }
 
 
         if (finishButton.innerHTML == "Submit"){
@@ -202,6 +206,7 @@ $( document ).ready(function() {
     function returnTimes(){
         if (recordingType.innerHTML == dynamicRecordType) { 
             var returnArray = adjustArray(timeJsonArray);
+            timeJsonArray = returnArray;
             return JSON.stringify(returnArray);
         }
         else {
@@ -417,44 +422,83 @@ $( document ).ready(function() {
         recordingKeyDropdown.disabled           = boolean;
         beatCountElement.disabled               = !boolean;
     }
-});
 
-function playSound() {
-    var recordingType = $('#selected1').text();
-    console.log("recording type is " + recordingType);
-
-    // Make Playback sound a specific key
-    if (recordingType == dynamicRecordType) {
-        var tapKey = $('#selected2').text();
-        switch (tapKey) {
-            case "F":
-                var sound = document.getElementById("harmony1");
-                break;
-        
-            default:
-                var sound = document.getElementById("percussion");
-                break;
+    playButton.onclick = function () {
+        var recordingType = $('#selected1').text();
+        console.log("recording type is " + recordingType);
+    
+        // Make Playback sound a specific key
+        if (recordingType == dynamicRecordType) {
+            var tapKey = $('#selected2').text();
+            switch (tapKey) {
+                case "C":
+                    var sound = document.getElementById("harmony1");
+                    break;
+                case "D":
+                    var sound = document.getElementById("harmony2");
+                    break;
+                case "E":
+                    var sound = document.getElementById("harmony3");
+                    break;
+                case "F":
+                    var sound = document.getElementById("harmony4");
+                    break;    
+                case "G":
+                    var sound = document.getElementById("harmony5");
+                    break;
+                case "A":
+                    var sound = document.getElementById("harmony6");
+                    break;
+                case "B":
+                    var sound = document.getElementById("harmony7");
+                    break;    
+                default:
+                    var sound = document.getElementById("harmony1");
+                    break;
+            }
+        }
+    
+        // Make Playback sound a default sound beat
+        else {
+            var sound = document.getElementById("percussion");
+        }
+        console.log(recordingType.innerHTML)
+        if (recordingType == dynamicRecordType) { 
+            for (var i = 0; i < timeJsonArray.length; i++) {
+                var timeObj = timeJsonArray[i];
+                console.log(timeObj);
+                var millisecondsTime = timeObj.timestamp * 1000;
+                setTimeout(() => {
+                    var audio = document.createElement('audio');
+                    audio.src = sound.src;
+                    audio.volume = 0.3;
+                    document.body.appendChild(audio);
+                    audio.play();
+                    
+                    audio.onended = function () {
+                        this.parentNode.removeChild(this);
+                    }
+                }, millisecondsTime);
+            }
+        } 
+        else {
+            for (var i = 0; i < times.length; i++) {
+                var millisecondsTime = times[i] * 1000;
+                setTimeout(() => {
+                    var audio = document.createElement('audio');
+                    audio.src = sound.src;
+                    audio.volume = 0.3;
+                    document.body.appendChild(audio);
+                    audio.play();
+                    
+                    audio.onended = function () {
+                        this.parentNode.removeChild(this);
+                    }
+                }, millisecondsTime);
+            }
         }
     }
+});
 
-    // Make Playback sound a default sound beat
-    else {
-        var sound = document.getElementById("percussion");
-    }
 
-    for (var i = 0; i < times.length; i++) {
-        var millisecondsTime = times[i] * 1000;
-        setTimeout(() => {
-            var audio = document.createElement('audio');
-            audio.src = sound.src;
-            audio.volume = 0.3;
-            document.body.appendChild(audio);
-            audio.play();
-            
-            audio.onended = function () {
-                this.parentNode.removeChild(this);
-            }
-        }, millisecondsTime);
-    }
-}
 

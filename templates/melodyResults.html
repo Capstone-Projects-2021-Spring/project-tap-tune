@@ -40,7 +40,6 @@
             <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
               <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
                 {{score}}%
-
               </span>
             </h3>
           </div>
@@ -50,32 +49,9 @@
         </h4>
         <!-- its going to be Filtering results if artist is empty from filtering form-->
         <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
-        {{lyrics}}
-</p>
+{{lyrics}}
+        </p>
       </div>
-
-<!--      <div class="col-md">-->
-<!--        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
-        <div class="divider-custom2 divider-dark">
-          <div class="divider-custom2-line"></div>-->
-       <!-- </div>
-        <table id = "resultsSecondaryTable" class="table">
-          <thead>
-            <tr>
-              <th scope="col">Song Title</th>
-              <th scope="col">Song Artist</th>
-              <th scope="col">Match Percentage</th>
-              <th scope="col">Sample Audio Preview</th>
-            </tr>
-          </thead>
-          <tbody id = "resultsSecondaryTableBody">
-            <tr>
-            </tr>
-          </tbody>
-        </table>-->
-        <script type=text/javascript src="{{
-          url_for('static', filename='result.js') }}"></script>
-<!--      </div>-->
     </div>
   </div>
 </div>
