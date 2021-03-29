@@ -113,6 +113,7 @@ def melody_result_page():
     print(result.artists)
     print(result.score)
 
+    print(fileName)
     lyrics = get_lyrics(result.title, result.artists)
     print(lyrics)
 
@@ -244,15 +245,15 @@ def multipleRhythmPost():
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
     if request.method == 'POST':
+
         print("Received Audio File")
-        global outFile
         outFile = request.files["file"]
         print(outFile)
         global fileName
         fileName = outFile.filename
         print(fileName)
 
-        outFile.save(fileName)
+        outFile.save("/tmp/"+fileName)
         print("Hoping it uploads")
         global user_result
         user_result = 0
