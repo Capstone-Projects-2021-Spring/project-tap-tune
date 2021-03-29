@@ -254,13 +254,13 @@ def melody():
 
         fileName = outFile.filename
         print("FILENAME = ", fileName)
-        # if(request.headers['Host'] == "127.0.0.1:5000"):
-        #     session['recording'] = fileName
-        #     print("HELLO LOCAL SERVER")
-        # else:
-        #     print("HELLO LIVE SERVER")
-        #     session['recording'] = "/tmp/" + fileName
-        session['recording'] = fileName
+        if(request.headers['Host'] == "127.0.0.1:5000"):
+            session['recording'] = fileName
+            print("HELLO LOCAL SERVER")
+        else:
+            print("HELLO LIVE SERVER")
+            session['recording'] = "/tmp/" + fileName
+
         outFile.save(fileName)
         global user_result
         user_result = 0
