@@ -9,7 +9,6 @@ import lyricsgenius
 import json
 from FingerprintRequest import FingerprintRequest
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
@@ -107,7 +106,9 @@ def melody_result_page():
     user = User.current_user()
 
 
-    result = FingerprintRequest().searchFingerprintAll(session['recording'])
+    #result = FingerprintRequest().searchFingerprintAll(session['recording'])
+    result = FingerprintRequest().searchFingerprintAll(pathName)
+
 
     print(result.title)
     print(result.artists)
@@ -253,7 +254,11 @@ def melody():
         session['recording'] = fileName
         print(fileName)
 
-        outFile.save(fileName)
+        # global pathName
+        # pathName = (os.path.join('/tmp/', fileName))
+        # print("PATH: "+pathName)
+        # outFile.save(pathName)
+        #outFile.save(fileName)
         print("Hoping it uploads")
         global user_result
         user_result = 0
