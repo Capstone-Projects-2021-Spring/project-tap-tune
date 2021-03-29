@@ -109,8 +109,12 @@ class FingerprintRequest:
             songlist = (fingerprintJson['result'])
 
             returnsong.set_title(cleanString(str(songlist['title'])))
-            returnsong.set_artist(cleanString(str(songlist['apple_music']['artistName'])))
-            returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
+            returnsong.set_artist(cleanString(str(songlist['artist'])))
+            try:
+                returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
+            except:
+                print("No Apple Genres")
+
             # returnsong.set_score(cleanString(str(songlist['score'])))
 
         return returnsong
