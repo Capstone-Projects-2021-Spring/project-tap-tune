@@ -84,7 +84,10 @@ def get_lyrics(songtitle, songartist):
 def result_page():
     user = User.current_user()
     #Filter the Song Results if there are any inputs from request form 
-    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
+    if (request.form['input_genre'] == "None"):
+        objF = Filtering(Artist = request.form['input_artist'], Lyrics = request.form['input_lyrics'])
+    else:
+        objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
     filterResults = objF.filterRecording()# returns list of Song objects
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check

@@ -165,7 +165,7 @@ $( document ).ready(function() {
                 data : js_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + JSON.stringify(result));
-                //goToFiltering();
+                goToFiltering();
 
                 //return result;
                 //$("#data").html(result);
