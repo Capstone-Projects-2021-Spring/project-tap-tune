@@ -31,6 +31,7 @@ $( document ).ready(function() {
 
     startButton.onclick = function () {
         setButtonDisables(true);
+        resetCounterStyle(1);
         playButton.disabled = true;
     }//end of startButton
 
@@ -82,6 +83,7 @@ $( document ).ready(function() {
         beatCountElement.innerHTML = 0;
         playButton.disabled = true;
         setButtonDisables(false);
+        resetCounterStyle(0);
 
         if (startTime){
 
@@ -343,6 +345,7 @@ $( document ).ready(function() {
                     beatCountElement.style.color = RGBToHex(0, 0, 0);
                     break;
                 case 2:
+                    playSound(true);
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-orange");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
                     beatCountElement.innerHTML = incrementBeatCount;
@@ -357,6 +360,7 @@ $( document ).ready(function() {
                     }
                     break;
                 default:
+                    playSound(true);
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
                     beatCountElement.innerHTML = incrementBeatCount;
@@ -371,9 +375,9 @@ $( document ).ready(function() {
                     }
                     break;
             }
-            
+
         }
-        
+
     });
 
     function RGBToHex(r,g,b) {
@@ -450,10 +454,21 @@ $( document ).ready(function() {
         beatCountElement.disabled               = !boolean;
     }
 
-    playButton.onclick = function () {
+    function resetCounterStyle(button) {
+        if (button == 0) { //reset button
+            beatCountElement.style.color = "#858585";
+            beatCountElement.style.opacity = "0.5";
+            beatCountElement.style.textShadow = "";
+        }
+        else if (button == 1) { //start button
+            beatCountElement.style.opacity = "1";
+            beatCountElement.style.color = "#FFFFFF"
+        }
+    }
+
+    function playSound(single) {
         var recordingType = $('#selected1').text();
-        console.log("recording type is " + recordingType);
-    
+        var quit = true;
         // Make Playback sound a specific key
         //if (recordingType == dynamicRecordType) {
         var tapKey = $('#selected2').text();
@@ -479,54 +494,64 @@ $( document ).ready(function() {
             case "B":
                 var sound = document.getElementById("harmony7");
                 break;    
-            case "General":
-                var sound = document.getElementById("percussion");
-                break;
+            case "Disable Sound":
+                quit = false;
+                return;
             default:
                 var sound = document.getElementById("percussion");
                 break;
         }
-        //}
-    
-        // Make Playback sound a default sound beat
-        //else {
-        //    var sound = document.getElementById("percussion");
-        //}
-        console.log(recordingType.innerHTML)
-        if (recordingType == dynamicRecordType) { 
-            for (var i = 0; i < timeJsonArray.length; i++) {
-                var timeObj = timeJsonArray[i];
-                console.log(timeObj);
-                var millisecondsTime = timeObj.timestamp * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
-            }
-        } 
-        else {
-            for (var i = 0; i < times.length; i++) {
-                var millisecondsTime = times[i] * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
+        if (single && quit) {
+            var audio = document.createElement('audio');
+            audio.src = sound.src;
+            audio.volume = 0.3;
+            document.body.appendChild(audio);
+            audio.play();
+            
+            audio.onended = function () {
+                this.parentNode.removeChild(this);
             }
         }
+        else {
+            if (recordingType == dynamicRecordType) { 
+                for (var i = 0; i < timeJsonArray.length; i++) {
+                    var timeObj = timeJsonArray[i];
+                    console.log(timeObj);
+                    var millisecondsTime = timeObj.timestamp * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            } 
+            else {
+                for (var i = 0; i < times.length; i++) {
+                    var millisecondsTime = times[i] * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            }
+        }
+    }
+        
+    playButton.onclick = function () {
+        playSound();
     }
 });
 
