@@ -35,6 +35,7 @@ mail.init_app(app)
 def home_page():
     # get logged in user or None
     user = User.current_user()
+    print(request.headers['Host'])
     return render_template('index.html', user=user)
 
 
@@ -106,8 +107,7 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-
-    result = FingerprintRequest().searchFingerprintAll(session['recording'])
+    result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
 
     print(result.title)
     print(result.artists)
@@ -248,10 +248,16 @@ def melody():
 
         print("Received Audio File")
         outFile = request.files["file"]
-        print(outFile)
+        print(outFile.filename)
         fileName = outFile.filename
-        session['recording'] = fileName
-        print(fileName)
+        if(request.headers['Host'] == "127.0.0.1:5000"):
+            session['recording'] = fileName
+            print("HELLO LOCAL SERVER")
+        else:
+            print("HELLO LIVE SERVER")
+            session['recording'] = "/tmp/"+fileName
+
+        print(session.get('recording'))
 
         outFile.save(fileName)
         print("Hoping it uploads")
