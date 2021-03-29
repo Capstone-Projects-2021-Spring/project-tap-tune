@@ -385,39 +385,12 @@
   }
 
 /******************************************************************************************/
-  // function pause() {
-  //   console.log('Pause');
-  //   recording = false;
-  //   document.querySelector('#msg').style.visibility = 'hidden'
-  //   document.querySelector('#msg2').style.visibility = 'visible'
-  //   context.suspend()
-  // }
-
-/******************************************************************************************/
-  function resume() {
-    console.log('resume');
-    recording = true;
-    document.querySelector('#msg').style.visibility = 'visible'
-    document.querySelector('#msg2').style.visibility = 'hidden'
-    context.resume();
-  }
-
-/******************************************************************************************/
-  document.querySelector('#record').onclick = (e) => {
+  var recordButton = document.querySelector('#record');
+  recordButton.onclick = (e) => {
     console.log('Start recording')
+    setButtonDisables(true); 
     start();
-  }
-/******************************************************************************************/
-  var pauseButton = document.querySelector('#pause');
-  pauseButton.onclick = (e) => {
-    if (pauseButton.innerHTML == "Pause") {
-      pause();
-      pauseButton.innerHTML = 'Resume';
-    }
-    else {
-      resume();
-      pauseButton.innerHTML = 'Pause';
-    }
+    document.querySelector('#msg').style.visibility = 'visible'
   }
 /******************************************************************************************/
   var stopButton = document.querySelector('#stop');
@@ -430,14 +403,17 @@
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
+      document.querySelector('#msg').style.visibility = 'hidden'
     }
   }
-
+/******************************************************************************************/
   var clearButton = document.querySelector('#clear');
   clearButton.onclick =  (e) => {
      clear();
+     setButtonDisables(false); 
+     document.querySelector('#msg').style.visibility = 'hidden'
   }
-
+/******************************************************************************************/
 
 
   function clear() {
@@ -451,6 +427,12 @@
     stopButton.innerHTML = 'Stop';
     console.log("AFTER STOP");
      // if (!context) setUpRecording();
-  }//end of start
+  }//end of start.
+
+  function setButtonDisables(boolean) {
+    recordButton.disabled                    = boolean;
+    clearButton.disabled                    = !boolean;
+    stopButton.disabled                   = !boolean;
+}
 })()
 
