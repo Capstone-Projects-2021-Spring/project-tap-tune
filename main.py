@@ -204,6 +204,10 @@ def receiveRhythm():
 
 def adjustArray(array):
     newArray = []
+    #if invalid array, don't consider it but still return it into the userResult
+    if len(array) < 3: 
+        newArray = [0]
+        return newArray
     dif = array[0]
     for data in array:
         num = round((data - dif), 3)
@@ -242,7 +246,7 @@ def melody():
     if request.method == 'POST':
         print("Received Audio File")
         global outFile
-        outFile = request.files["/tmp/file"]
+        outFile = request.files["file"]
         print(outFile)
         global fileName
         fileName = outFile.filename

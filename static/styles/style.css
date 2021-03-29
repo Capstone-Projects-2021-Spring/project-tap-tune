@@ -10393,6 +10393,13 @@ form .row:first-child .floating-label-form-group {
   animation: mdClickEffect .65s linear;
 }
 
+.md-click-circle.md-click-animate-orange {
+  background: rgba(255, 167, 52, 0.33);
+  -webkit-animation: mdClickEffect .65s linear;
+  -moz-animation: mdClickEffect .65s linear;
+  animation: mdClickEffect .65s linear;
+}
+
 .md-click-circle.md-click-animate {
   background: rgba(65, 225, 225, 0.487);
   -webkit-animation: mdClickEffect .65s linear;
