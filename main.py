@@ -5,7 +5,6 @@ from models.User import User
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
-from flask_mail import Message
 import lyricsgenius
 import json
 from FingerprintRequest import FingerprintRequest
@@ -62,10 +61,6 @@ def filter_page():
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
-@app.route('/melodyFiltering', methods=['GET', 'POST'])
-def melody_filter_page():
-    user = User.current_user()
-    return render_template('melodyFiltering.html', user=user)
 
 
 def sort_results(e):
@@ -75,10 +70,10 @@ def sort_results(e):
 """
 get song lyrics using genius api
 """
-def get_lyrics(song: Song):
+def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
-    song = genius.search_song(title=song.title, artist=song.artist)
+    song = genius.search_song(title=songtitle, artist=songartist)
     lyrics = ''
     if song:
         lyrics = song.lyrics
@@ -94,14 +89,18 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
-    final_res.sort(reverse=True, key=sort_results)
-    print(final_res)
+    if objR.numOfAry == 1:
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    else:
+        final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
     if final_res and len(final_res) > 0:
-        lyrics = get_lyrics(final_res[0]['song'])
+        final_res.sort(reverse=True, key=sort_results)  # sort results by % match
+        final_res = final_res[:5]  # truncate array to top 5 results
+        print(final_res)
+        lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
-            user.add_song_long(final_res)
+            user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
@@ -110,17 +109,17 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-    # Filter the Song Results if there are any inputs from request form
-    obj = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
-                    Lyrics=request.form['input_lyrics'])
-
     result = FingerprintRequest().searchFingerprintAll("output.mp3")
 
     print(result.title)
     print(result.artists)
-    print(result.genres)
+    print(result.score)
 
-    return render_template('melodyResults.html', artist=result.artists, title=result.title)
+    lyrics = get_lyrics(result.title, result.artists)
+    print(lyrics)
+
+    return render_template('melodyResults.html', artist=result.artists, title=result.title, lyrics = lyrics, score=result.score)
+
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
@@ -205,19 +204,40 @@ def receiveRhythm():
     print(data)
     return jsonify(data)
 
-
+def adjustArray(array):
+    newArray = []
+    dif = array[0]
+    for data in array:
+        num = round((data - dif), 3)
+        newArray.append(num)
+    return newArray
+    
 @app.route('/rhythm', methods=['GET', 'POST'])
-def test():
+def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
+        
+        global user_result
+        user_result = json.loads(request.data)
+        return out
 
-    global user_result
-    user_result = json.loads(request.data)
-    # obj = rhythmAnalysis(userTaps=data)
-    #
-    # global user_result
-    # user_result = obj.onset_peak_func()
-    return out
+@app.route('/multiplerhythm', methods=['GET', 'POST'])
+def multipleRhythmPost():
+    if request.method == 'POST':
+        out = receiveRhythm()
+        data = json.loads(request.data)
+        percussionArray = []
+        harmonicArray = []
+        for recordedBeats in data:
+            if recordedBeats['type'] == 0:
+                percussionArray.append(recordedBeats['timestamp'])
+            else:
+                harmonicArray.append(recordedBeats['timestamp'])
+        
+        global user_result
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        print(user_result)
+        return out
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
@@ -230,6 +250,15 @@ def melody():
 
         outFile.save(fileName)
         print("Hoping it uploads")
+        global user_result
+        user_result = 0
+        global melody_result
+        #insert melody_result here
+        #obj = melodyAnalysis(inputFile=outFile)
+        #melody_result = obj.getList()
+        
+        melody_result = "testing"
+
         return jsonify(fileName)
 
 
