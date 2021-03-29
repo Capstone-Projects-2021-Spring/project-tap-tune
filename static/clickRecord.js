@@ -105,6 +105,7 @@ $( document ).ready(function() {
             circle = element.find(".md-click-circle");
             circle.removeClass("md-click-animate-red");
             circle.removeClass("md-click-animate-green");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate-gray");
             circle.removeClass("md-click-animate");
             if(!circle.height() && !circle.width()) {
@@ -185,6 +186,7 @@ $( document ).ready(function() {
             }
             circle = element.find(".md-click-circle");
             circle.removeClass("md-click-animate-red");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate-green");
             circle.removeClass("md-click-animate-gray");
             circle.removeClass("md-click-animate");
@@ -278,6 +280,7 @@ $( document ).ready(function() {
                 circle = element.find(".md-click-circle");
                 circle.removeClass("md-click-animate-red");
                 circle.removeClass("md-click-animate-gray");
+                circle.removeClass("md-click-animate-orange");
                 circle.removeClass("md-click-animate-green");
                 circle.removeClass("md-click-animate");
                 if(!circle.height() && !circle.width()) {
@@ -316,6 +319,7 @@ $( document ).ready(function() {
             circle.removeClass("md-click-animate-red");
             circle.removeClass("md-click-animate-green");
             circle.removeClass("md-click-animate-gray");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate");
             if(!circle.height() && !circle.width()) {
                 d = Math.max(element.outerWidth(), element.outerHeight());
@@ -323,6 +327,12 @@ $( document ).ready(function() {
             }
             x = e.pageX - element.offset().left - circle.width()/2;
             y = e.pageY - element.offset().top - circle.height()/2;
+            if (recordingType.innerHTML == dynamicRecordType) { 
+                var recordingTapType = getRecordingTypeMouse();
+                if (recordingTapType == 1 && (colorBox != 1)) {
+                    colorBox = 2; //make the circle animate as orange
+                }
+            }
 
             switch (colorBox) {
                 case -1:
@@ -332,7 +342,20 @@ $( document ).ready(function() {
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
                     beatCountElement.style.color = RGBToHex(0, 0, 0);
                     break;
-
+                case 2:
+                    circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-orange");
+                    var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
+                    beatCountElement.innerHTML = incrementBeatCount;
+                    var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
+                    var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
+                    if (incrementBeatCount >= 12) {
+                        beatCountElement.style.color = RGBToHex(0, 153, 255);
+                        beatCountElement.style.textShadow = "0 0 16px var(--blue)";
+                    }
+                    else {
+                        beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
+                    }
+                    break;
                 default:
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
@@ -348,9 +371,9 @@ $( document ).ready(function() {
                     }
                     break;
             }
-
+            
         }
-
+        
     });
 
     function RGBToHex(r,g,b) {
