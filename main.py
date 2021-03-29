@@ -106,7 +106,8 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
-    result = FingerprintRequest().searchFingerprintAll("output.mp3")
+
+    result = FingerprintRequest().searchFingerprintAll(fileName)
 
     print(result.title)
     print(result.artists)
@@ -240,8 +241,10 @@ def multipleRhythmPost():
 def melody():
     if request.method == 'POST':
         print("Received Audio File")
-        outFile = request.files["file"]
+        global outFile
+        outFile = request.files["/tmp/file"]
         print(outFile)
+        global fileName
         fileName = outFile.filename
         print(fileName)
 
