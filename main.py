@@ -106,8 +106,9 @@ def result_page():
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
     user = User.current_user()
-
-    print("[[[[[[[[[[" + session.get('recording') + "]]]]]]]]]]")
+    print ("[[[[[[[[[[[[[")
+    print(session.get('recording'))
+    print ("[[[[[[[[[[[[[")
     result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
 
 
