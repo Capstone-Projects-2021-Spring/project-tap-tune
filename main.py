@@ -107,7 +107,9 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
+    print("[[[[[[[[[[" + session.get('recording') + "]]]]]]]]]]")
     result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
+
 
     print(result.title)
     print(result.artists)
