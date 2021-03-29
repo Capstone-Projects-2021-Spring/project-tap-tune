@@ -35,7 +35,7 @@ mail.init_app(app)
 def home_page():
     # get logged in user or None
     user = User.current_user()
-    print(request.headers['Host'])
+    # print(request.headers['Host'])
     return render_template('index.html', user=user)
 
 
@@ -253,12 +253,13 @@ def melody():
         outFile = request.files["file"]
         print(outFile.filename)
         fileName = outFile.filename
-        if(request.headers['Host'] == "127.0.0.1:5000"):
-            session['recording'] = fileName
-            print("HELLO LOCAL SERVER")
-        else:
-            print("HELLO LIVE SERVER")
-            session['recording'] = "/tmp/"+fileName
+        # if(request.headers['Host'] == "127.0.0.1:5000"):
+        #     session['recording'] = fileName
+        #     print("HELLO LOCAL SERVER")
+        # else:
+        #     print("HELLO LIVE SERVER")
+        session['recording'] = "/tmp/"+fileName
+
 
         print(session.get('recording'))
 
