@@ -250,6 +250,7 @@ def unhash_array(db_string):
         # if a custom flag
         elif (frame_val[0] == "."):
             custom_flag = frame_val[1:len(frame_val) - 1]
+            print('customer flag:', custom_flag, "frame val:",frame_val, 'No.:', val)
             add_blank(bin_array, int(custom_flag))
             if val != len(db_tok) - 1:
                 bin_array.append(1)
@@ -341,7 +342,7 @@ class rhythmAnalysis:
             if self.numOfAry == 2:
                 self.user_input_perc = userTaps[0]
                 self.user_input_harm = userTaps[1]
-            print('array dimension:', self.numOfAry)
+            # print('array dimension:', self.numOfAry)
         if (filterResults != None):
             self.filter_results = filterResults
 
@@ -350,7 +351,7 @@ class rhythmAnalysis:
     """
 
     def onset_peak_func(self):
-        print('array dimension:', self.numOfAry)
+        # print('array dimension:', self.numOfAry)
         song_results = []
         db_results = []
 
@@ -380,42 +381,8 @@ class rhythmAnalysis:
             """
             convert binary array to frames
             """
-            # frames from bin
             onset_frames = bin_to_frame(onset_array)
-            # track = 0
-            # offset = 0
-            # check = 0
-            #
-            # for bin in onset_array:
-            #     if (bin == 0) and (check != len(peak_array) - 1):
-            #         track += 1
-            #
-            #     elif (bin == 1):
-            #         onset_frames.append(track + offset)
-            #         offset += 1
-            #
-            #     else:
-            #         onset_frames.append(track + offset + 1)
-            #         offset += 1
-            #     check += 1
-
             peak_frames = bin_to_frame(peak_array)
-            # track = 0
-            # offset = 0
-            # check = 0
-            # for bin in peak_array:
-            #     if (bin == 0) and (check != len(peak_array) - 1):
-            #         track += 1
-            #
-            #     elif (bin == 1):
-            #         peak_frames.append(track + offset)
-            #         offset += 1
-            #
-            #     else:
-            #         peak_frames.append(track + offset + 1)
-            #         offset += 1
-            #     check += 1
-
             # percussive_frames = bin_to_frame(percussive_array)
             # harmonic_frames = bin_to_frame(harmonic_array)
 
@@ -445,7 +412,6 @@ class rhythmAnalysis:
     def onset_peak_func_hp(self):
         song_results = []
         db_results = []
-        # print('array dimension:', self.numOfAry)
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -463,6 +429,7 @@ class rhythmAnalysis:
             """
             convert onset_hash to binary array
             """
+            print('song id: ', db_track.id)
             # print('user_input_perc:',self.user_input_perc)
             # print('user input harm:', self.user_input_harm)
             # peak_array = unhash_array(db_track.peak_hash)
@@ -493,8 +460,9 @@ class rhythmAnalysis:
             """
             # match_peak, matching_rate_peak = process_recording_peaks(self.user_input, peak_frames)
             # match_onset, matching_rate_onset = process_recording(self.user_input, onset_frames)
-            if matching_rate_harmonic==0 and matching_rate_percussive==0:
-                print('neither harmonic nor percussive have match')
+
+            # if matching_rate_harmonic==0 and matching_rate_percussive==0:
+            #     print('neither harmonic nor percussive have match')
             if matching_rate_harmonic == 0 or matching_rate_percussive == 0:
                 if matching_rate_harmonic == 0:
                     matching_rate = matching_rate_percussive
