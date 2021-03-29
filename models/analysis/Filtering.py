@@ -192,7 +192,7 @@ class Filtering:
         """
         CHECKS FOR ANY GENRE INPUT
         """
-        if(self.input_genre) and (self.input_genre != "Metal"):
+        if(self.input_genre) and (self.input_genre != "None"):
             r_list = self.filterGenre()
             print("*****LIST FILTERED BY GENRE")
             print(r_list)
