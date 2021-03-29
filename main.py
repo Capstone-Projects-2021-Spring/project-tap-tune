@@ -34,6 +34,7 @@ mail.init_app(app)
 def home_page():
     # get logged in user or None
     user = User.current_user()
+    # print(request.headers['Host'])
     return render_template('index.html', user=user)
 
 
@@ -104,10 +105,12 @@ def result_page():
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
     user = User.current_user()
+    print ("[[[[[[[[[[[[[")
+    print("SESSION FILENAME = ", session.get('recording'))
+    print ("[[[[[[[[[[[[[")
+    result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
 
-
-    #result = FingerprintRequest().searchFingerprintAll(session['recording'])
-    result = FingerprintRequest().searchFingerprintAll(pathName)
+    #result = FingerprintRequest().searchFingerprintAll(pathName)
 
 
     print(result.title)
@@ -249,25 +252,23 @@ def melody():
 
         print("Received Audio File")
         outFile = request.files["file"]
-        print(outFile)
+
         fileName = outFile.filename
+        print("FILENAME = ", fileName)
+        # if(request.headers['Host'] == "127.0.0.1:5000"):
+        #     session['recording'] = fileName
+        #     print("HELLO LOCAL SERVER")
+        # else:
+        #     print("HELLO LIVE SERVER")
+        #     session['recording'] = "/tmp/" + fileName
         session['recording'] = fileName
         print(fileName)
-
-        # global pathName
-        # pathName = (os.path.join('/tmp/', fileName))
-        # print("PATH: "+pathName)
-        # outFile.save(pathName)
-        #outFile.save(fileName)
         print("Hoping it uploads")
+
+        outFile.save(fileName)
+
         global user_result
         user_result = 0
-        global melody_result
-        #insert melody_result here
-        #obj = melodyAnalysis(inputFile=outFile)
-        #melody_result = obj.getList()
-        
-        melody_result = "testing"
 
         return jsonify(fileName)
 

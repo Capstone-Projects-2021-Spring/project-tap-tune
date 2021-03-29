@@ -219,12 +219,18 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = Date.now().toString()+'.mp3'; //removed tmp
+
+    var outFile = Date.now().toString()+'.mp3';
+
+    //global var outFile = "/tmp/"+Date.now().toString()+'.mp3';
+
+
     link.download = outFile;
 
     //ajax call to send output wav file
     var file_data = new FormData();
     file_data.append('file', blob, outFile);
+
             $.ajax({
                 url: '/melody',
                 type : 'post',
