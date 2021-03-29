@@ -253,7 +253,7 @@ def melody():
         fileName = outFile.filename
         print(fileName)
 
-        outFile.save("/tmp/"+fileName)
+        outFile.save(fileName)
         print("Hoping it uploads")
         global user_result
         user_result = 0
