@@ -90,10 +90,10 @@ def compare_ratio(user_pattern, song_pattern):
         while j < len(user_pattern):
             match_rate_this_beat = round(1 - (abs(1 - user_pattern[j] / song_pattern[i])), 4)
             if match_rate_this_beat >= 0.8:
-                print("It's a hit!")
+                # print("It's a hit!")
                 numOfHit += 1
                 match_rate += match_rate_this_beat
-                print('Update match_rate: {}'.format(match_rate))
+                # print('Update match_rate: {}'.format(match_rate))
                 i += 1
                 j += 1
                 break
@@ -106,7 +106,7 @@ def compare_ratio(user_pattern, song_pattern):
         # if numOfHit >= mark:
         #     return 1
     if numOfHit >= mark:
-        return 1, round(match_rate / len(user_pattern),4)
+        return 1, round(match_rate / numOfHit,4)
     else:
         return 0, round(match_rate / len(user_pattern), 4)
 
@@ -280,7 +280,6 @@ def process_recording_peaks(userInput, peakFrames):
         print("we have a match!")
         return 1, matching_rate
     else:
-        print("no match found")
         return 0, matching_rate
 
 
@@ -299,7 +298,6 @@ def process_recording(userInput, onsetFrames):
         print("we have a match!")
         return 1, matching_rate
     else:
-        print("no match found")
         return 0, matching_rate
 
 
@@ -316,18 +314,17 @@ class rhythmAnalysis:
     """
     def onset_peak_func(self):
         song_results = []
-
-        # retrieves cursor from Database.py
-        cursor = get_cursor()
-        cursor.execute('SELECT id, title, artist, genre, onset_hash, peak_hash FROM song')
-        # fetch all results and save in song_data list
-
-        """GO THROUGH DB DATA"""
-        song_data = cursor.fetchall()
         db_results = []
-        for track in song_data:
-            song = Song.create(track)
-            db_results.append(song)
+
+        if(self.filter_results != None and len(self.filter_results) > 0):
+            filter_ids = []
+            for track in self.filter_results:
+                filter_ids.append(track.id)
+            db_results = Song.get_by_ids(filter_ids)
+
+        else:
+            # fetch all results and save in song_data list
+            db_results = Song.get_all()
 
         # for loop to go through the song_data
         # for track in db_results:
@@ -382,14 +379,17 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match, matching_rate = process_recording_peaks(self.user_input, peak_frames)
-            match2, matching_rate = process_recording(self.user_input, onset_frames)
+            match, matching_rate1 = process_recording_peaks(self.user_input, peak_frames)
+            match2, matching_rate2= process_recording(self.user_input, onset_frames)
 
-            print(match, match2)
-
+            matching_rate = (matching_rate1 + matching_rate2)/2
+            max = 0
+            print(matching_rate)
             if (match or match2):
-                song_results.append({"song": song,
+                if(matching_rate > .7):
+                    song_results.append({"song": db_track,
                                      "percent_match": matching_rate})
+                    max += 1
             index += 1
 
         if (len(song_results) < 1):

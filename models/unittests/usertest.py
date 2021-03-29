@@ -69,10 +69,11 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                   `artist` varchar(64) NOT NULL,
                   `release_date` date DEFAULT NULL,
                   `genre` varchar(45) DEFAULT NULL,
+                  `preview` varchar(255) DEFAULT NULL,
                   `onset_hash` varchar(4096) DEFAULT NULL,
                   `peak_hash` varchar(4096) DEFAULT NULL,
                   PRIMARY KEY (`id`),
-                  UNIQUE KEY `title_UNIQUE` (`title`)
+                  UNIQUE KEY `song_title_artist_uidx` (`title`,`artist`)
                 )"""
             cursor.execute(create_song_table_q)
             db.connection.commit()
@@ -92,6 +93,23 @@ class UserTestCase(flask_unittest.AppClientTestCase):
                   CONSTRAINT `fk_usl_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
                 )"""
             cursor.execute(create_song_log_table_q)
+            db.connection.commit()
+
+            # create fingerprint table
+            create_fingerprint_table_q = """
+                            CREATE TABLE `fingerprint` (
+                              `id` int NOT NULL AUTO_INCREMENT,
+                              `song_id` int NOT NULL,
+                              `perc_hash` varchar(4096) DEFAULT NULL,
+                              `harm_hash` varchar(4096) DEFAULT NULL,
+                              `date_created` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+                              `date_modified` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `fp_song_id_uidx` (`song_id`),
+                              KEY `fk_fp_song_id_idx` (`song_id`),
+                              CONSTRAINT `fk_fp_song_id` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`)
+                            )"""
+            cursor.execute(create_fingerprint_table_q)
             db.connection.commit()
         pass
 

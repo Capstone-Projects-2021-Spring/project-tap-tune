@@ -209,7 +209,7 @@
 
 
     // our final binary blob
-    const blob = new Blob ( [ view ], { type : 'audio/wav' } );
+    const blob = new Blob ( [ view ], { type : 'audio/mpeg' } );
 
     const audioUrl = URL.createObjectURL(blob);
     console.log('BLOB ', blob);
@@ -219,25 +219,25 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = 'output.wav';
+    var outFile = Date.now().toString()+'.mp3';
     link.download = outFile;
 
     //ajax call to send output wav file
     var file_data = new FormData();
     file_data.append('file', blob, outFile);
-            $.ajax({
-                url: '/melody',
-                type : 'post',
-                contentType: false,
-                processData: false,
-                data : file_data //passing the variable
-            }).done(function(result) {
-                console.log("success: " + result);
-                //goToFiltering();
+    $.ajax({
+        url: '/melody',
+        type : 'post',
+        contentType: false,
+        processData: false,
+        data : file_data //passing the variable
+    }).done(function(result) {
+        console.log("success: " +result);
+        //goToMelodyResults();
 
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.log("fail: ",textStatus, errorThrown);
-            });//end of ajax
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.log("fail: ",textStatus, errorThrown);
+    });//end of ajax
 
   }//end of stop
 
@@ -385,60 +385,35 @@
   }
 
 /******************************************************************************************/
-  // function pause() {
-  //   console.log('Pause');
-  //   recording = false;
-  //   document.querySelector('#msg').style.visibility = 'hidden'
-  //   document.querySelector('#msg2').style.visibility = 'visible'
-  //   context.suspend()
-  // }
-
-/******************************************************************************************/
-  function resume() {
-    console.log('resume');
-    recording = true;
-    document.querySelector('#msg').style.visibility = 'visible'
-    document.querySelector('#msg2').style.visibility = 'hidden'
-    context.resume();
-  }
-
-/******************************************************************************************/
-  document.querySelector('#record').onclick = (e) => {
+  var recordButton = document.querySelector('#record');
+  recordButton.onclick = (e) => {
     console.log('Start recording')
+    setButtonDisables(true); 
     start();
+    document.querySelector('#msg').style.visibility = 'visible'
   }
 /******************************************************************************************/
-  // var pauseButton = document.querySelector('#pause');
-  // pauseButton.onclick = (e) => {
-  //   pause();
-  //   pauseButton.innerHTML = 'Resume';
-  // pauseButton.onclick = (e) =>{
-  //   resume();
-  //   }
-  //   pauseButton.innerHTML = 'Pause';
-  // }
-/******************************************************************************************/
-  document.querySelector('#stop').onclick = (e) => {
-    stop();
-  }
-  /**************************************************************************************/
   var stopButton = document.querySelector('#stop');
   stopButton.onclick = (e) =>
   {
     if (stopButton.innerHTML == "Submit")
     {
-      //stop();      goToFiltering();
+      stop();
+      goToMelodyResults();
     } else {
-        stop();
-        stopButton.innerHTML = 'Submit'
+      stopButton.innerHTML = 'Submit'
+      recording = false;
+      document.querySelector('#msg').style.visibility = 'hidden'
     }
   }
-
+/******************************************************************************************/
   var clearButton = document.querySelector('#clear');
   clearButton.onclick =  (e) => {
      clear();
+     setButtonDisables(false); 
+     document.querySelector('#msg').style.visibility = 'hidden'
   }
-
+/******************************************************************************************/
 
 
   function clear() {
@@ -452,6 +427,12 @@
     stopButton.innerHTML = 'Stop';
     console.log("AFTER STOP");
      // if (!context) setUpRecording();
-  }//end of start
+  }//end of start.
+
+  function setButtonDisables(boolean) {
+    recordButton.disabled                    = boolean;
+    clearButton.disabled                    = !boolean;
+    stopButton.disabled                   = !boolean;
+}
 })()
 
