@@ -10,7 +10,7 @@ from models.Song import Song
 
 def cleanString(string):
     # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
-    newString = re.sub('[^A-Za-z0-9,-_ ]+', '', string)
+    newString = re.sub('[^A-Za-z0-9,-_& ]+', '', string)
     newerString = re.sub(r'[\[\]]', '', newString)
 
     if "name: " in newString:
@@ -108,6 +108,12 @@ class FingerprintRequest:
             songlist = (fingerprintJson['result'])
 
             returnsong.set_title(cleanString(str(songlist['title'])))
+            returnsong.set_artist(cleanString(str(songlist['artist'])))
+            try:
+                returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
+            except:
+                print("No Apple Genres")
+
             returnsong.set_artist((str(songlist['apple_music']['artistName'])))
             returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
             # returnsong.set_score(cleanString(str(songlist['score'])))
@@ -130,7 +136,7 @@ class FingerprintRequest:
         fingerprintJson = json.loads(result.text)
         print(fingerprintJson)
 
-        if 'success' not in fingerprintJson['status']:
+        if 'success' not in fingerprintJson['status'] or fingerprintJson['result'] is None:
             print('AudD Humming: not found')
         else:
             songlist = (fingerprintJson['result']['list'])
@@ -168,10 +174,16 @@ class FingerprintRequest:
                 result.set_genre(ACRfoundSong.genres)
                 result.set_score(ACRfoundSong.score)
             else:
-                result.set_title(hummingFingerprint[0].title)
-                result.set_artist(hummingFingerprint[0].artists)
-                result.set_genre(hummingFingerprint[0].genres)
-                result.set_score(hummingFingerprint[0].score)
+                try:
+                    result.set_title(hummingFingerprint[0].title)
+                    result.set_artist(hummingFingerprint[0].artists)
+                    result.set_genre(hummingFingerprint[0].genres)
+                    result.set_score(hummingFingerprint[0].score)
+                except:
+                    result.set_title('None')
+                    result.set_artist('None')
+                    result.set_genre('None')
+                    result.set_score('None')
 
         return result
 
@@ -225,9 +237,8 @@ class FingerprintRequest:
 obj = FingerprintRequest()
 
 
-file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\smashmouth.mp3"
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\september.mp3"
 '''
-
 '''
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)
@@ -235,6 +246,7 @@ print(acrSong.artists)
 print(acrSong.genres)
 print(acrSong.score)
 '''
+
 '''
 audDSong = obj.getAudDFingerprint(file)
 print(audDSong.title)
@@ -243,9 +255,21 @@ print(audDSong.genres)
 print(audDSong.score)
 '''
 '''
+hummingTest = obj.getHummingFingerprint(file)
+try:
+    print(hummingTest.title)
+    print(hummingTest.artists)
+    print(hummingTest.genres)
+    print(hummingTest.score)
+except:
+    pass
+    
+'''
+'''
 lastTest = obj.searchFingerprintAll(file)
 print(lastTest.title)
 print(lastTest.artists)
 print(lastTest.genres)
 print(lastTest.score)
 '''
+
