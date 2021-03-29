@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response
+from flask import Flask, render_template, request, redirect, url_for, jsonify, json, make_response, sessions
 from models.Database import db
 from models.Mail import mail
 from models.User import User
@@ -107,13 +107,13 @@ def melody_result_page():
     user = User.current_user()
 
 
-    result = FingerprintRequest().searchFingerprintAll(fileName)
+    result = FingerprintRequest().searchFingerprintAll(sessions['recording'])
 
     print(result.title)
     print(result.artists)
     print(result.score)
 
-    print(fileName)
+    print(sessions['recording'])
     lyrics = get_lyrics(result.title, result.artists)
     print(lyrics)
 
@@ -249,8 +249,8 @@ def melody():
         print("Received Audio File")
         outFile = request.files["file"]
         print(outFile)
-        global fileName
         fileName = outFile.filename
+        sessions['recording'] = fileName
         print(fileName)
 
         outFile.save(fileName)
