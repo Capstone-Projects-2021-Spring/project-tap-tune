@@ -94,7 +94,7 @@ def result_page():
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
-        final_res = final_res[:5]  # truncate array to top 5 results
+        final_res = final_res[:10]  # truncate array to top 10 results
         print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
@@ -120,7 +120,7 @@ def melody_result_page():
     lyrics = get_lyrics(result.title, result.artists)
     print(lyrics)
 
-    return render_template('melodyResults.html', artist=result.artists, title=result.title, lyrics = lyrics, score=result.score)
+    return render_template('melodyResults.html', user=user, artist=result.artists, title=result.title, lyrics=lyrics, score=result.score)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -251,16 +251,28 @@ def melody():
 
         print("Received Audio File")
         outFile = request.files["file"]
+<<<<<<< HEAD
         global recording
         fileName = outFile.filename
         print("FILENAME = ", fileName)
         if(request.headers['Host'] == "127.0.0.1:5000"):
             recording = fileName
+=======
+
+        if request.headers['Host'] == "127.0.0.1:5000":
+>>>>>>> 2b64c048a76493e2632172dc54bf8f5474ca010f
             print("HELLO LOCAL SERVER")
+            fileName = outFile.filename
         else:
             print("HELLO LIVE SERVER")
+<<<<<<< HEAD
             recording = "/tmp/" + fileName
+=======
+            fileName = "/tmp/" + outFile.filename
+>>>>>>> 2b64c048a76493e2632172dc54bf8f5474ca010f
 
+        print("FILENAME = ", fileName)
+        session['recording'] = fileName
         outFile.save(fileName)
         global user_result
         user_result = 0
