@@ -242,7 +242,7 @@ def melody():
     if request.method == 'POST':
         print("Received Audio File")
         global outFile
-        outFile = request.files["/tmp/file"]
+        outFile = request.files["file"]
         print(outFile)
         global fileName
         fileName = outFile.filename

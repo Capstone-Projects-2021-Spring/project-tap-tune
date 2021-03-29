@@ -219,12 +219,12 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = Date.now().toString()+'.mp3';
+    var outFile = "/tmp/"+Date.now().toString()+'.mp3';
     link.download = outFile;
 
     //ajax call to send output wav file
     var file_data = new FormData();
-    file_data.append('/tmp/file', blob, outFile);
+    file_data.append('file', blob, outFile);
             $.ajax({
                 url: '/melody',
                 type : 'post',
@@ -232,7 +232,7 @@
                 processData: false,
                 data : file_data //passing the variable
             }).done(function(result) {
-                console.log("success: " + result);
+                console.log("success: " +result);
                 //goToMelodyResults();
 
             }).fail(function(jqXHR, textStatus, errorThrown) {
