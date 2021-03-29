@@ -219,10 +219,25 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    global var outFile = Date.now().toString()+'.mp3';
+    var outFile = Date.now().toString()+'.mp3';
     link.download = outFile;
 
+    //ajax call to send output wav file
+    var file_data = new FormData();
+    file_data.append('file', blob, outFile);
+    $.ajax({
+        url: '/melody',
+        type : 'post',
+        contentType: false,
+        processData: false,
+        data : file_data //passing the variable
+    }).done(function(result) {
+        console.log("success: " +result);
+        //goToMelodyResults();
 
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.log("fail: ",textStatus, errorThrown);
+    });//end of ajax
 
   }//end of stop
 
@@ -384,22 +399,7 @@
     if (stopButton.innerHTML == "Submit")
     {
       stop();
- //ajax call to send output wav file
-    var file_data = new FormData();
-    file_data.append('file', blob, outFile);
-    $.ajax({
-        url: '/melody',
-        type : 'post',
-        contentType: false,
-        processData: false,
-        data : file_data //passing the variable
-    }).done(function(result) {
-        console.log("success: " +result);
-        goToMelodyResults();
-
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.log("fail: ",textStatus, errorThrown);
-    });//end of ajax
+      goToMelodyResults();
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
