@@ -63,6 +63,7 @@ footer {
   bottom:0px;
   height:30px;
   width:100%;
+  text-align: right;
 }
 
 article, aside, figcaption, figure, header, hgroup, main, nav, section {
@@ -80,6 +81,7 @@ body {
   background-color: #fff;
   min-height: 100%;
   touch-action: manipulation;
+  padding-bottom: 2rem;
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
@@ -10443,4 +10445,28 @@ form .row:first-child .floating-label-form-group {
 
 .multiline {
   white-space: pre-wrap;
+}
+
+#module {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+
+#module #resultsMainSearchLyrics.collapse:not(.show) {
+  display: block;
+  height: 15rem;
+  overflow: hidden;
+}
+
+#module #resultsMainSearchLyrics.collapsing {
+  height: 15rem;
+}
+
+#module a.collapsed::after {
+  content: 'Show More';
+}
+
+#module a:not(.collapsed)::after {
+  content: 'Show Less';
 }

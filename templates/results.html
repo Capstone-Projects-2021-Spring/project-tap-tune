@@ -8,6 +8,7 @@
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
+  {%if filterResults and filterResults|length > 0%}
   <div class="container d-flex align-items-center flex-column">
     <!-- Masthead Heading-->
     <h1 class="masthead-heading text-uppercase mb-0 mt-4">Results</h1>
@@ -16,8 +17,7 @@
       <div class="divider-custom-line"></div>
     </div>
 
-    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div> 
-    <p>{{rhythmResults}}</p>
+    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div>
   </div>
   <div class="container-fluid">
     <div class="row">
@@ -31,52 +31,28 @@
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
               <span id = "resultsMainSearchTitle">
-                {%if filterResults and filterResults|length > 0%}
                   {{filterResults[0]['song'].title}}
-                {%endif%}
+
               </span>
             </h3>
           </div>
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
               <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
-                {%if filterResults and filterResults|length > 0%}
                   {{(filterResults[0]['percent_match']*100)|round(2)}}%
-                {%endif%}
               </span>
             </h3>
           </div>
         </div>
         <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
-          {%if filterResults and filterResults|length > 0%}
             {{filterResults[0]['song'].artist}}
-          {%endif%}
         </h4> 
-        <!-- its going to be Filtering results if artist is empty from filtering form-->
-        <p id = "resultsMainSearchLyrics" class="masthead-subheading font-weight-light pb-5 multiline">
+        <div id="module" class="container mb-3">
+          <p id = "resultsMainSearchLyrics" class="collapse multiline" aria-expanded="false">
 {{lyrics}}
-<!--      You were the lens I used to see
-      Sharpen the view, the news, the color TV
-      Filter the truth through you to me
-      What's not to trust it's just your family
-      Ring the phone, my dear Aunt Leslie
-      Let's have a word, a talk
-      In the dark room, you were the light, yeah yeah
-      Ohhh-over exposed, I blew out, and tried to make it right
-      That's when Leone came into frame, yeah
-      A shadow cloaked the danger of your high stakes game
-      Ring the phone, my dear Aunt Leslie
-      Let's have a word, a talk
-      What have you sold
-      What have you done with Leone
-      (Film knows all)
-      Ring the phone, my dear Aunt Leslie
-      Let's have a word, a talk
-      What have you sold
-      What have you done with Leone-->
-<!--        </p>-->
-<!--          {{lyrics}}-->
-<!--        </p>-->
+          </p>
+          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>
+        </div>
       </div>
 
       <div class="col-md">
@@ -94,7 +70,6 @@
             </tr>
           </thead>
           <tbody id = "resultsSecondaryTableBody">
-          {% if filterResults %}
             {% for song_result in filterResults %}
               <tr>
                 <td>{{ song_result.song.title }}</td>
@@ -107,7 +82,6 @@
                 </td>
               </tr>
             {% endfor %}
-          {%endif%}
           </tbody>
         </table>
         <script type=text/javascript src="{{
@@ -115,5 +89,38 @@
       </div>
     </div>
   </div>
+  {% else %} 
+  <div class="container d-flex align-items-center flex-column">
+    <!-- Masthead Heading-->
+    <h1 class="masthead-heading text-uppercase mb-0 mt-4">No Results</h1>
+    <!-- Icon Divider-->
+    <div class="divider-custom divider-dark">
+      <div class="divider-custom-line"></div>
+    </div>
+
+    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div>
+  </div>
+  <div class="container d-flex align-items-center flex-column">
+    <p class="text-muted">We couldn't find any matches to your beat recording in our search!  Here are some tips to recording the rhythm for a better result.  </p>
+    <h3 class="mb-1 text-secondary text-uppercase text-left">Tips </h3>
+    <ol class="mb-2 mt-2" type="1">
+      <li>Try to to keep the rhythm as consistent as possible, specifically the pauses in between.</li>
+      <li>The best number of beats to record is between 8-20.</li>
+      <li>Use the playback button to confirm that it sounds correct to you.</li>
+      <li>Record a different part of the song that you remember.</li>
+      <li>Try <span style="color: #fd6161; font-weight: bold;">Recording Melody</span> instead!</li>
+    </ol> 
+    <div class = "row">
+      <button class="btn btn-third mt-4" data-dismiss="modal" onclick="goToRhythm()">
+        Tap Again
+      </button>
+      <button class="btn btn-primary mt-4 ml-3" data-dismiss="modal" onclick="goToMelody()">
+        Try Melody
+      </button>
+    </div>
+  </div>
+  {%endif%}
+
+
 </div>
 {% endblock %}
