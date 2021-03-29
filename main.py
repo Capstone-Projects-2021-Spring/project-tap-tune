@@ -205,9 +205,10 @@ def receiveRhythm():
     return jsonify(data)
 
 def adjustArray(array):
-    newArray = [0]
+    newArray = []
     #if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3: 
+    if len(array) < 3:
+        newArray = [0]
         return newArray
     dif = array[0]
     for data in array:
