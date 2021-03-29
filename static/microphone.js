@@ -225,19 +225,19 @@
     //ajax call to send output wav file
     var file_data = new FormData();
     file_data.append('file', blob, outFile);
-            $.ajax({
-                url: '/melody',
-                type : 'post',
-                contentType: false,
-                processData: false,
-                data : file_data //passing the variable
-            }).done(function(result) {
-                console.log("success: " +result);
-                //goToMelodyResults();
+    $.ajax({
+        url: '/melody',
+        type : 'post',
+        contentType: false,
+        processData: false,
+        data : file_data //passing the variable
+    }).done(function(result) {
+        console.log("success: " +result);
+        //goToMelodyResults();
 
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.log("fail: ",textStatus, errorThrown);
-            });//end of ajax
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.log("fail: ",textStatus, errorThrown);
+    });//end of ajax
 
   }//end of stop
 
