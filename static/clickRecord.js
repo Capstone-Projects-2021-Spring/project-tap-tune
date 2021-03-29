@@ -343,6 +343,7 @@ $( document ).ready(function() {
                     beatCountElement.style.color = RGBToHex(0, 0, 0);
                     break;
                 case 2:
+                    playSound(true);
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-orange");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
                     beatCountElement.innerHTML = incrementBeatCount;
@@ -357,6 +358,7 @@ $( document ).ready(function() {
                     }
                     break;
                 default:
+                    playSound(true);
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
                     beatCountElement.innerHTML = incrementBeatCount;
@@ -371,9 +373,9 @@ $( document ).ready(function() {
                     }
                     break;
             }
-            
+
         }
-        
+
     });
 
     function RGBToHex(r,g,b) {
@@ -450,7 +452,7 @@ $( document ).ready(function() {
         beatCountElement.disabled               = !boolean;
     }
 
-    playButton.onclick = function () {
+    function playSound(single) {
         var recordingType = $('#selected1').text();
         console.log("recording type is " + recordingType);
     
@@ -486,47 +488,57 @@ $( document ).ready(function() {
                 var sound = document.getElementById("percussion");
                 break;
         }
-        //}
-    
-        // Make Playback sound a default sound beat
-        //else {
-        //    var sound = document.getElementById("percussion");
-        //}
-        console.log(recordingType.innerHTML)
-        if (recordingType == dynamicRecordType) { 
-            for (var i = 0; i < timeJsonArray.length; i++) {
-                var timeObj = timeJsonArray[i];
-                console.log(timeObj);
-                var millisecondsTime = timeObj.timestamp * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
-            }
-        } 
-        else {
-            for (var i = 0; i < times.length; i++) {
-                var millisecondsTime = times[i] * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
+        if (single) {
+            var audio = document.createElement('audio');
+            audio.src = sound.src;
+            audio.volume = 0.3;
+            document.body.appendChild(audio);
+            audio.play();
+            
+            audio.onended = function () {
+                this.parentNode.removeChild(this);
             }
         }
+        else {
+            if (recordingType == dynamicRecordType) { 
+                for (var i = 0; i < timeJsonArray.length; i++) {
+                    var timeObj = timeJsonArray[i];
+                    console.log(timeObj);
+                    var millisecondsTime = timeObj.timestamp * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            } 
+            else {
+                for (var i = 0; i < times.length; i++) {
+                    var millisecondsTime = times[i] * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            }
+        }
+    }
+        
+    playButton.onclick = function () {
+        playSound();
     }
 });
 

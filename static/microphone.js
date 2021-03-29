@@ -429,6 +429,7 @@
       goToMelodyResults();
     } else {
       stopButton.innerHTML = 'Submit'
+      recording = false;
     }
   }
 
