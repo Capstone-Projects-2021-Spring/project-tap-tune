@@ -31,6 +31,7 @@ $( document ).ready(function() {
 
     startButton.onclick = function () {
         setButtonDisables(true);
+        resetCounterStyle(1);
         playButton.disabled = true;
     }//end of startButton
 
@@ -82,6 +83,7 @@ $( document ).ready(function() {
         beatCountElement.innerHTML = 0;
         playButton.disabled = true;
         setButtonDisables(false);
+        resetCounterStyle(0);
 
         if (startTime){
 
@@ -452,6 +454,18 @@ $( document ).ready(function() {
         beatCountElement.disabled               = !boolean;
     }
 
+    function resetCounterStyle(button) {
+        if (button == 0) { //reset button
+            beatCountElement.style.color = "#858585";
+            beatCountElement.style.opacity = "0.5";
+            beatCountElement.style.textShadow = "";
+        }
+        else if (button == 1) { //start button
+            beatCountElement.style.opacity = "1";
+            beatCountElement.style.color = "#FFFFFF"
+        }
+    }
+
     function playSound(single) {
         var recordingType = $('#selected1').text();
         console.log("recording type is " + recordingType);
@@ -481,14 +495,13 @@ $( document ).ready(function() {
             case "B":
                 var sound = document.getElementById("harmony7");
                 break;    
-            case "General":
-                var sound = document.getElementById("percussion");
-                break;
+            case "Disable Sound":
+                return;
             default:
                 var sound = document.getElementById("percussion");
                 break;
         }
-        if (single) {
+        if (single ) {
             var audio = document.createElement('audio');
             audio.src = sound.src;
             audio.volume = 0.3;
