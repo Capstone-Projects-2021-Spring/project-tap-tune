@@ -109,7 +109,7 @@ def melody_result_page():
     print ("[[[[[[[[[[[[[")
     print("SESSION FILENAME = ", session.get('recording'))
     print ("[[[[[[[[[[[[[")
-    result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
+    result = FingerprintRequest().searchFingerprintAll(recording)
 
 
     print(result.title)
@@ -251,15 +251,15 @@ def melody():
 
         print("Received Audio File")
         outFile = request.files["file"]
-
+        global recording
         fileName = outFile.filename
         print("FILENAME = ", fileName)
         if(request.headers['Host'] == "127.0.0.1:5000"):
-            session['recording'] = fileName
+            recording = fileName
             print("HELLO LOCAL SERVER")
         else:
             print("HELLO LIVE SERVER")
-            session['recording'] = "/tmp/" + fileName
+            recording = "/tmp/" + fileName
 
         outFile.save(fileName)
         global user_result
