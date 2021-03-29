@@ -250,15 +250,19 @@ def melody():
     if request.method == 'POST':
 
         print("Received Audio File")
+        print("TEST1")
         outFile = request.files["file"]
         print(outFile.filename)
+        print("TEST2")
         fileName = outFile.filename
         # if(request.headers['Host'] == "127.0.0.1:5000"):
         #     session['recording'] = fileName
         #     print("HELLO LOCAL SERVER")
         # else:
         #     print("HELLO LIVE SERVER")
+        print("TEST3")
         session['recording'] = "/tmp/"+fileName
+        print("TEST4")
 
 
         print(session.get('recording'))
