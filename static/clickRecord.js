@@ -468,8 +468,7 @@ $( document ).ready(function() {
 
     function playSound(single) {
         var recordingType = $('#selected1').text();
-        console.log("recording type is " + recordingType);
-    
+        var quit = true;
         // Make Playback sound a specific key
         //if (recordingType == dynamicRecordType) {
         var tapKey = $('#selected2').text();
@@ -496,12 +495,13 @@ $( document ).ready(function() {
                 var sound = document.getElementById("harmony7");
                 break;    
             case "Disable Sound":
+                quit = false;
                 return;
             default:
                 var sound = document.getElementById("percussion");
                 break;
         }
-        if (single ) {
+        if (single && quit) {
             var audio = document.createElement('audio');
             audio.src = sound.src;
             audio.volume = 0.3;
