@@ -405,7 +405,7 @@
     if (stopButton.innerHTML == "Submit")
     {
       stop();
-      //goToMelodyResults();
+
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
