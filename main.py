@@ -110,8 +110,17 @@ def melody_result_page():
     print ("[[[[[[[[[[[[[")
     result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
 
-    #result = FingerprintRequest().searchFingerprintAll(pathName)
+    melTitle = ''
+    melArtist = ''
+    melScore = ''
 
+    if result.title == 'None' and result.artists == 'None' and result.score == 'None':
+        print("There are none values")
+    else:
+        melTitle = result.title
+        melArtist = result.artists
+        melScore = result.score
+        print("There is stuff")
 
     print(result.title)
     print(result.artists)
@@ -121,7 +130,7 @@ def melody_result_page():
     lyrics = get_lyrics(result.title, result.artists)
     print(lyrics)
 
-    return render_template('melodyResults.html', user=user, artist=result.artists, title=result.title, lyrics=lyrics, score=result.score)
+    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore)
 
 
 @app.route('/user', methods=['GET', 'POST'])
