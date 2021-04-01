@@ -1,26 +1,11 @@
-"""
-- accept user file [front end -> backend] OR accept YouTube URL
-
-*if youtube URL we need to convert from .mp4 to .wav
-
-- accept user input song title and song artist
-- search spotify for song metadata (genre, release_date, etc.)
-- present and prompt user to check information [back end-> front end]
-- record user verification (yes/no) [front end -> back end]
-- process song file, produce hashes
-- upload song metadata and hashes into DB
-- return confirmation of uploading to user [back end -> front end]
-"""
-
 import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
 import soundfile as sf
 import os
 import spotipy
+# from database_sep import db, get_cursor
 from models.Song import Song
-import time
-from pytube import YouTube
-from pydub import AudioSegment
+
 
 def countToVal(count):
     dict = {
@@ -282,7 +267,7 @@ def onset_hash(file_path, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     onset_hash = hash_array(bin_array)
-    return onset_hash
+    songs[element].onset_hash = onset_hash
 
 
 def peak_hash(file_path, songs):
@@ -303,7 +288,7 @@ def peak_hash(file_path, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     peak_onset_hash = hash_array(bin_array)
-    return peak_onset_hash
+    songs[element].peak_hash = peak_onset_hash
 
 
 def harm_hash(y_harm, sr, songs):
@@ -322,7 +307,7 @@ def harm_hash(y_harm, sr, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     harmonic_hash = hash_array(bin_array)
-    return harmonic_hash
+    songs[element].harm_hash = harmonic_hash
 
 
 def perc_hash(y_perc, sr, songs):
@@ -341,61 +326,127 @@ def perc_hash(y_perc, sr, songs):
     test_array = binToFrames(bin_array)
     songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     percussive_hash = hash_array(bin_array)
-    return percussive_hash
+    songs[element].perc_hash = percussive_hash
 
 
-class Source:
-    # constructor for the source class
-    # @param url - youtube url if provided by the user
-    # @param file - .wav file uploaded by user
-    def __init__(self, url=None, file=None):
-        self.url = url
-        self.file = file
+creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
+spotify = spotipy.Spotify(client_credentials_manager=creds)
 
-    # function to fetch audio stream from youtube
-    # returns audio stream, can be saved from call
-    def fetch_youtube_audio(self):
-        try:
-            yt = YouTube(self.url)
-            streams = yt.streams.filter(only_audio=True)
+songs = []
+"""GATHERING INFORMATION ON SONG FILES
+- SPOTIFY TESTER TO GET METADATA
+- RUN LIBROSA AND HASHING ON FILES 
+- SAVE INFORMATION IN SONGS LIST
+"""
+element = 0
+for filename in os.listdir("music"):
+    # parse scheme for splitting title and artist (separated by an underscore)
+    filename_split = filename.split("_")
+    track_id = ""
+    artist_id = ""
+    track_artist = str(filename_split[0])
 
-            for stream in streams:
-                if stream.mime_type == "audio/mp4":
-                    return stream
-                    break
+    # parse scheme for multiple artists (separated by a comma)
+    track_artists = track_artist.split(",")
+    # mod any artists names
+    for ele in range(len(track_artists)):
+        track_artists[ele] = artistMod(track_artists[ele])
 
-        except Exception as e:
-            print("FAILED YOUTUBE STREAM FETCH")
-            return None
+    track_title = str(filename_split[1])[0:len(filename_split[1])-4]
+    song = Song(song_id=None, title=track_title, artist=", ".join(track_artists), release_date=None, genre=None, onset_hash=None,
+                peak_hash=None, perc_hash=None, harm_hash=None)
+    songs.append(song)
+    """SEARCH THROUGH SPOTIFY AND CHECK ARTISTS"""
+    found = False
+    results_2 = spotify.search(q=track_title, limit=10, type="track", market=None)
+    for albums in results_2["tracks"]["items"]:
+        for artist in albums["artists"]:
+            if(artist["name"] in track_artists):
+                track_id = albums["id"]
+                track_release = albums["album"]["release_date"]
+                artist_id = artist["id"]
+                songs[element].release_date = track_release
+                found = True
+                break
+        if(found):
+            """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
+            md_results = spotify.artist(artist_id)
+            genres = ", ".join(md_results["genres"])
+            songs[element].genre = genres
+            break
 
-    # process information provided
-    # fetch audio information either url or file upload
-    # run librosa analysis to obtain hash values
-    # upload results to db - NOT IMPLEMENTED YET
-    def process_input(self):
-        if(self.url):
-            audio_stream = self.fetch_youtube_audio()
-            """
-            NEED TO SPECIFY DOWNLOAD SPACE TO TMP FOLDER
-            """
+    """PERFORM ONSET HASHING"""
+    file_path = "music/" + filename
+    onset_hash(file_path=file_path, songs=songs)
 
-            filename = str(time.time()*100.0)
-            audio_stream.download(output_path="ytDownloads",filename=filename)
-            return filename.replace('.', '')
-        else:
-            return 0
+    """PERFORM PEAK ONSET HASHING"""
+    peak_hash(file_path=file_path, songs=songs)
 
-if __name__ == "__main__":
-    # obj = Source(url="https://www.youtube.com/watch?v=HLTLVVicjEo", file=None)
-    # if(obj.process_input()):
-    #     print("success")
-    # else:
-    #     print("FAILED TO DOWNLOAD YOUTUBE AUDIO")
+    """SPLITTING SONG INTO HARMONICS AND PERCUSSIVE"""
+    y, sr = librosa.load(file_path)
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
 
-    obj = Source(url="https://www.youtube.com/watch?v=7gVNNPv8w4Q")
-    filepath = "ytDownloads/"+obj.process_input()+".mp4"
-    print(filepath)
-    isExist = os.path.exists(filepath)
-    print(isExist)
-    file_wav = AudioSegment.from_file(filepath, format="mp4")
-    print(file_wav)
+    """PERFORM HARMONIC HASHING"""
+    harm_hash(y_harm=y_harm, sr=sr, songs=songs)
+
+    """PERFORM PERCUSSIVE HASHING"""
+    perc_hash(y_perc=y_perc, sr=sr, songs=songs)
+
+    element += 1
+
+"""CHECKPOINT BEFORE INSERTING INTO DB"""
+printSongs(songs)
+choice = input("\nVerified Information and Ready to Insert into Database? (y/n)")
+
+if(choice == "y"):
+    """INSERT INTO DATABASE
+    - SEARCH TO MAKE SURE THERE ARE NO DUPLICATES
+    - INSERT INFORMATION INTO THE DATABASE
+    """
+    try:
+        cursor = get_cursor()
+
+        # iterate through the songs
+        for track in songs:
+            isDup = False
+            # statement to search for matching song titles
+            dup_sql= 'SELECT artist FROM song WHERE title LIKE "%{0}%"'.format(track.title)
+            cursor.execute(dup_sql)
+            results = cursor.fetchall()
+            # converting track artist string to list
+            track_artists = track.artist.split(", ")
+            # loops through resulting rows
+            for res_record in results:
+                # loops thorugh the
+                for res_artist in res_record[0].split(", "):
+
+                    if(res_artist in track_artists):
+                        isDup = True
+                        break
+
+            if(isDup):
+                print("DUPLICATE FOUND")
+
+            else:
+                print("NO DUPLICATE FOUND")
+
+                """INSERT THE NEW RECORD INTO DATABASE"""
+                insert_sql = "INSERT INTO song (title, artist, release_date, genre, onset_hash, peak_hash) VALUES (%s, %s, %s, %s, %s, %s)"
+                vals = (track.title, track.artist, track.release_date, track.genre, track.onset_hash,
+                        track.peak_hash)
+                cursor.execute(insert_sql, vals)
+                db.commit()
+
+                cursor.execute('SELECT id FROM song WHERE artist = %s and title = %s', (track.artist, track.title))
+                track.id = cursor.fetchall()[0][0]
+
+                insert_sql = "INSERT INTO fingerprint (song_id, perc_hash, harm_hash) VALUES(%s, %s, %s)"
+                vals = (track.id, track.perc_hash, track.harm_hash)
+                cursor.execute(insert_sql, vals)
+                db.commit()
+
+    except Exception as e:
+        print(e)
+
+else:
+    print("NOPE")
