@@ -134,7 +134,7 @@ def user_page():
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
-def user_page():
+def add_user_fav_song():
     user = User.current_user()
     song_id = request.form['song_id']
     r = user.add_favorite_song(song_id)
