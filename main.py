@@ -133,6 +133,22 @@ def user_page():
     return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
 
 
+@app.route('/add-user-fav-song', methods=['GET', 'POST'])
+def user_page():
+    user = User.current_user()
+    song_id = request.form['song_id']
+    r = user.add_favorite_song(song_id)
+    if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+        msg = r
+        category = "danger"
+    else:
+        msg = "Song added to favorites."
+        category = "success"
+
+    resp = {'feedback': msg, 'category': category}
+    return make_response(jsonify(resp), 200)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     # handle register form submission

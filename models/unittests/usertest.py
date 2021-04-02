@@ -319,11 +319,11 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             songs[1]['song'] = s2
 
             # test add favorite
-            r = user.add_favorite_song(s1)
-            r = user.add_favorite_song(s2)
+            r = user.add_favorite_song(s1.id)
+            r = user.add_favorite_song(s2.id)
             self.assertTrue(r)
             # should fail on duplicate
-            r = user.add_favorite_song(s1)
+            r = user.add_favorite_song(s1.id)
             self.assertEqual(r, User.DUPLICATE_FAVORITE_SONG_ERROR)
 
             # test get favorite songs

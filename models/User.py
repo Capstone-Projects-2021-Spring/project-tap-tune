@@ -344,11 +344,11 @@ class User:
     returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
     true on success
     """
-    def add_favorite_song(self, song):
+    def add_favorite_song(self, song_id):
         try:
             cursor = get_cursor()
             cursor.execute('INSERT INTO user_favorite_song (user_id, song_id) VALUES (%s,%s)',
-                           (self.id, song.id))
+                           (self.id, song_id))
             db.connection.commit()
         except Exception as e:
             print(e)
