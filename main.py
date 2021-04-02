@@ -8,7 +8,8 @@ from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
 from FingerprintRequest import FingerprintRequest
-
+from models.SpotifyHandler import SpotifyHandler
+import spotipy
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -36,6 +37,7 @@ def home_page():
     # get logged in user or None
     user = User.current_user()
     # print(request.headers['Host'])
+    print(session)
     return render_template('index.html', user=user)
 
 
@@ -189,15 +191,40 @@ def login_page():
         resp = {'feedback': msg, 'category': category, 'redirect_url': redirect_url}
         return make_response(jsonify(resp), 200)
     else:
-        # load login page
+        # redirect to home page if user logged in
         if User.is_logged_in():
             return redirect(url_for('home_page'))
-        return render_template('login.html')
+
+        # handle spotify login
+        am = SpotifyHandler.get_oauth_manager()
+        spotify_login_url = ''
+        spotify_error = ''
+
+        # handle successful spotify login
+        if request.args.get("code"):
+            am.get_access_token(request.args.get("code"))
+            spotify = spotipy.Spotify(auth_manager=am)
+            sp_user = spotify.me()
+            user = User.spotify_login(sp_user["email"])
+            if not user:
+                User.signup(sp_user["display_name"], sp_user["email"], None, None)
+            return redirect(url_for('home_page'))
+
+        # handle error for spotify login
+        if request.args.get("error"):
+            spotify_error = request.args.get("error")
+
+        if not User.is_spotify_login():
+            spotify_login_url = am.get_authorize_url()
+
+        # load login page
+        return render_template('login.html', spotify_login_url=spotify_login_url, spotify_error=spotify_error)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     User.logout()
+    session.clear()
     return redirect(url_for('home_page'))
 
 

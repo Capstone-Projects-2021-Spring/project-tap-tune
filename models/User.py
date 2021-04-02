@@ -4,6 +4,7 @@ from flask_mail import Message
 from passlib.context import CryptContext
 from flask import session
 from models.Song import Song
+from models.SpotifyHandler import SpotifyHandler
 import secrets
 
 """
@@ -52,7 +53,9 @@ class User:
     def signup(username, email, name, password):
         try:
             # encrypt password
-            enc_password = User.__encrypt_password(password)
+            enc_password = password
+            if password:
+                enc_password = User.__encrypt_password(password)
 
             # insert user into database
             cursor = get_cursor()
@@ -78,7 +81,7 @@ class User:
     return null on failure.
     """
     @staticmethod
-    def login(email, password):
+    def login(email, password, spotify=False):
         user = None
         try:
             # get user info from database
@@ -88,18 +91,28 @@ class User:
 
             # if user found verify password
             if user_data:
-                if User.pwd_context.verify(password, user_data['password']):
-                    user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
-                    # add to session
-                    session['logged_in'] = True
-                    session['user_id'] = user.id
-                    session['username'] = user.username
-                    session['email'] = user.email
-                    session['name'] = user.name
+                # check password if not spotify login
+                if not spotify and not User.pwd_context.verify(password, user_data['password']):
+                    return user
+
+                user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+                # add to session
+                session['logged_in'] = True
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['email'] = user.email
+                session['name'] = user.name
         except Exception as e:
             print(e)
 
         return user
+
+    """
+    helper method for login through spotify
+    """
+    @staticmethod
+    def spotify_login(email):
+        return User.login(email, None, True)
 
     """
     check if user logged in
@@ -107,6 +120,13 @@ class User:
     @staticmethod
     def is_logged_in():
         return session.get('user_id')
+
+    """
+    check if user has spotify authorization
+    """
+    @staticmethod
+    def is_spotify_login():
+        return SpotifyHandler.is_authorized()
 
     """
     get logged in user
@@ -138,6 +158,7 @@ class User:
         session.pop('username', None)
         session.pop('email', None)
         session.pop('name', None)
+        SpotifyHandler.clear_cache()
 
     """
     Used to send an email to the user with a link to reset their password. 
