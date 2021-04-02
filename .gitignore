@@ -6,3 +6,7 @@
 __pycache__
 models/__pycache__
 models/analysis/__pycache__
+.spotify_cache/
+.settings/
+.project
+.pydevproject
