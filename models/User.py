@@ -288,7 +288,6 @@ class User:
                            (self.id,))
             results = cursor.fetchall()
             for song_data in results:
-                print(song_data)
                 song = Song.create(song_data)
                 song_log.append({"song": song, "percent_match": song_data['percent_match']
                                 , "result_date": song_data['result_date']})

@@ -129,7 +129,8 @@ def melody_result_page():
 def user_page():
     user = User.current_user()
     user_song_log = user.get_song_log()
-    return render_template('userProfilePage.html', user=user, user_song_log=user_song_log)
+    user_fav_songs = user.get_favorite_songs()
+    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
 
 
 @app.route('/register', methods=['GET', 'POST'])
