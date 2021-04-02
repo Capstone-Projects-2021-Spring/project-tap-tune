@@ -40,7 +40,9 @@ class SpotifyHandler:
 
     @staticmethod
     def clear_cache():
-        os.remove(SpotifyHandler.session_cache_path())
+        fpath = SpotifyHandler.session_cache_path()
+        if os.path.exists(fpath):
+            os.remove(fpath)
 
     @staticmethod
     def is_authorized():

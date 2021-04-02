@@ -17,6 +17,7 @@ class User:
     # errors related to signup
     DUPLICATE_EMAIL_ERROR = 'duplicate email'
     DUPLICATE_USERNAME_ERROR = 'duplicate username'
+    DUPLICATE_FAVORITE_SONG_ERROR = 'song already in favorites'
 
     pwd_context = CryptContext(
         schemes=["pbkdf2_sha256"],
@@ -283,7 +284,7 @@ class User:
         song_log = []
         try:
             cursor = get_cursor()
-            cursor.execute('SELECT usl.*, song.title, song.artist, song.release_date, song.genre FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
+            cursor.execute('SELECT song.*,usl.percent_match,usl.result_date FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
                            (self.id,))
             results = cursor.fetchall()
             for song_data in results:
@@ -313,4 +314,49 @@ class User:
         except Exception as e:
             print(e)
             return False
+        return True
+
+    """
+    This method retrieves the user’s favorite songs from the database, 
+    initializes them into Song class and returns an array containing the songs. 
+    Returns an array with the songs from the user’s favorite songs. [..] = <Song object>
+    The array can be empty.
+    Returns None on failure
+    """
+    def get_favorite_songs(self):
+        songs = []
+        try:
+            cursor = get_cursor()
+            cursor.execute(
+                'SELECT song.*,ufs.favorited_on FROM user_favorite_song as ufs JOIN song ON ufs.song_id = song.id WHERE ufs.user_id = %s',
+                (self.id,))
+            results = cursor.fetchall()
+            for song_data in results:
+                print(song_data)
+                song = Song.create(song_data)
+                songs.append(song)
+        except Exception as e:
+            print(e)
+            return None
+        return songs
+
+    """
+    adds song to user_favorite_song table
+    returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
+    true on success
+    """
+    def add_favorite_song(self, song):
+        try:
+            cursor = get_cursor()
+            cursor.execute('INSERT INTO user_favorite_song (user_id, song_id) VALUES (%s,%s)',
+                           (self.id, song.id))
+            db.connection.commit()
+        except Exception as e:
+            print(e)
+            error = User.UNKNOWN_ERROR
+            # mysql error code for duplicate entry
+            if e.args[0] == 1062:
+                if 'user_song' in e.args[1]:
+                    error = User.DUPLICATE_FAVORITE_SONG_ERROR
+            return error
         return True
