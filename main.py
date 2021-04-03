@@ -128,9 +128,12 @@ def melody_result_page():
 
     print(session['recording'])
     lyrics = get_lyrics(result.title, result.artists)
-    print(lyrics)
+    #print(lyrics)
 
-    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore)
+    print("STUFFY NOODLES")
+    melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
+
+    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])

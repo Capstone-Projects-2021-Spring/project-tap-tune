@@ -237,7 +237,7 @@ var outFile = Date.now().toString()+'.mp3';
                 type : 'post',
                 contentType: false,
                 processData: false,
-                data : file_data //passing the variable
+                data : file_data, //passing the variable
             }).done(function(result) {
                 console.log("success: " +result);
                 goToMelodyResults();
@@ -405,8 +405,8 @@ var outFile = Date.now().toString()+'.mp3';
 
     if (stopButton.innerHTML == "Submit")
     {
+      document.querySelector('#loader').style.visibility = 'visible'
       stopAJAX(stop());
-
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
