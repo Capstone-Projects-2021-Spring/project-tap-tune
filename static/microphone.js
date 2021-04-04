@@ -233,7 +233,7 @@
         data : file_data //passing the variable
     }).done(function(result) {
         console.log("success: " +result);
-        //goToMelodyResults();
+        goToMelodyResults();
 
     }).fail(function(jqXHR, textStatus, errorThrown) {
         console.log("fail: ",textStatus, errorThrown);
@@ -399,7 +399,7 @@
     if (stopButton.innerHTML == "Submit")
     {
       stop();
-      goToMelodyResults();
+      //goToMelodyResults();
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
