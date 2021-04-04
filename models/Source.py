@@ -12,15 +12,15 @@
 - return confirmation of uploading to user [back end -> front end]
 """
 
-import numpy as np, scipy, matplotlib.pyplot as plt
 import librosa, librosa.display
-import soundfile as sf
-import os
 import spotipy
 from models.Song import Song
 import time
 from pytube import YouTube
 from pydub import AudioSegment
+
+creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
+spotify = spotipy.Spotify(client_credentials_manager=creds)
 
 def countToVal(count):
     dict = {
@@ -263,7 +263,7 @@ def printSongs(songs):
         print(song.perc_hash)
 
 
-def onset_hash(file_path, songs):
+def onset_hash(file_path):
     # Loads waveform of song into x
     x, sr = librosa.load(file_path)
     # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
@@ -285,7 +285,7 @@ def onset_hash(file_path, songs):
     return onset_hash
 
 
-def peak_hash(file_path, songs):
+def peak_hash(file_path):
     y, sr = librosa.load(file_path)
     onset_env = librosa.onset.onset_strength(y=y, sr=22050)
     peaks = librosa.util.peak_pick(onset_env, 3, 3, 3, 5, .5, 10)
@@ -306,7 +306,7 @@ def peak_hash(file_path, songs):
     return peak_onset_hash
 
 
-def harm_hash(y_harm, sr, songs):
+def harm_hash(y_harm, sr):
     frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
     bin_array = []
@@ -325,7 +325,7 @@ def harm_hash(y_harm, sr, songs):
     return harmonic_hash
 
 
-def perc_hash(y_perc, sr, songs):
+def perc_hash(y_perc, sr):
     frames = librosa.onset.onset_detect(y=y_perc, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
     bin_array = []
@@ -344,13 +344,25 @@ def perc_hash(y_perc, sr, songs):
     return percussive_hash
 
 
+def split_hash(filepath):
+    y, sr = librosa.load(filepath)
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+
+    harm = harm_hash(y_harm, sr)
+    perc = perc_hash(y_perc, sr)
+
+    return harm, perc
+
+
 class Source:
     # constructor for the source class
     # @param url - youtube url if provided by the user
     # @param file - .wav file uploaded by user
-    def __init__(self, url=None, file=None):
+    def __init__(self, url=None, file=None, title=None, artist=None):
         self.url = url
         self.file = file
+        self.title = title
+        self.artist = artist
 
     # function to fetch audio stream from youtube
     # returns audio stream, can be saved from call
@@ -372,30 +384,112 @@ class Source:
     # fetch audio information either url or file upload
     # run librosa analysis to obtain hash values
     # upload results to db - NOT IMPLEMENTED YET
-    def process_input(self):
+    def process_input_url(self):
         if(self.url):
             audio_stream = self.fetch_youtube_audio()
             """
             NEED TO SPECIFY DOWNLOAD SPACE TO TMP FOLDER
             """
 
-            filename = str(time.time()*100.0)
+            filename = str(time.time()*100.0).replace('.', '')
+
             audio_stream.download(output_path="ytDownloads",filename=filename)
-            return filename.replace('.', '')
+            filename_mp4 = "ytDownloads/"+filename+".mp4"
+            output_path = "ytConverts/" + filename + ".wav"
+
+            """UNCOMMENT FOR LIVE SERVER"""
+            # audio_stream.download(output_path="ytDownloads", filename=filename)
+            # filename_mp4 = "/tmp/" + filename.replace('.', '') + ".mp4"
+            # output_path = "/tmp/"+filename+".wav"
+
+            convert_file = AudioSegment.from_file(file=filename_mp4, format="mp4")
+            convert_file.export(out_f=output_path, format="wav")
+            return output_path
         else:
             return 0
 
-if __name__ == "__main__":
-    # obj = Source(url="https://www.youtube.com/watch?v=HLTLVVicjEo", file=None)
-    # if(obj.process_input()):
-    #     print("success")
-    # else:
-    #     print("FAILED TO DOWNLOAD YOUTUBE AUDIO")
 
-    obj = Source(url="https://www.youtube.com/watch?v=7gVNNPv8w4Q")
-    filepath = "ytDownloads/"+obj.process_input()+".mp4"
-    print(filepath)
-    isExist = os.path.exists(filepath)
-    print(isExist)
-    file_wav = AudioSegment.from_file(filepath, format="mp4")
-    print(file_wav)
+    # obtain metadata on song
+    # create new Song object
+    # return <Song> if sucessful
+    # return 0 if no information was found
+    def fetch_spotify_data(self):
+        track_artists = self.artist
+        track_title = self.title
+
+        # create song dict to store values in
+        song_dict = {
+            "title" : track_title,
+            "artist": track_artists,
+            "release_date": None,
+            "genre": None,
+            "onset_hash": None,
+            "peak_hash": None,
+            "harm_hash": None,
+            "perc_hash": None
+        }
+
+        # Search through spotify based on the artist and title input
+        results_2 = spotify.search(q=song_dict.get("title"), limit=10, type="track", market=None)
+        for albums in results_2["tracks"]["items"]:
+            for artist in albums["artists"]:
+                if (artist["name"] in track_artists):
+                    track_id = albums["id"]
+                    track_release = albums["album"]["release_date"]
+                    artist_id = artist["id"]
+                    song_dict["release_date"] = track_release
+                    found = True
+                    break
+            if (found):
+                """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
+                md_results = spotify.artist(artist_id)
+                genres = ", ".join(md_results["genres"])
+                song_dict["genre"] = genres
+                break
+
+        if(song_dict.get("release_date") != None):
+            new_song = Song.insert(song_dict)
+            print("INSERTED SONG SUCCESSFULLY")
+            return new_song
+        else:
+            return 0
+
+    # run wav file through rhythm analysis
+    # @param filepath: path to the wav file to be analyzed
+    # @param song: song object, populated with
+    # void
+    def process_wav(self, filepath, song):
+        # set the onset and peak hash
+        song.set_onset_hash(onset_hash(filepath))
+        song.set_peak_hash(peak_hash(filepath))
+        # obtain hrm and perc hash values
+        harm, perc = split_hash(filepath)
+        # set the harm and perc hashes
+        song.set_perc_hash(perc)
+        song.set_harm_hash(harm)
+
+    # execute functions to insert new song to db by YouTube video
+    # check for url, process url for converted file, fetch metadata and crete new song in db
+    # return 1 if song was processed successfully
+    # return 0 if song processing failed
+    def process_input(self):
+        # if the user input is a url
+        if(self.url):
+            # fetch and convert the youtube video, obtain spotify info and insert new song in db
+            yt_filepath = self.process_input_url()
+            res_song = self.fetch_spotify_data()
+            # check that new song extists
+            if(res_song):
+                self.process_wav(yt_filepath, res_song)
+                return 1
+            else:
+                return 0
+
+
+if __name__ == "__main__":
+    obj = Source(url="https://www.youtube.com/watch?v=7gVNNPv8w4Q", artist="Machine Gun Kelly", title="title track")
+
+    # try:
+    check = obj.process_input()
+    # except Exception as e:
+    #     print("FAILED CONVERSION")
