@@ -121,84 +121,84 @@ def add_blank(bin_array, count_val):
         bin_array.append(0)
 
 
-def valToCount(frame_val):
-    dict = {
-        0: "*",
-        1: "0",
-        2: "2",
-        3: "3",
-        4: "4",
-        5: "5",
-        6: "6",
-        7: "7",
-        8: "8",
-        9: "9",
-        10: "A",
-        11: "B",
-        12: "C",
-        13: "D",
-        14: "E",
-        15: "F",
-        16: "G",
-        17: "H",
-        18: "I",
-        19: "J",
-        20: "K",
-        21: "L",
-        22: "M",
-        23: "N",
-        24: "O",
-        25: "P",
-        26: "Q",
-        27: "R",
-        28: "S",
-        29: "T",
-        30: "U",
-        31: "V",
-        32: "W",
-        33: "X",
-        34: "Y",
-        35: "Z"
-    }
-
-    key_list = list(dict.keys())
-    val_list = list(dict.values())
-
-    return key_list[val_list.index(frame_val)]
-
-
-def unhash_array(db_string):
-    # print(len(db_string))
-    db_tok = db_string.split("*")
-    bin_array = []
-    char_val = ""
-    for val in range (0, len(db_tok)):
-        frame_val = db_tok[val]
-        # if blank flag
-        if(frame_val == ""):
-            if val != len(db_tok)-1:
-                bin_array.append(1)
-
-        # if a custom flag
-        elif(frame_val[0] == "."):
-            custom_flag = frame_val[1:len(frame_val)-1]
-            add_blank(bin_array, int(custom_flag))
-            if val != len(db_tok) - 1:
-                bin_array.append(1)
-
-        #known flag
-        else:
-            char_val = int(valToCount(frame_val))
-            add_blank(bin_array, char_val)
-
-            if(val != len(db_tok)-1):
-                bin_array.append(1)
-
-    # print("****************SHOULD BE Length of Frames************************")
-    #     # print(val)
-    #     # print(len(bin_array))
-
-    return bin_array
+# def valToCount(frame_val):
+#     dict = {
+#         0: "*",
+#         1: "0",
+#         2: "2",
+#         3: "3",
+#         4: "4",
+#         5: "5",
+#         6: "6",
+#         7: "7",
+#         8: "8",
+#         9: "9",
+#         10: "A",
+#         11: "B",
+#         12: "C",
+#         13: "D",
+#         14: "E",
+#         15: "F",
+#         16: "G",
+#         17: "H",
+#         18: "I",
+#         19: "J",
+#         20: "K",
+#         21: "L",
+#         22: "M",
+#         23: "N",
+#         24: "O",
+#         25: "P",
+#         26: "Q",
+#         27: "R",
+#         28: "S",
+#         29: "T",
+#         30: "U",
+#         31: "V",
+#         32: "W",
+#         33: "X",
+#         34: "Y",
+#         35: "Z"
+#     }
+#
+#     key_list = list(dict.keys())
+#     val_list = list(dict.values())
+#
+#     return key_list[val_list.index(frame_val)]
+#
+#
+# def unhash_array(db_string):
+#     # print(len(db_string))
+#     db_tok = db_string.split("*")
+#     bin_array = []
+#     char_val = ""
+#     for val in range (0, len(db_tok)):
+#         frame_val = db_tok[val]
+#         # if blank flag
+#         if(frame_val == ""):
+#             if val != len(db_tok)-1:
+#                 bin_array.append(1)
+#
+#         # if a custom flag
+#         elif(frame_val[0] == "."):
+#             custom_flag = frame_val[1:len(frame_val)-1]
+#             add_blank(bin_array, int(custom_flag))
+#             if val != len(db_tok) - 1:
+#                 bin_array.append(1)
+#
+#         #known flag
+#         else:
+#             char_val = int(valToCount(frame_val))
+#             add_blank(bin_array, char_val)
+#
+#             if(val != len(db_tok)-1):
+#                 bin_array.append(1)
+#
+#     # print("****************SHOULD BE Length of Frames************************")
+#     #     # print(val)
+#     #     # print(len(bin_array))
+#
+#     return bin_array
 
 
 def binToFrames(bin_array):
@@ -247,20 +247,6 @@ def artistMod(artist):
 
     else:
         return artist
-
-
-def printSongs(songs):
-    for song in songs:
-        print("++++++++++++++++++++++++++++++++")
-        print(song.title)
-        print(song.artist)
-        print(song.release_date)
-        print(song.genre)
-        print("HASHES:")
-        print(song.onset_hash)
-        print(song.peak_hash)
-        print(song.harm_hash)
-        print(song.perc_hash)
 
 
 def onset_hash(file_path):
@@ -414,44 +400,48 @@ class Source:
     # return <Song> if sucessful
     # return 0 if no information was found
     def fetch_spotify_data(self):
-        track_artists = self.artist
-        track_title = self.title
+        if(self.artist and self.title):
+            track_artists = self.artist
+            track_title = self.title
 
-        # create song dict to store values in
-        song_dict = {
-            "title" : track_title,
-            "artist": track_artists,
-            "release_date": None,
-            "genre": None,
-            "onset_hash": None,
-            "peak_hash": None,
-            "harm_hash": None,
-            "perc_hash": None
-        }
+            # create song dict to store values in
+            song_dict = {
+                "title" : track_title,
+                "artist": track_artists,
+                "release_date": None,
+                "genre": None,
+                "onset_hash": None,
+                "peak_hash": None,
+                "harm_hash": None,
+                "perc_hash": None
+            }
 
-        # Search through spotify based on the artist and title input
-        results_2 = spotify.search(q=song_dict.get("title"), limit=10, type="track", market=None)
-        for albums in results_2["tracks"]["items"]:
-            for artist in albums["artists"]:
-                if (artist["name"] in track_artists):
-                    track_id = albums["id"]
-                    track_release = albums["album"]["release_date"]
-                    artist_id = artist["id"]
-                    song_dict["release_date"] = track_release
-                    found = True
+            # Search through spotify based on the artist and title input
+            results_2 = spotify.search(q=song_dict.get("title"), limit=10, type="track", market=None)
+            for albums in results_2["tracks"]["items"]:
+                for artist in albums["artists"]:
+                    if (artist["name"] in track_artists):
+                        track_id = albums["id"]
+                        track_release = albums["album"]["release_date"]
+                        artist_id = artist["id"]
+                        song_dict["release_date"] = track_release
+                        found = True
+                        break
+                if (found):
+                    """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
+                    md_results = spotify.artist(artist_id)
+                    genres = ", ".join(md_results["genres"])
+                    song_dict["genre"] = genres
                     break
-            if (found):
-                """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
-                md_results = spotify.artist(artist_id)
-                genres = ", ".join(md_results["genres"])
-                song_dict["genre"] = genres
-                break
 
-        if(song_dict.get("release_date") != None):
-            new_song = Song.insert(song_dict)
-            print("INSERTED SONG SUCCESSFULLY")
-            return new_song
+            if(song_dict.get("release_date") != None):
+                new_song = Song.insert(song_dict)
+                print("INSERTED SONG SUCCESSFULLY")
+                return new_song
+            else:
+                return 0
         else:
+            print("NO ARTIST OR TITLE INPUT")
             return 0
 
     # run wav file through rhythm analysis
@@ -473,21 +463,28 @@ class Source:
     # return 1 if song was processed successfully
     # return 0 if song processing failed
     def process_input(self):
-        # if the user input is a url
-        if(self.url):
-            # fetch and convert the youtube video, obtain spotify info and insert new song in db
-            yt_filepath = self.process_input_url()
+        # if user uploaded file
+        if(self.file):
+            filepath = self.file
             res_song = self.fetch_spotify_data()
-            # check that new song extists
-            if(res_song):
-                self.process_wav(yt_filepath, res_song)
-                return 1
-            else:
-                return 0
+
+        # if the user input is a url
+        elif(self.url):
+            # fetch and convert the youtube video, obtain spotify info and insert new song in db
+            filepath = self.process_input_url()
+            res_song = self.fetch_spotify_data()
+
+        # check that new song extists
+        if(res_song):
+            self.process_wav(filepath, res_song)
+            return 1
+        else:
+            return 0
 
 
 if __name__ == "__main__":
-    obj = Source(url="https://www.youtube.com/watch?v=7gVNNPv8w4Q", artist="Machine Gun Kelly", title="title track")
+    sample_url = "https://www.youtube.com/watch?v=zwyKQnbDJRg" # Bee Gees More Than A Woman
+    obj = Source(url=sample_url, artist="Bee Gees", title="More Than A Woman")
 
     # try:
     check = obj.process_input()

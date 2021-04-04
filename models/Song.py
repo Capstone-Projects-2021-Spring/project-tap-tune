@@ -65,7 +65,7 @@ class Song:
                 , (attr_d.get('title'), attr_d.get('artist'), genre, attr_d.get('release_date'), attr_d.get('preview')
                    , attr_d.get('onset_hash'), attr_d.get('peak_hash')))
             db.connection.commit()
-            # db.commit()
+
             # get/set inserted id
             attr_d['id'] = cursor.lastrowid
 
@@ -74,7 +74,7 @@ class Song:
                 'INSERT INTO fingerprint (song_id,perc_hash,harm_hash) VALUES (%s,%s,%s)'
                 , (attr_d['id'], attr_d.get('perch_hash'), attr_d.get('harm_hash')))
             db.connection.commit()
-            # db.commit()
+
             return Song.create(attr_d)
         except KeyError as e:
             print(e)
@@ -245,7 +245,7 @@ class Song:
             cursor = get_cursor()
             cursor.execute(query, (val, self.id))
             db.connection.commit()
-            # db.commit()
+
             if cursor.rowcount < 1:
                 print('update failed')
                 return False
