@@ -168,6 +168,7 @@ $( document ).ready(function() {
                 data : js_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + JSON.stringify(result));
+                document.querySelector('#rLoader').style.visibility = 'visible';
                 goToFiltering();
 
                 //return result;
