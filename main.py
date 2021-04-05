@@ -8,9 +8,10 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
-from FingerprintRequest import FingerprintRequest
+from FingerprintRequest import FingerprintRequest, foundsong
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
+import uuid
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -109,19 +110,28 @@ def result_page():
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
     user = User.current_user()
-    print ("[[[[[[[[[[[[[")
-    print("SESSION FILENAME = ", session.get('recording'))
-    print ("[[[[[[[[[[[[[")
-    result = FingerprintRequest().searchFingerprintAll(session.get('recording'))
+    try:
+        recording_filename = session.get('recording')
+        result = foundsong()  # initialize to empty class, to fail gracefully
+        lyrics = ''
+        if recording_filename:
+            print("[[[[[[[[[[[[[")
+            print("SESSION FILENAME = ", recording_filename)
+            print("[[[[[[[[[[[[[")
+            result = FingerprintRequest().searchFingerprintAll(recording_filename)
 
+            print(result.title)
+            print(result.artists)
+            print(result.score)
+            lyrics = get_lyrics(result.title, result.artists)
+            print(lyrics)
+        else:
+            print('recording file not found in session')
 
-    print(result.title)
-    print(result.artists)
-    print(result.score)
-
-    print(session['recording'])
-    lyrics = get_lyrics(result.title, result.artists)
-    print(lyrics)
+    except Exception as e:
+        print(e)
+        result = foundsong()  # initialize to empty class, to fail gracefully
+        lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=result.artists, title=result.title, lyrics=lyrics, score=result.score)
 
@@ -293,24 +303,36 @@ def multipleRhythmPost():
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
     if request.method == 'POST':
+        fileName = ''
+        try:
+            print("Received Audio File")
+            if request.files.get('file'):
+                outFile = request.files["file"]
+                if request.headers['Host'] == "127.0.0.1:5000":
+                    print("HELLO LOCAL SERVER")
+                    fileName = outFile.filename
+                else:
+                    print("HELLO LIVE SERVER")
+                    fileName = "/tmp/" + outFile.filename
 
-        print("Received Audio File")
-        outFile = request.files["file"]
+                print("FILENAME = ", fileName)
+                session['recording'] = fileName
+                outFile.save(fileName)
+                global user_result
+                user_result = 0
+                category = 'success'
+                msg = 'melody recording saved, now going to results...'
+            else:
+                category = 'danger'
+                msg = 'no file given'
 
-        if request.headers['Host'] == "127.0.0.1:5000":
-            print("HELLO LOCAL SERVER")
-            fileName = outFile.filename
-        else:
-            print("HELLO LIVE SERVER")
-            fileName = "/tmp/" + outFile.filename
+        except Exception as e:
+            print(e)
+            category = 'danger'
+            msg = e
 
-        print("FILENAME = ", fileName)
-        session['recording'] = fileName
-        outFile.save(fileName)
-        global user_result
-        user_result = 0
-
-        return jsonify(fileName)
+        resp = {'feedback': msg, 'category': category, 'filename': fileName}
+        return make_response(jsonify(resp), 200)
 
 
 @app.route('/service-worker.js')
@@ -390,6 +412,12 @@ def source():
         return "SUCCESSFUL UPLOAD"
     else:
         return "FAILED UPLOAD"
+
+
+@app.context_processor
+def get_current_user():
+    return {"uuid": str(uuid.uuid4())}
+
 
 if __name__ == '__main__':
     app.run(debug=True)
