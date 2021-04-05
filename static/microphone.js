@@ -231,12 +231,35 @@
         contentType: false,
         processData: false,
         data : file_data //passing the variable
-    }).done(function(result) {
-        console.log("success: " +result);
-        goToMelodyResults();
-
+        ,
+        success: function ( result ){
+            toast_msg = '';
+            toast_category = '';
+            console.log(result)
+            if ( !$.trim( result.feedback )) { // response from Flask is empty
+                toast_msg = "An empty response was returned.";
+                toast_category = "danger";
+            }else {
+                toast_msg = result.feedback
+                toast_category = result.category
+                console.log('category: ' + toast_category)
+                console.log('message: ' + toast_msg)
+                if (toast_category === 'success') {
+                    console.log('go to melody')
+                    goToMelodyResults();
+                }
+            }
+        },
+        error: function(xhr) {
+            console.log("error. see details below.");
+            console.log(xhr.status + ": " + xhr.responseText);
+            toast_error_msg = "An error occured";
+            toast_category = "danger";
+        }
+    }).done(function() {
+      M.toast({html: toast_msg, classes: 'bg-' +toast_category+ ' text-white'});
     }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.log("fail: ",textStatus, errorThrown);
+      console.log("fail: ",textStatus, errorThrown);
     });//end of ajax
 
   }//end of stop
