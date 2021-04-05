@@ -252,6 +252,22 @@ def login_page():
         return render_template('login.html', spotify_login_url=spotify_login_url, spotify_error=spotify_error)
 
 
+@app.route('/test-server-file-save')
+def test_file_save():
+    filename = '041a0a8b-7f4a-42f4-93ca-fb72d160611a'
+    if request.args.get('file'):
+        filename = request.args.get('file')
+    cache_path = '/tmp/spotify_cache/' + filename
+    try:
+        f = open(cache_path, "w")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+    except IOError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+    return render_template('index.html', user=None)
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     User.logout()
