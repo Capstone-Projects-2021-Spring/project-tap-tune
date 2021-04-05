@@ -230,13 +230,16 @@ def login_page():
 
         # handle successful spotify login
         if request.args.get("code"):
-            am.get_access_token(request.args.get("code"))
-            spotify = spotipy.Spotify(auth_manager=am)
-            sp_user = spotify.me()
-            user = User.spotify_login(sp_user["email"])
-            if not user:
-                User.signup(sp_user["display_name"], sp_user["email"], None, None)
-            return redirect(url_for('home_page'))
+            try:
+                am.get_access_token(request.args.get("code"))
+                spotify = spotipy.Spotify(auth_manager=am)
+                sp_user = spotify.me()
+                user = User.spotify_login(sp_user["email"])
+                if not user:
+                    User.signup(sp_user["display_name"], sp_user["email"], None, None)
+                return redirect(url_for('home_page'))
+            except Exception as e:
+                print(e)
 
         # handle error for spotify login
         if request.args.get("error"):
