@@ -155,7 +155,6 @@ def add_user_log_spotify():
     data = json.loads(request.data)
 
     am = SpotifyHandler.get_oauth_manager()
-    am.get_access_token() 
     spotify = spotipy.Spotify(auth_manager=am)
     sp_user = spotify.me()
 
@@ -166,7 +165,8 @@ def add_user_log_spotify():
     #Using title and artist, find track id
     track = "not found"
     tracks = []
-    searchResults = spotify.search(q="artist:" + data[0] + " track:" + data[1], type="track")
+    searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
+    print(searchResults)
     if (searchResults["tracks"]["total"] > 0):
         #print(searchResults['tracks']['items'][0]["uri"])
         track = searchResults['tracks']['items'][0]["uri"]
