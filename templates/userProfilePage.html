@@ -10,6 +10,7 @@
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="static/styles/userProfilePageStyle.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 {% block content %}
@@ -122,31 +123,20 @@
                                 <div class="col-md-6 offset-md-3">
                                     <h3>Song History</h3>
                                     <ul class="timeline">
-                                        <li>
-                                            <a href="#">Song 1</a>
-                                            <a href="#" class="float-right">00 Jan, 0000</a>
-                                            <p>Song description</p>
-                                        </li>
-                                        <li>
-                                            <a href="#">Song 2</a>
-                                            <a href="#" class="float-right">00 Jan, 0000</a>
-                                            <p>Song description</p>
-                                        </li>
-                                        <li>
-                                            <a href="#">Song 3</a>
-                                            <a href="#" class="float-right">80.01% | 00 Jan, 0000</a>
-                                            <p>
-                                                Artist: AC/DC<br>
-                                                Genre: australian rock, hard rock, rock
-                                            </p>
-                                        </li>
                                         {%for song_result in user_song_log%}
-                                            <li>
-                                            <a href="#">{{song_result['song'].title}}</a>
+                                        <li>
+                                            <a id="songLogTitle{{loop.index}}" href="#">{{song_result['song'].title}}</a>
                                             <a href="#" class="float-right">{{(song_result['percent_match']*100)|round(2)}}% | {{song_result['result_date'].strftime('%x')}}</a>
                                             <p>
-                                                Artist: {{song_result['song'].artist}}<br>
+                                                <span id="songLogArtist{{loop.index}}">
+                                                    Artist: {{song_result['song'].artist}}
+                                                </span>
+                                                <br>
                                                 Genre: {{song_result['song'].genre}}
+                                            </p>
+                                            <p>
+                                                Add to Spotify 
+                                                <a id="songLogLink{{loop.index}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
                                             </p>
                                         </li>
                                         {%endfor%}
@@ -161,3 +151,7 @@
 </div>
 {% endblock %}
 
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='userProfileTabs.js') }}"></script>
+{% endblock %}
