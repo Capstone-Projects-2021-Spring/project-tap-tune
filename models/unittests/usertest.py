@@ -97,19 +97,36 @@ class UserTestCase(flask_unittest.AppClientTestCase):
 
             # create fingerprint table
             create_fingerprint_table_q = """
-                            CREATE TABLE `fingerprint` (
-                              `id` int NOT NULL AUTO_INCREMENT,
-                              `song_id` int NOT NULL,
-                              `perc_hash` varchar(4096) DEFAULT NULL,
-                              `harm_hash` varchar(4096) DEFAULT NULL,
-                              `date_created` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-                              `date_modified` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-                              PRIMARY KEY (`id`),
-                              UNIQUE KEY `fp_song_id_uidx` (`song_id`),
-                              KEY `fk_fp_song_id_idx` (`song_id`),
-                              CONSTRAINT `fk_fp_song_id` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`)
-                            )"""
+                CREATE TABLE `fingerprint` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `song_id` int NOT NULL,
+                  `perc_hash` varchar(4096) DEFAULT NULL,
+                  `harm_hash` varchar(4096) DEFAULT NULL,
+                  `date_created` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+                  `date_modified` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `fp_song_id_uidx` (`song_id`),
+                  KEY `fk_fp_song_id_idx` (`song_id`),
+                  CONSTRAINT `fk_fp_song_id` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`)
+                )"""
             cursor.execute(create_fingerprint_table_q)
+            db.connection.commit()
+
+            # create favorite song table
+            create_favorite_song_table_q = """
+                CREATE TABLE `user_favorite_song` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `user_id` int NOT NULL,
+                  `song_id` int NOT NULL,
+                  `favorited_on` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `ufs_user_song_uidx` (`user_id`,`song_id`) /*!80000 INVISIBLE */,
+                  KEY `fk_ufs_user_id_idx` (`user_id`),
+                  KEY `fk_ufs_song_id_idx` (`song_id`),
+                  CONSTRAINT `fk_ufs_song_id` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`),
+                  CONSTRAINT `fk_ufs_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+                )"""
+            cursor.execute(create_favorite_song_table_q)
             db.connection.commit()
         pass
 
@@ -263,7 +280,7 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             song_results[1]['song'] = s2
 
             # test add log
-            r = user.add_song_long(song_results)
+            r = user.add_song_log(song_results)
             self.assertTrue(r)
 
             # test get log
@@ -271,7 +288,48 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             self.assertIsNotNone(rs)
             self.assertEqual(len(song_results), len(rs))
 
+    """
+    test add / get favorite songs
+    """
+    def test_favorite_song(self, app, client):
+        # mock client request to setup session use
+        rv = client.get('/')
 
+        with app.app_context():
+            # setup user
+            username = 'test'
+            email = 'test@example.com'
+            name = 'test name'
+            password = 'pass'
+            enc_password = User._User__encrypt_password(password)  # call private method through name mangling
+            cursor = get_cursor()
+            cursor.execute('INSERT INTO user (username,email,`name`,`password`) VALUES (%s,%s,%s,%s)',
+                           (username, email, name, enc_password))
+            user = User.login(email, password)
+            self.assertIsInstance(user, User)
+
+            # setup songs
+            songs = []
+            songs.append(
+                {"song_id": 1, "title": "Song 1", "artist": "Artist A", "genre": "genre1"})
+            songs.append({"song_id": 2, "title": "Song 2", "artist": "Artist B", "genre": "genre1, genre2"})
+            s1 = Song.insert(songs[0])
+            s2 = Song.insert(songs[1])
+            songs[0]['song'] = s1
+            songs[1]['song'] = s2
+
+            # test add favorite
+            r = user.add_favorite_song(s1.id)
+            r = user.add_favorite_song(s2.id)
+            self.assertTrue(r)
+            # should fail on duplicate
+            r = user.add_favorite_song(s1.id)
+            self.assertEqual(r, User.DUPLICATE_FAVORITE_SONG_ERROR)
+
+            # test get favorite songs
+            rs = user.get_favorite_songs()
+            self.assertIsNotNone(rs)
+            self.assertEqual(len(songs), len(rs))
 
     if __name__ == '__main__':
         unittest.main()

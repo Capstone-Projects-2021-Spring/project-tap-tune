@@ -19,6 +19,21 @@
 
     <style type="text/css">
         .important { color: #ac1a00; }
+        .divider {
+            margin: 15px auto;
+            line-height: 1px;
+            position: relative;
+            text-align: center;
+            border-top: 1px solid #d9dadc;
+            display: block;
+        }
+
+        .divider strong{
+            background: #fff;
+            letter-spacing: 1px;
+            padding: 0 20px;
+            text-transform: uppercase;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -29,6 +44,14 @@
                 <div class="card">
                     <div class="card-header"><h2>User Login</h2></div>
                     <div class="card-body">
+                        <div style="text-align: center;">
+                            <a href="{{spotify_login_url}}">Login With Spotify</a>
+                        </div>
+
+                        <div class="divider">
+                            <strong>OR</strong>
+                        </div>
+
                         <form id="login-form" action="/login" method="POST" data-ajax-form data-success-response="redirect">
                             <div class="form-group row">
                                 <div class="col-md-4 text-md-right">
