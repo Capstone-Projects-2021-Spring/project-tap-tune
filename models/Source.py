@@ -372,6 +372,7 @@ class Source:
     # upload results to db - NOT IMPLEMENTED YET
     def process_input_url(self):
         if(self.url):
+            print("PROCESSING YOUTUBE VIDEO")
             audio_stream = self.fetch_youtube_audio()
             """
             NEED TO SPECIFY DOWNLOAD SPACE TO TMP FOLDER
@@ -379,17 +380,19 @@ class Source:
 
             filename = str(time.time()*100.0).replace('.', '')
 
-            audio_stream.download(output_path="ytDownloads",filename=filename)
-            filename_mp4 = "ytDownloads/"+filename+".mp4"
-            output_path = "ytConverts/" + filename + ".wav"
+            # test = audio_stream.download(output_path="models/ytDownloads",filename=filename)
+            # print(test)
+            # filename_mp4 = "models/ytDownloads/"+filename+".mp4"
+            # output_path = "models/ytConverts/" + filename + ".wav"
 
             """UNCOMMENT FOR LIVE SERVER"""
-            # audio_stream.download(output_path="ytDownloads", filename=filename)
-            # filename_mp4 = "/tmp/" + filename.replace('.', '') + ".mp4"
-            # output_path = "/tmp/"+filename+".wav"
+            audio_stream.download(output_path="/tmp", filename=filename)
+            filename_mp4 = "/tmp/" + filename.replace('.', '') + ".mp4"
+            output_path = "/tmp/"+filename+".wav"
 
             convert_file = AudioSegment.from_file(file=filename_mp4, format="mp4")
             convert_file.export(out_f=output_path, format="wav")
+            print("DOWNLOAD WAV")
             return output_path
         else:
             return 0
@@ -436,8 +439,11 @@ class Source:
 
             if(song_dict.get("release_date") != None):
                 new_song = Song.insert(song_dict)
-                print("INSERTED SONG SUCCESSFULLY")
-                return new_song
+                if(new_song):
+                    return 0
+                else:
+                    print("INSERTED SONG SUCCESSFULLY")
+                    return new_song
             else:
                 return 0
         else:
@@ -471,8 +477,11 @@ class Source:
         # if the user input is a url
         elif(self.url):
             # fetch and convert the youtube video, obtain spotify info and insert new song in db
+            print("PROCESSING URL")
             filepath = self.process_input_url()
+            print("PROCESS SPOTIFY DATA")
             res_song = self.fetch_spotify_data()
+            print(res_song)
 
         # check that new song extists
         if(res_song):
@@ -486,7 +495,4 @@ if __name__ == "__main__":
     sample_url = "https://www.youtube.com/watch?v=zwyKQnbDJRg" # Bee Gees More Than A Woman
     obj = Source(url=sample_url, artist="Bee Gees", title="More Than A Woman")
 
-    # try:
     check = obj.process_input()
-    # except Exception as e:
-    #     print("FAILED CONVERSION")

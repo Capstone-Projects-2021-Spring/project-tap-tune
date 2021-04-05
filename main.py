@@ -3,6 +3,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.Song import Song
+from models.Source import Source
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
@@ -375,5 +376,21 @@ def reset_pass():
         return render_template('resetPass.html', is_valid_token=is_valid_token, token=token)
 
 
+@app.route('/source')
+def source():
+    """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
+    artist = "Fall Out Boy"
+    title = "Sugar We're Going Down"
+    url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
+
+    obj = Source(artist=artist, url=url, title=title)
+    sucess = obj.process_input()
+
+    if(sucess):
+        return "SUCCESSFUL UPLOAD"
+    else:
+        return "FAILED UPLOAD"
+
 if __name__ == '__main__':
     app.run(debug=True)
+
