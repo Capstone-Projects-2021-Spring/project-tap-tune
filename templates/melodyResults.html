@@ -5,12 +5,11 @@
   <style type="text/css">
     .important { color: #336699; }
   </style>
-  <style type="styles/melody.css">
-  </style>
+  <style type="styles/melody.css"></style>
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
-  {%if title %}
+   {%if title %}
   <div class="container d-flex align-items-center flex-column">
     <!-- Masthead Heading-->
     <h1 class="masthead-heading text-uppercase mb-0 mt-4">Results</h1>
@@ -23,7 +22,7 @@
   </div>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md ">
+      <div class="col-md">
         <h2 class="masthead-heading text-uppercase mb-0 mt-4">Main Search</h1>
         <div class="divider-custom2 divider-dark">
           <div class="divider-custom2-line"></div>
@@ -33,38 +32,59 @@
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
               <span id = "resultsMainSearchTitle">
-                {{title}}
+                  {{title}}
+
               </span>
             </h3>
           </div>
           <div class="col">
             <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
               <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
-                {{score}}%
+                  {{score}}%
               </span>
             </h3>
           </div>
         </div>
         <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
-          {{artist}}
+            {{artist}}
         </h4>
-      </div>
-      <div class="col-md">
-        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Lyrics</h2>
-        <div class="divider-custom2 divider-dark">
-          <div class="divider-custom2-line"></div>
-        </div>
-        <!-- its going to be Filtering results if artist is empty from filtering form-->
         <div id="module" class="container mb-3">
           <p id = "resultsMainSearchLyrics" class="collapse multiline" aria-expanded="false">
-          {{lyrics}}
+        {{lyrics}}
           </p>
           <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>
         </div>
       </div>
+
+      <div class="col-md">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
+        <div class="divider-custom2 divider-dark">
+          <div class="divider-custom2-line"></div>
+        </div>
+        <table id = "resultsSecondaryTable" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Song Title</th>
+              <th scope="col">Song Artist</th>
+              <th scope="col">Match Percentage</th>
+            </tr>
+          </thead>
+          <tbody id = "resultsSecondaryTableBody">
+            {% for stuff in melResults %}
+              <tr>
+                <td>{{ stuff.title }}</td>
+                <td>{{ stuff.artists }}</td>
+                <td>{{ stuff.score }}%</td>
+                <td>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-  {% else %} 
+  {% else %}
   <div class="container d-flex align-items-center flex-column">
     <!-- Masthead Heading-->
     <h1 class="masthead-heading text-uppercase mb-0 mt-4">No Results</h1>
@@ -73,17 +93,16 @@
       <div class="divider-custom-line"></div>
     </div>
 
-    <div id="filteredResultsList" data-filtered="{{filterResults}}"></div>
   </div>
   <div class="container d-flex align-items-center flex-column">
-    <p class="text-muted">We couldn't find any matches to your <span style="color: #fd6161; font-weight: bold;">Melody Recording</span> in our search!  Here are some tips to recording the melody for a better result.  </p>
+    <p class="text-muted">We couldn't find any matches to your <span style="color: #1f93ff; font-weight: bold;">Melody Recording</span> in our search!  Here are some tips to recording the melody for a better result.  </p>
     <h3 class="mb-1 text-secondary text-uppercase text-left">Tips </h3>
     <ol class="mb-2 mt-2" type="1">
       <li>Try to sing the melody in order instead of random bits of it. </li>
       <li>Results are more accurate when you record longer than 10 seconds. </li>
       <li>Use the playback button to confirm that it sounds correct to you. </li>
       <li>Record a different part of the song that you remember.</li>
-    </ol> 
+    </ol>
     <div class = "row">
       <button class="btn btn-primary mt-4 ml-3" data-dismiss="modal" onclick="goToMelody()">
         Try Again
