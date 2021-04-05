@@ -259,11 +259,17 @@ def test_file_save():
     if request.args.get('file'):
         filename = request.args.get('file')
 
-    my_file = os.path.join('/tmp/spotify_cache', filename)
+    my_file1 = os.path.join('/tmp', filename)
+    my_file2 = os.path.join('/tmp/spotify_cache', filename)
 
     try:
         print('write with w+')
-        f = open(my_file, "w+")
+        print('write to /tmp')
+        f = open(my_file1, "w+")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+        print('write to /tmp/spotify_cache')
+        f = open(my_file2, "w+")
         f.write(json.dumps(request.args.get('code')))
         f.close()
     except IOError as e:
@@ -273,7 +279,12 @@ def test_file_save():
 
     try:
         print('write with w')
-        f = open(my_file, "w")
+        print('write to /tmp')
+        f = open(my_file1, "w")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+        print('write to /tmp/spotify_cache')
+        f = open(my_file2, "w")
         f.write(json.dumps(request.args.get('code')))
         f.close()
     except IOError as e:
