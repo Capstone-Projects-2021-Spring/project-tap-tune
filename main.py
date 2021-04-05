@@ -12,6 +12,7 @@ from FingerprintRequest import FingerprintRequest, foundsong
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
 import uuid
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -257,15 +258,29 @@ def test_file_save():
     filename = '041a0a8b-7f4a-42f4-93ca-fb72d160611a'
     if request.args.get('file'):
         filename = request.args.get('file')
-    cache_path = '/tmp/spotify_cache/' + filename
+
+    my_file = os.path.join('/tmp/spotify_cache', filename)
+
     try:
-        f = open(cache_path, "w")
+        print('write with w+')
+        f = open(my_file, "w+")
         f.write(json.dumps(request.args.get('code')))
         f.close()
     except IOError as e:
         print(e)
     except Exception as e:
         print(e)
+
+    try:
+        print('write with w')
+        f = open(my_file, "w")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+    except IOError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+
     return render_template('index.html', user=None)
 
 @app.route('/logout', methods=['GET', 'POST'])
