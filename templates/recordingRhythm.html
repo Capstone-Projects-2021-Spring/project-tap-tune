@@ -73,5 +73,5 @@
 {% endblock %}
 {% block js %}
     {{super()}}
-    <script src="{{ url_for('static', filename='clickRecord.js') }}"></script>
+    <script src="{{ url_for('static', filename='clickRecord.js') }}?t={{uuid}}"></script>
 {% endblock %}

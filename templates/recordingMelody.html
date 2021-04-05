@@ -39,5 +39,5 @@
 {% endblock %}
 {% block js %}
     {{super()}}
-    <script src="{{ url_for('static', filename='microphone.js') }}"></script>
+    <script src="{{ url_for('static', filename='microphone.js') }}?t={{uuid}}"></script>
 {% endblock %}
