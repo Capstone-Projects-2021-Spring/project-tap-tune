@@ -447,20 +447,40 @@ def reset_pass():
         return render_template('resetPass.html', is_valid_token=is_valid_token, token=token)
 
 
-@app.route('/source')
+@app.route('/source', methods=['GET', 'POST'])
 def source():
-    """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
-    artist = "Fall Out Boy"
-    title = "Sugar We're Going Down"
-    url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1]
+        url = data[2]
+        print(artist)
+        print(title)
+        print(url)
+        resp = {"category": "success"}
+        return make_response(jsonify(resp), 200)
+        # obj = Source(artist=artist, url=url, title=title)
+        # success = obj.process_input()
 
-    obj = Source(artist=artist, url=url, title=title)
-    sucess = obj.process_input()
+        # if(success):
+        #     resp = {"category": "success"}
+        #     return make_response(jsonify(resp), 200)
+        # else:
+        #     resp = {"category": "failure"}
+        #     return make_response(jsonify(resp), 200)
 
-    if(sucess):
-        return "SUCCESSFUL UPLOAD"
-    else:
-        return "FAILED UPLOAD"
+    # """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
+    # artist = "Fall Out Boy"
+    # title = "Sugar We're Going Down"
+    # url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
+
+    # obj = Source(artist=artist, url=url, title=title)
+    # sucess = obj.process_input()
+
+    # if(sucess):
+    #     return "SUCCESSFUL UPLOAD"
+    # else:
+    #     return "FAILED UPLOAD"
 
 
 @app.context_processor
