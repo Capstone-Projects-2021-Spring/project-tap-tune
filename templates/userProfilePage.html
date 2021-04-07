@@ -127,12 +127,19 @@
                                     <h3>Song History</h3>
                                     <ul class="timeline">
                                         {%for song_result in user_song_log%}
-                                            <li>
-                                            <a href="#">{{song_result['song'].title}}</a>
+                                        <li>
+                                            <a id="songLogTitle{{loop.index}}" href="#">{{song_result['song'].title}}</a>
                                             <a href="#" class="float-right">{{(song_result['percent_match']*100)|round(2)}}% | {{song_result['result_date'].strftime('%x')}}</a>
                                             <p>
-                                                Artist: {{song_result['song'].artist}}<br>
+                                                <span id="songLogArtist{{loop.index}}">
+                                                    Artist: {{song_result['song'].artist}}
+                                                </span>
+                                                <br>
                                                 Genre: {{song_result['song'].genre}}
+                                            </p>
+                                            <p>
+                                                Add to Spotify 
+                                                <a id="songLogLink{{loop.index}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
                                             </p>
                                         </li>
                                         {%endfor%}
@@ -166,3 +173,7 @@
 </div>
 {% endblock %}
 
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='userProfileTabs.js') }}"></script>
+{% endblock %}

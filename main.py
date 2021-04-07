@@ -178,6 +178,52 @@ def add_user_fav_song():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+@app.route('/add-user-log-spotify', methods=['GET', 'POST'])
+def add_user_log_spotify():
+    user = User.current_user()
+    #Integration for Adding to Spotify User Playlist based on track title and artist
+    data = json.loads(request.data)
+
+    am = SpotifyHandler.get_oauth_manager()
+    spotify = spotipy.Spotify(auth_manager=am)
+    sp_user = spotify.me()
+
+    username = sp_user["id"]
+    id = sp_user["id"]
+    #print(sp_user["id"])
+
+    #Using title and artist, find track id
+    track = "not found"
+    tracks = []
+    searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
+    print(searchResults)
+    if (searchResults["tracks"]["total"] > 0):
+        #print(searchResults['tracks']['items'][0]["uri"])
+        track = searchResults['tracks']['items'][0]["uri"]
+        tracks.append(track)
+
+    #Find Playlist and Add
+    #[TODO] If Playlist is not found, create one
+    if (track != "not found"):
+        playlists = spotify.user_playlists(username)
+        for playlist in playlists['items']:
+            if playlist['owner']['id'] == username:
+                #print(playlist)
+                if (playlist['name'] == "TapTune Project") :
+                    print ('  total tracks', playlist['tracks']['total'])
+                    print(tracks)
+                    spotify.user_playlist_add_tracks(username, playlist_id=playlist['uri'], tracks = tracks)
+        
+        msg = "Song added to Spotify playlist - [TapTune]."
+        category = "success"
+    
+    else:
+        msg = "Song could not be found based on title and artist"
+        category = "warning"
+
+    resp = {'feedback': msg, 'category': category}
+    return make_response(jsonify(resp), 200)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -462,20 +508,40 @@ def reset_pass():
         return render_template('resetPass.html', is_valid_token=is_valid_token, token=token)
 
 
-@app.route('/source')
+@app.route('/source', methods=['GET', 'POST'])
 def source():
-    """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
-    artist = "Fall Out Boy"
-    title = "Sugar We're Going Down"
-    url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1]
+        url = data[2]
+        print(artist)
+        print(title)
+        print(url)
+        resp = {"category": "success"}
+        return make_response(jsonify(resp), 200)
+        # obj = Source(artist=artist, url=url, title=title)
+        # success = obj.process_input()
 
-    obj = Source(artist=artist, url=url, title=title)
-    sucess = obj.process_input()
+        # if(success):
+        #     resp = {"category": "success"}
+        #     return make_response(jsonify(resp), 200)
+        # else:
+        #     resp = {"category": "failure"}
+        #     return make_response(jsonify(resp), 200)
 
-    if(sucess):
-        return "SUCCESSFUL UPLOAD"
-    else:
-        return "FAILED UPLOAD"
+    # """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
+    # artist = "Fall Out Boy"
+    # title = "Sugar We're Going Down"
+    # url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
+
+    # obj = Source(artist=artist, url=url, title=title)
+    # sucess = obj.process_input()
+
+    # if(sucess):
+    #     return "SUCCESSFUL UPLOAD"
+    # else:
+    #     return "FAILED UPLOAD"
 
 
 @app.context_processor
