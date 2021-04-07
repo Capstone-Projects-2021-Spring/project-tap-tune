@@ -8,10 +8,13 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
+
 from FingerprintRequest import FingerprintRequest, foundsong
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
 import uuid
+import os
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
@@ -110,6 +113,11 @@ def result_page():
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
     user = User.current_user()
+
+    melTitle = ''
+    melArtist = ''
+    melScore = ''
+
     try:
         recording_filename = session.get('recording')
         result = foundsong()  # initialize to empty class, to fail gracefully
@@ -119,12 +127,22 @@ def melody_result_page():
             print("SESSION FILENAME = ", recording_filename)
             print("[[[[[[[[[[[[[")
             result = FingerprintRequest().searchFingerprintAll(recording_filename)
+            if result.title == 'None' and result.artists == 'None' and result.score == 'None':
+                print("There are none values")
+            else:
+                melTitle = result.title
+                melArtist = result.artists
+                melScore = result.score
+                print("There is stuff")
 
             print(result.title)
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
             print(lyrics)
+
+            print("STUFFY NOODLES")
+            melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
             print('recording file not found in session')
 
@@ -133,7 +151,8 @@ def melody_result_page():
         result = foundsong()  # initialize to empty class, to fail gracefully
         lyrics = ''
 
-    return render_template('melodyResults.html', user=user, artist=result.artists, title=result.title, lyrics=lyrics, score=result.score)
+
+    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -298,6 +317,47 @@ def login_page():
         return render_template('login.html', spotify_login_url=spotify_login_url, spotify_error=spotify_error)
 
 
+@app.route('/test-server-file-save')
+def test_file_save():
+    filename = '041a0a8b-7f4a-42f4-93ca-fb72d160611a'
+    if request.args.get('file'):
+        filename = request.args.get('file')
+
+    my_file1 = os.path.join('/tmp', filename)
+    my_file2 = os.path.join('/tmp/spotify_cache', filename)
+
+    try:
+        print('write with w+')
+        print('write to /tmp')
+        f = open(my_file1, "w+")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+        print('write to /tmp/spotify_cache')
+        f = open(my_file2, "w+")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+    except IOError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+
+    try:
+        print('write with w')
+        print('write to /tmp')
+        f = open(my_file1, "w")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+        print('write to /tmp/spotify_cache')
+        f = open(my_file2, "w")
+        f.write(json.dumps(request.args.get('code')))
+        f.close()
+    except IOError as e:
+        print(e)
+    except Exception as e:
+        print(e)
+
+    return render_template('index.html', user=None)
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     User.logout()
@@ -379,6 +439,7 @@ def melody():
             print(e)
             category = 'danger'
             msg = e
+
 
         resp = {'feedback': msg, 'category': category, 'filename': fileName}
         return make_response(jsonify(resp), 200)

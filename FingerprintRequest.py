@@ -148,7 +148,6 @@ class FingerprintRequest:
                 returnsong.set_score(str(songlist[songs]['score']))
 
                 songArray.append(returnsong)
-
         return songArray
 
 

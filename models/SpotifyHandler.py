@@ -10,7 +10,7 @@ class SpotifyHandler:
 
     @staticmethod
     def session_cache_path():
-        cache_folder = '/tmp/spotify_cache/'
+        cache_folder = '/tmp/'
         if request.headers['Host'] == '127.0.0.1:5000':
             cache_folder = './.spotify_cache/'
             if not os.path.exists(cache_folder):

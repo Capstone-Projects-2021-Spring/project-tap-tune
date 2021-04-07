@@ -1,4 +1,4 @@
-
+var outFile = Date.now().toString()+'.mp3';
 (async () => {
   let leftchannel = [];
   let rightchannel = [];
@@ -219,12 +219,19 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = Date.now().toString()+'.mp3';
+    //var outFile = Date.now().toString()+'.mp3';
+
     link.download = outFile;
 
-    //ajax call to send output wav file
+    return blob;
+  }//end of stop
+/******************************************************************************************/
+  function stopAJAX(blob){
+
+     //ajax call to send output wav file
     var file_data = new FormData();
     file_data.append('file', blob, outFile);
+
     $.ajax({
         url: '/melody',
         type : 'post',
@@ -261,8 +268,7 @@
     }).fail(function(jqXHR, textStatus, errorThrown) {
       console.log("fail: ",textStatus, errorThrown);
     });//end of ajax
-
-  }//end of stop
+  }
 
 /******************************************************************************************/
   // Visualizer function from
@@ -417,12 +423,13 @@
   }
 /******************************************************************************************/
   var stopButton = document.querySelector('#stop');
-  stopButton.onclick = (e) =>
-  {
+  stopButton.onclick = (e) =>{
+  stop();
+
     if (stopButton.innerHTML == "Submit")
     {
-      stop();
-      //goToMelodyResults();
+      document.querySelector('#loader').style.visibility = 'visible'
+      stopAJAX(stop());
     } else {
       stopButton.innerHTML = 'Submit'
       recording = false;
