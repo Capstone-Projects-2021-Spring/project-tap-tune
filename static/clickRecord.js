@@ -508,7 +508,6 @@ $( document ).ready(function() {
             audio.volume = 0.3;
             document.body.appendChild(audio);
             audio.play();
-            
             audio.onended = function () {
                 this.parentNode.removeChild(this);
             }
@@ -553,7 +552,19 @@ $( document ).ready(function() {
         
     playButton.onclick = function () {
         playSound();
-    }
+    }//end of play
+
+    const audio = document.querySelector('audio');
+const playbackrate = document.querySelector('.speedcontrolcontainer input');
+const display = document.querySelector('.speedcontrolcontainer span');
+const displayvalue = val => {
+  return parseInt(val * 100, 10) + '%'
+}
+display.innerText = displayvalue(audio.playbackRate);
+playbackrate.addEventListener('change', e => {
+  audio.playbackRate = playbackrate.value;
+  display.innerText = displayvalue(playbackrate.value);
+});
 });
 
 
