@@ -2,6 +2,7 @@ $('#sendSourceButton').on('click', function(e){
     var title = document.getElementById("song_title").value;
     var artist = document.getElementById("song_artist").value;
     var url = document.getElementById("song_link").value;
+    var file = document.getElementById("song_file").value;
 
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
@@ -24,8 +25,10 @@ $('#sendSourceButton').on('click', function(e){
         artistError.textContent = "";
     } 
 
-    if (!url || !(isValidHttpUrl(url))) {
-        urlError.textContent = "Please enter a valid YouTube Link to the song before submitting.";
+    console.log(file);
+    if (!file && (!url || !(isValidHttpUrl(url)))) {
+        // urlError.textContent = "Please enter a valid YouTube Link to the song before submitting.";
+        urlError.textContent = "Please enter a valid YouTube Link or song file before submitting.";
         return;
     }
     else {
@@ -36,22 +39,60 @@ $('#sendSourceButton').on('click', function(e){
 
 
     //AJAX call to /source to add user's song to database
-    var js_data = [title, artist, url];
-    console.log(js_data)
-    //[TODO] Add Ajax Loading Icon Animation next to button here 
-    $.ajax({
-        url: '/source',
-        type : 'post',
-        contentType: 'application/json',
-        dataType : 'json',
-        data : JSON.stringify(js_data) 
-    }).done(function(result) {
-        console.log("success: " + JSON.stringify(result));
-        $('#sourcingModalSongResponse').modal();
+    // var js_data = [title, artist, url];
+    // console.log(js_data)
+    // //[TODO] Add Ajax Loading Icon Animation next to button here
+    // $.ajax({
+    //     url: '/source',
+    //     type : 'post',
+    //     contentType: 'application/json',
+    //     dataType : 'json',
+    //     data : JSON.stringify(js_data)
+    // }).done(function(result) {
+    //     console.log("success: " + JSON.stringify(result));
+    //     $('#sourcingModalSongResponse').modal();
+    //
+    // }).fail(function(jqXHR, textStatus, errorThrown) {
+    //     console.log("fail: ",textStatus, errorThrown);
+    // });
 
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.log("fail: ",textStatus, errorThrown);
-    });
+    //AJAX call to /source to add user's song to database
+    var js_data = [title, artist, url];
+    var js_data2 = [title, artist, file];
+    console.log(js_data);
+    console.log(js_data2);
+    //[TODO] Add Ajax Loading Icon Animation next to button here
+    if (url) {
+        console.log(js_data)
+        $.ajax({
+            url: '/source',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(js_data)
+        }).done(function (result) {
+            console.log("success: " + JSON.stringify(result));
+            $('#sourcingModalSongResponse').modal();
+
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("fail: ", textStatus, errorThrown);
+        });
+    } else {
+        $.ajax({
+            url: '/fileSource',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(js_data2)
+        }).done(function (result) {
+            console.log("success: " + JSON.stringify(result));
+            $('#sourcingModalSongResponse').modal();
+
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("fail: ", textStatus, errorThrown);
+        });
+    }
+
 
 });
 

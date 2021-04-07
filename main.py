@@ -15,7 +15,6 @@ import spotipy
 import uuid
 import os
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
@@ -70,14 +69,15 @@ def filter_page():
     return render_template('filtering.html', user=user)
 
 
-
 def sort_results(e):
-      return e['percent_match']
+    return e['percent_match']
 
 
 """
 get song lyrics using genius api
 """
+
+
 def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
@@ -91,13 +91,14 @@ def get_lyrics(songtitle, songartist):
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-    #Filter the Song Results if there are any inputs from request form 
-    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
-    filterResults = objF.filterRecording()# returns list of Song objects
+    # Filter the Song Results if there are any inputs from request form
+    objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                     Lyrics=request.form['input_lyrics'])
+    filterResults = objF.filterRecording()  # returns list of Song objects
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
@@ -109,6 +110,7 @@ def result_page():
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
+
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -151,8 +153,8 @@ def melody_result_page():
         result = foundsong()  # initialize to empty class, to fail gracefully
         lyrics = ''
 
-
-    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore, melResults=melList)
+    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
+                           score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -160,7 +162,8 @@ def user_page():
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
-    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
+    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
+                           user_song_log=user_song_log)
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
@@ -178,10 +181,11 @@ def add_user_fav_song():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+
 @app.route('/add-user-log-spotify', methods=['GET', 'POST'])
 def add_user_log_spotify():
     user = User.current_user()
-    #Integration for Adding to Spotify User Playlist based on track title and artist
+    # Integration for Adding to Spotify User Playlist based on track title and artist
     data = json.loads(request.data)
 
     am = SpotifyHandler.get_oauth_manager()
@@ -190,33 +194,33 @@ def add_user_log_spotify():
 
     username = sp_user["id"]
     id = sp_user["id"]
-    #print(sp_user["id"])
+    # print(sp_user["id"])
 
-    #Using title and artist, find track id
+    # Using title and artist, find track id
     track = "not found"
     tracks = []
     searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
     print(searchResults)
     if (searchResults["tracks"]["total"] > 0):
-        #print(searchResults['tracks']['items'][0]["uri"])
+        # print(searchResults['tracks']['items'][0]["uri"])
         track = searchResults['tracks']['items'][0]["uri"]
         tracks.append(track)
 
-    #Find Playlist and Add
-    #[TODO] If Playlist is not found, create one
+    # Find Playlist and Add
+    # [TODO] If Playlist is not found, create one
     if (track != "not found"):
         playlists = spotify.user_playlists(username)
         for playlist in playlists['items']:
             if playlist['owner']['id'] == username:
-                #print(playlist)
-                if (playlist['name'] == "TapTune Project") :
-                    print ('  total tracks', playlist['tracks']['total'])
+                # print(playlist)
+                if (playlist['name'] == "TapTune Project"):
+                    print('  total tracks', playlist['tracks']['total'])
                     print(tracks)
-                    spotify.user_playlist_add_tracks(username, playlist_id=playlist['uri'], tracks = tracks)
-        
+                    spotify.user_playlist_add_tracks(username, playlist_id=playlist['uri'], tracks=tracks)
+
         msg = "Song added to Spotify playlist - [TapTune]."
         category = "success"
-    
+
     else:
         msg = "Song could not be found based on title and artist"
         category = "warning"
@@ -358,6 +362,7 @@ def test_file_save():
 
     return render_template('index.html', user=None)
 
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     User.logout()
@@ -370,10 +375,11 @@ def receiveRhythm():
     print(data)
     return jsonify(data)
 
+
 def adjustArray(array):
     newArray = []
-    #if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3: 
+    # if invalid array, don't consider it but still return it into the userResult
+    if len(array) < 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -381,15 +387,17 @@ def adjustArray(array):
         num = round((data - dif), 3)
         newArray.append(num)
     return newArray
-    
+
+
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
-        
+
         global user_result
         user_result = json.loads(request.data)
         return out
+
 
 @app.route('/multiplerhythm', methods=['GET', 'POST'])
 def multipleRhythmPost():
@@ -403,11 +411,12 @@ def multipleRhythmPost():
                 percussionArray.append(recordedBeats['timestamp'])
             else:
                 harmonicArray.append(recordedBeats['timestamp'])
-        
+
         global user_result
         user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
         print(user_result)
         return out
+
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
@@ -439,7 +448,6 @@ def melody():
             print(e)
             category = 'danger'
             msg = e
-
 
         resp = {'feedback': msg, 'category': category, 'filename': fileName}
         return make_response(jsonify(resp), 200)
@@ -544,6 +552,20 @@ def source():
     #     return "FAILED UPLOAD"
 
 
+@app.route('/fileSource', methods=['GET', 'POST'])
+def source2():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1]
+        file = data[2]
+        print(artist)
+        print(title)
+        print(file)
+        resp = {"category": "success"}
+        return make_response(jsonify(resp), 200)
+
+
 @app.context_processor
 def get_current_user():
     return {"uuid": str(uuid.uuid4())}
@@ -551,4 +573,3 @@ def get_current_user():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
