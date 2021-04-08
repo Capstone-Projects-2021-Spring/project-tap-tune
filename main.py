@@ -414,7 +414,11 @@ def multipleRhythmPost():
 def multiplierPost():
     if request.method == 'POST':
         multiplier = request.json
-        print(multiplier)
+        #print(multiplier)
+
+        global multiply
+        multiply = json.loads(request.data)
+        print(multiply)
 
         return jsonify(multiplier)
 
