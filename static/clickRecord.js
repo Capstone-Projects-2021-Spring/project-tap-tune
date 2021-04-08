@@ -28,6 +28,7 @@ $( document ).ready(function() {
     harmonicsKeyType = document.getElementById("selected2");
     beatCountElement = document.getElementById("counter-number");
     //recordingKey = document.getElementById("selected2");
+    speedButton = document.getElementById("speedPlay");
 
     startButton.onclick = function () {
         setButtonDisables(true);
@@ -468,6 +469,7 @@ $( document ).ready(function() {
     }
 
     function playSound(single) {
+        //multiplier();
         var recordingType = $('#selected1').text();
         var quit = true;
         // Make Playback sound a specific key
@@ -524,7 +526,6 @@ $( document ).ready(function() {
                         audio.volume = 0.3;
                         document.body.appendChild(audio);
                         audio.play();
-                        
                         audio.onended = function () {
                             this.parentNode.removeChild(this);
                         }
@@ -533,14 +534,13 @@ $( document ).ready(function() {
             } 
             else {
                 for (var i = 0; i < times.length; i++) {
-                    var millisecondsTime = times[i] * 1000;
+                    var millisecondsTime = (times[i]/(multiplier())) * 1000;
                     setTimeout(() => {
                         var audio = document.createElement('audio');
                         audio.src = sound.src;
                         audio.volume = 0.3;
                         document.body.appendChild(audio);
                         audio.play();
-                        
                         audio.onended = function () {
                             this.parentNode.removeChild(this);
                         }
@@ -554,17 +554,17 @@ $( document ).ready(function() {
         playSound();
     }//end of play
 
-    const audio = document.querySelector('audio');
-const playbackrate = document.querySelector('.speedcontrolcontainer input');
-const display = document.querySelector('.speedcontrolcontainer span');
-const displayvalue = val => {
-  return parseInt(val * 100, 10) + '%'
-}
-display.innerText = displayvalue(audio.playbackRate);
-playbackrate.addEventListener('change', e => {
-  audio.playbackRate = playbackrate.value;
-  display.innerText = displayvalue(playbackrate.value);
-});
+    //get the multiplier value from the slider
+    function multiplier(){
+
+    const playbackrate = document.querySelector('.speedcontrolcontainer input');
+    const display = document.querySelector('.speedcontrolcontainer span');
+    playbackrate.addEventListener('change', e => {
+        console.log("Multiplier "+playbackrate.value);
+    });
+      return playbackrate.value;
+    }//end of multiplier
+
 });
 
 
