@@ -178,7 +178,20 @@ $( document ).ready(function() {
                 console.log("fail: ",textStatus, errorThrown);
             });
 
-            //goToFiltering();
+            //AJAX for multiplier
+                var multiply = multiplier();
+                $.ajax({
+                url: '/multiplier',
+                type : 'post',
+                contentType: 'application/json',
+                dataType : 'json',
+                data : multiply//passing the variable
+            }).done(function(result) {
+                console.log("success for multiplier: " + JSON.stringify(result));
+
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("fail: ",textStatus, errorThrown);
+            });
         }
         else {
             //animation
@@ -469,7 +482,6 @@ $( document ).ready(function() {
     }
 
     function playSound(single) {
-        //multiplier();
         var recordingType = $('#selected1').text();
         var quit = true;
         // Make Playback sound a specific key
@@ -557,12 +569,14 @@ $( document ).ready(function() {
     //get the multiplier value from the slider
     function multiplier(){
 
+    var mult = 0;
     const playbackrate = document.querySelector('.speedcontrolcontainer input');
     const display = document.querySelector('.speedcontrolcontainer span');
     playbackrate.addEventListener('change', e => {
         console.log("Multiplier "+playbackrate.value);
     });
-      return playbackrate.value;
+      mult = playbackrate.value;
+      return mult;
     }//end of multiplier
 
 });

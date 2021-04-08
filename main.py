@@ -409,6 +409,15 @@ def multipleRhythmPost():
         print(user_result)
         return out
 
+
+@app.route('/multiplier', methods=['GET', 'POST'])
+def multiplierPost():
+    if request.method == 'POST':
+        multiplier = request.json
+        print(multiplier)
+
+        return jsonify(multiplier)
+
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
     if request.method == 'POST':
