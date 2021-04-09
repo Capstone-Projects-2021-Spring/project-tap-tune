@@ -228,7 +228,7 @@ class FingerprintRequest:
                                 lyricSong.set_title(songArray[x].title)
                                 lyricSong.set_artist(songArray[x].artists)
                                 lyricSong.set_genre(songArray[x].genres)
-                                lyricSong.set_score(songArray[x].score)
+                                lyricSong.set_score(100)
                                 foundSongFlag = True;
                                 print('Matched song with: ' + songArray[x].title + ' ' + songArray[x].artists)
                     if not foundSongFlag:
