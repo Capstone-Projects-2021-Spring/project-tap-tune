@@ -100,7 +100,10 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    if objR.numOfAry == 1:
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    else:
+        final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
@@ -136,7 +139,8 @@ def melody_result_page():
                 r.energy_threshold = 4000
                 r.dynamic_energy_threshold = True
                 data = r.record(source)
-                lyricsFromFile = r.recognize_google(data)
+                #Google Speech API Key
+                lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
 
                 result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
                 pass
