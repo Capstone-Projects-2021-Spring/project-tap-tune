@@ -21,6 +21,7 @@
         <button disabled id="resetRecordingBtn" type="button" class="btn btn-secondary ml-3">Reset</button>
         <button disabled id="finishRecordingBtn" type="button" class="btn btn-success ml-3">Stop</button>
       </div>
+          <div id="rLoader"></div>
       <div class="row justify-content-center mt-3">    
         <button disabled id="playRecordingBtn" type="button" class="btn btn-success ml-3">Play</button>
         <div class="dropdown ml-3">
@@ -31,7 +32,7 @@
           </button>
           <div id = "recordingTypeDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a class="dropdown-item" href="#">General Recording</a>
-            <a class="dropdown-item" href="#">Percussion + Harmonics</a>
+            <a class="dropdown-item" href="#"><span style="color: #018dff; font-weight: bold;">Percussion</span> + <span style="color: #ff8901; font-weight: bold;">Harmonics</span></a>
           </div>
         </div>
         <div class="dropdown ml-3">
@@ -41,7 +42,8 @@
             </span>
           </button>
           <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">No key</a>
+            <a class="dropdown-item" href="#">Disable Sound</a>
+            <a class="dropdown-item" href="#">General</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">C</a>
             <a class="dropdown-item" href="#">D</a>
@@ -71,5 +73,5 @@
 {% endblock %}
 {% block js %}
     {{super()}}
-    <script src="{{ url_for('static', filename='clickRecord.js') }}"></script>
+    <script src="{{ url_for('static', filename='clickRecord.js') }}?t={{uuid}}"></script>
 {% endblock %}

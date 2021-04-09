@@ -31,6 +31,7 @@ $( document ).ready(function() {
 
     startButton.onclick = function () {
         setButtonDisables(true);
+        resetCounterStyle(1);
         playButton.disabled = true;
     }//end of startButton
 
@@ -82,6 +83,7 @@ $( document ).ready(function() {
         beatCountElement.innerHTML = 0;
         playButton.disabled = true;
         setButtonDisables(false);
+        resetCounterStyle(0);
 
         if (startTime){
 
@@ -105,6 +107,7 @@ $( document ).ready(function() {
             circle = element.find(".md-click-circle");
             circle.removeClass("md-click-animate-red");
             circle.removeClass("md-click-animate-green");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate-gray");
             circle.removeClass("md-click-animate");
             if(!circle.height() && !circle.width()) {
@@ -165,6 +168,7 @@ $( document ).ready(function() {
                 data : js_data //passing the variable
             }).done(function(result) {
                 console.log("success: " + JSON.stringify(result));
+                document.querySelector('#rLoader').style.visibility = 'visible';
                 goToFiltering();
 
                 //return result;
@@ -185,6 +189,7 @@ $( document ).ready(function() {
             }
             circle = element.find(".md-click-circle");
             circle.removeClass("md-click-animate-red");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate-green");
             circle.removeClass("md-click-animate-gray");
             circle.removeClass("md-click-animate");
@@ -278,6 +283,7 @@ $( document ).ready(function() {
                 circle = element.find(".md-click-circle");
                 circle.removeClass("md-click-animate-red");
                 circle.removeClass("md-click-animate-gray");
+                circle.removeClass("md-click-animate-orange");
                 circle.removeClass("md-click-animate-green");
                 circle.removeClass("md-click-animate");
                 if(!circle.height() && !circle.width()) {
@@ -316,6 +322,7 @@ $( document ).ready(function() {
             circle.removeClass("md-click-animate-red");
             circle.removeClass("md-click-animate-green");
             circle.removeClass("md-click-animate-gray");
+            circle.removeClass("md-click-animate-orange");
             circle.removeClass("md-click-animate");
             if(!circle.height() && !circle.width()) {
                 d = Math.max(element.outerWidth(), element.outerHeight());
@@ -323,6 +330,12 @@ $( document ).ready(function() {
             }
             x = e.pageX - element.offset().left - circle.width()/2;
             y = e.pageY - element.offset().top - circle.height()/2;
+            if (recordingType.innerHTML == dynamicRecordType) { 
+                var recordingTapType = getRecordingTypeMouse();
+                if (recordingTapType == 1 && (colorBox != 1)) {
+                    colorBox = 2; //make the circle animate as orange
+                }
+            }
 
             switch (colorBox) {
                 case -1:
@@ -332,8 +345,23 @@ $( document ).ready(function() {
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
                     beatCountElement.style.color = RGBToHex(0, 0, 0);
                     break;
-
+                case 2:
+                    playSound(true);
+                    circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-orange");
+                    var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
+                    beatCountElement.innerHTML = incrementBeatCount;
+                    var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
+                    var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
+                    if (incrementBeatCount >= 12) {
+                        beatCountElement.style.color = RGBToHex(0, 153, 255);
+                        beatCountElement.style.textShadow = "0 0 16px var(--blue)";
+                    }
+                    else {
+                        beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
+                    }
+                    break;
                 default:
+                    playSound(true);
                     circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
                     var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
                     beatCountElement.innerHTML = incrementBeatCount;
@@ -427,10 +455,21 @@ $( document ).ready(function() {
         beatCountElement.disabled               = !boolean;
     }
 
-    playButton.onclick = function () {
+    function resetCounterStyle(button) {
+        if (button == 0) { //reset button
+            beatCountElement.style.color = "#858585";
+            beatCountElement.style.opacity = "0.5";
+            beatCountElement.style.textShadow = "";
+        }
+        else if (button == 1) { //start button
+            beatCountElement.style.opacity = "1";
+            beatCountElement.style.color = "#FFFFFF"
+        }
+    }
+
+    function playSound(single) {
         var recordingType = $('#selected1').text();
-        console.log("recording type is " + recordingType);
-    
+        var quit = true;
         // Make Playback sound a specific key
         //if (recordingType == dynamicRecordType) {
         var tapKey = $('#selected2').text();
@@ -456,54 +495,64 @@ $( document ).ready(function() {
             case "B":
                 var sound = document.getElementById("harmony7");
                 break;    
-            case "General":
-                var sound = document.getElementById("percussion");
-                break;
+            case "Disable Sound":
+                quit = false;
+                return;
             default:
                 var sound = document.getElementById("percussion");
                 break;
         }
-        //}
-    
-        // Make Playback sound a default sound beat
-        //else {
-        //    var sound = document.getElementById("percussion");
-        //}
-        console.log(recordingType.innerHTML)
-        if (recordingType == dynamicRecordType) { 
-            for (var i = 0; i < timeJsonArray.length; i++) {
-                var timeObj = timeJsonArray[i];
-                console.log(timeObj);
-                var millisecondsTime = timeObj.timestamp * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
-            }
-        } 
-        else {
-            for (var i = 0; i < times.length; i++) {
-                var millisecondsTime = times[i] * 1000;
-                setTimeout(() => {
-                    var audio = document.createElement('audio');
-                    audio.src = sound.src;
-                    audio.volume = 0.3;
-                    document.body.appendChild(audio);
-                    audio.play();
-                    
-                    audio.onended = function () {
-                        this.parentNode.removeChild(this);
-                    }
-                }, millisecondsTime);
+        if (single && quit) {
+            var audio = document.createElement('audio');
+            audio.src = sound.src;
+            audio.volume = 0.3;
+            document.body.appendChild(audio);
+            audio.play();
+            
+            audio.onended = function () {
+                this.parentNode.removeChild(this);
             }
         }
+        else {
+            if (recordingType == dynamicRecordType) { 
+                for (var i = 0; i < timeJsonArray.length; i++) {
+                    var timeObj = timeJsonArray[i];
+                    console.log(timeObj);
+                    var millisecondsTime = timeObj.timestamp * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            } 
+            else {
+                for (var i = 0; i < times.length; i++) {
+                    var millisecondsTime = times[i] * 1000;
+                    setTimeout(() => {
+                        var audio = document.createElement('audio');
+                        audio.src = sound.src;
+                        audio.volume = 0.3;
+                        document.body.appendChild(audio);
+                        audio.play();
+                        
+                        audio.onended = function () {
+                            this.parentNode.removeChild(this);
+                        }
+                    }, millisecondsTime);
+                }
+            }
+        }
+    }
+        
+    playButton.onclick = function () {
+        playSound();
     }
 });
 

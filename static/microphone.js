@@ -1,4 +1,4 @@
-
+var outFile = Date.now().toString()+'.mp3';
 (async () => {
   let leftchannel = [];
   let rightchannel = [];
@@ -219,27 +219,56 @@
     const link = document.querySelector('#download');
     link.setAttribute('href', audioUrl);
 
-    var outFile = 'output.mp3';
+    //var outFile = Date.now().toString()+'.mp3';
+
     link.download = outFile;
 
-    //ajax call to send output wav file
+    return blob;
+  }//end of stop
+/******************************************************************************************/
+  function stopAJAX(blob){
+
+     //ajax call to send output wav file
     var file_data = new FormData();
     file_data.append('file', blob, outFile);
-            $.ajax({
-                url: '/melody',
-                type : 'post',
-                contentType: false,
-                processData: false,
-                data : file_data //passing the variable
-            }).done(function(result) {
-                console.log("success: " + result);
-                goToMelodyResults();
 
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.log("fail: ",textStatus, errorThrown);
-            });//end of ajax
-
-  }//end of stop
+    $.ajax({
+        url: '/melody',
+        type : 'post',
+        contentType: false,
+        processData: false,
+        data : file_data //passing the variable
+        ,
+        success: function ( result ){
+            toast_msg = '';
+            toast_category = '';
+            console.log(result)
+            if ( !$.trim( result.feedback )) { // response from Flask is empty
+                toast_msg = "An empty response was returned.";
+                toast_category = "danger";
+            }else {
+                toast_msg = result.feedback
+                toast_category = result.category
+                console.log('category: ' + toast_category)
+                console.log('message: ' + toast_msg)
+                if (toast_category === 'success') {
+                    console.log('go to melody')
+                    goToMelodyResults();
+                }
+            }
+        },
+        error: function(xhr) {
+            console.log("error. see details below.");
+            console.log(xhr.status + ": " + xhr.responseText);
+            toast_error_msg = "An error occured";
+            toast_category = "danger";
+        }
+    }).done(function() {
+      M.toast({html: toast_msg, classes: 'bg-' +toast_category+ ' text-white'});
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      console.log("fail: ",textStatus, errorThrown);
+    });//end of ajax
+  }
 
 /******************************************************************************************/
   // Visualizer function from
@@ -385,58 +414,36 @@
   }
 
 /******************************************************************************************/
-  // function pause() {
-  //   console.log('Pause');
-  //   recording = false;
-  //   document.querySelector('#msg').style.visibility = 'hidden'
-  //   document.querySelector('#msg2').style.visibility = 'visible'
-  //   context.suspend()
-  // }
-
-/******************************************************************************************/
-  function resume() {
-    console.log('resume');
-    recording = true;
-    document.querySelector('#msg').style.visibility = 'visible'
-    document.querySelector('#msg2').style.visibility = 'hidden'
-    context.resume();
-  }
-
-/******************************************************************************************/
-  document.querySelector('#record').onclick = (e) => {
+  var recordButton = document.querySelector('#record');
+  recordButton.onclick = (e) => {
     console.log('Start recording')
+    setButtonDisables(true); 
     start();
-  }
-/******************************************************************************************/
-  var pauseButton = document.querySelector('#pause');
-  pauseButton.onclick = (e) => {
-    if (pauseButton.innerHTML == "Pause") {
-      pause();
-      pauseButton.innerHTML = 'Resume';
-    }
-    else {
-      resume();
-      pauseButton.innerHTML = 'Pause';
-    }
+    document.querySelector('#msg').style.visibility = 'visible'
   }
 /******************************************************************************************/
   var stopButton = document.querySelector('#stop');
-  stopButton.onclick = (e) =>
-  {
+  stopButton.onclick = (e) =>{
+  stop();
+
     if (stopButton.innerHTML == "Submit")
     {
-      stop();
-      goToMelodyResults();
+      document.querySelector('#loader').style.visibility = 'visible'
+      stopAJAX(stop());
     } else {
       stopButton.innerHTML = 'Submit'
+      recording = false;
+      document.querySelector('#msg').style.visibility = 'hidden'
     }
   }
-
+/******************************************************************************************/
   var clearButton = document.querySelector('#clear');
   clearButton.onclick =  (e) => {
      clear();
+     setButtonDisables(false); 
+     document.querySelector('#msg').style.visibility = 'hidden'
   }
-
+/******************************************************************************************/
 
 
   function clear() {
@@ -450,6 +457,12 @@
     stopButton.innerHTML = 'Stop';
     console.log("AFTER STOP");
      // if (!context) setUpRecording();
-  }//end of start
+  }//end of start.
+
+  function setButtonDisables(boolean) {
+    recordButton.disabled                    = boolean;
+    clearButton.disabled                    = !boolean;
+    stopButton.disabled                   = !boolean;
+}
 })()
 

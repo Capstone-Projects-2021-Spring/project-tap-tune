@@ -4,6 +4,7 @@ from flask_mail import Message
 from passlib.context import CryptContext
 from flask import session
 from models.Song import Song
+from models.SpotifyHandler import SpotifyHandler
 import secrets
 
 """
@@ -16,6 +17,7 @@ class User:
     # errors related to signup
     DUPLICATE_EMAIL_ERROR = 'duplicate email'
     DUPLICATE_USERNAME_ERROR = 'duplicate username'
+    DUPLICATE_FAVORITE_SONG_ERROR = 'song already in favorites'
 
     pwd_context = CryptContext(
         schemes=["pbkdf2_sha256"],
@@ -52,7 +54,9 @@ class User:
     def signup(username, email, name, password):
         try:
             # encrypt password
-            enc_password = User.__encrypt_password(password)
+            enc_password = password
+            if password:
+                enc_password = User.__encrypt_password(password)
 
             # insert user into database
             cursor = get_cursor()
@@ -78,7 +82,7 @@ class User:
     return null on failure.
     """
     @staticmethod
-    def login(email, password):
+    def login(email, password, spotify=False):
         user = None
         try:
             # get user info from database
@@ -88,18 +92,28 @@ class User:
 
             # if user found verify password
             if user_data:
-                if User.pwd_context.verify(password, user_data['password']):
-                    user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
-                    # add to session
-                    session['logged_in'] = True
-                    session['user_id'] = user.id
-                    session['username'] = user.username
-                    session['email'] = user.email
-                    session['name'] = user.name
+                # check password if not spotify login
+                if not spotify and not User.pwd_context.verify(password, user_data['password']):
+                    return user
+
+                user = User(user_data['id'], user_data['username'], user_data['email'], user_data['name'])
+                # add to session
+                session['logged_in'] = True
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['email'] = user.email
+                session['name'] = user.name
         except Exception as e:
             print(e)
 
         return user
+
+    """
+    helper method for login through spotify
+    """
+    @staticmethod
+    def spotify_login(email):
+        return User.login(email, None, True)
 
     """
     check if user logged in
@@ -107,6 +121,13 @@ class User:
     @staticmethod
     def is_logged_in():
         return session.get('user_id')
+
+    """
+    check if user has spotify authorization
+    """
+    @staticmethod
+    def is_spotify_login():
+        return SpotifyHandler.is_authorized()
 
     """
     get logged in user
@@ -138,6 +159,7 @@ class User:
         session.pop('username', None)
         session.pop('email', None)
         session.pop('name', None)
+        SpotifyHandler.clear_cache()
 
     """
     Used to send an email to the user with a link to reset their password. 
@@ -262,11 +284,16 @@ class User:
         song_log = []
         try:
             cursor = get_cursor()
-            cursor.execute('SELECT usl.*, song.title, song.artist, song.release_date, song.genre FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
-                           (self.id,))
+            select_query = """
+                SELECT song.*,ufs.favorited_on,usl.percent_match,usl.result_date 
+                FROM user_song_log as usl 
+                JOIN song ON usl.song_id = song.id 
+                LEFT JOIN user_favorite_song as ufs ON usl.song_id = ufs.song_id 
+                WHERE usl.user_id = %s
+            """
+            cursor.execute(select_query, (self.id,))
             results = cursor.fetchall()
             for song_data in results:
-                print(song_data)
                 song = Song.create(song_data)
                 song_log.append({"song": song, "percent_match": song_data['percent_match']
                                 , "result_date": song_data['result_date']})
@@ -292,4 +319,49 @@ class User:
         except Exception as e:
             print(e)
             return False
+        return True
+
+    """
+    This method retrieves the user’s favorite songs from the database, 
+    initializes them into Song class and returns an array containing the songs. 
+    Returns an array with the songs from the user’s favorite songs. [..] = <Song object>
+    The array can be empty.
+    Returns None on failure
+    """
+    def get_favorite_songs(self):
+        songs = []
+        try:
+            cursor = get_cursor()
+            cursor.execute(
+                'SELECT song.*,ufs.favorited_on FROM user_favorite_song as ufs JOIN song ON ufs.song_id = song.id WHERE ufs.user_id = %s',
+                (self.id,))
+            results = cursor.fetchall()
+            for song_data in results:
+                print(song_data)
+                song = Song.create(song_data)
+                songs.append(song)
+        except Exception as e:
+            print(e)
+            return None
+        return songs
+
+    """
+    adds song to user_favorite_song table
+    returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
+    true on success
+    """
+    def add_favorite_song(self, song_id):
+        try:
+            cursor = get_cursor()
+            cursor.execute('INSERT INTO user_favorite_song (user_id, song_id) VALUES (%s,%s)',
+                           (self.id, song_id))
+            db.connection.commit()
+        except Exception as e:
+            print(e)
+            error = User.UNKNOWN_ERROR
+            # mysql error code for duplicate entry
+            if e.args[0] == 1062:
+                if 'user_song' in e.args[1]:
+                    error = User.DUPLICATE_FAVORITE_SONG_ERROR
+            return error
         return True
