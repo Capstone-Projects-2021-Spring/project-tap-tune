@@ -136,7 +136,8 @@ def melody_result_page():
                 r.energy_threshold = 4000
                 r.dynamic_energy_threshold = True
                 data = r.record(source)
-                lyricsFromFile = r.recognize_google(data)
+                #Google Speech API Key
+                lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
 
                 result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
                 pass
