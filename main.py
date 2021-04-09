@@ -15,7 +15,6 @@ import spotipy
 import uuid
 import os
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'KQ^wDan3@3aEiTEgqGUr3'  # required for session
 
@@ -70,14 +69,15 @@ def filter_page():
     return render_template('filtering.html', user=user)
 
 
-
 def sort_results(e):
-      return e['percent_match']
+    return e['percent_match']
 
 
 """
 get song lyrics using genius api
 """
+
+
 def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
@@ -91,13 +91,14 @@ def get_lyrics(songtitle, songartist):
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
     user = User.current_user()
-    #Filter the Song Results if there are any inputs from request form 
-    objF = Filtering(Artist = request.form['input_artist'], Genre = request.form['input_genre'], Lyrics = request.form['input_lyrics'])
-    filterResults = objF.filterRecording()# returns list of Song objects
+    # Filter the Song Results if there are any inputs from request form
+    objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
+                     Lyrics=request.form['input_lyrics'])
+    filterResults = objF.filterRecording()  # returns list of Song objects
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()# returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
@@ -109,6 +110,7 @@ def result_page():
 
     # Todo: After getting results, store in user_log
     return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
+
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -151,8 +153,8 @@ def melody_result_page():
         result = foundsong()  # initialize to empty class, to fail gracefully
         lyrics = ''
 
-
-    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics, score=melScore, melResults=melList)
+    return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
+                           score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -160,7 +162,8 @@ def user_page():
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
-    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
+    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
+                           user_song_log=user_song_log)
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
@@ -178,48 +181,94 @@ def add_user_fav_song():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+
 @app.route('/add-user-log-spotify', methods=['GET', 'POST'])
 def add_user_log_spotify():
     user = User.current_user()
-    #Integration for Adding to Spotify User Playlist based on track title and artist
-    data = json.loads(request.data)
 
-    am = SpotifyHandler.get_oauth_manager()
-    spotify = spotipy.Spotify(auth_manager=am)
-    sp_user = spotify.me()
+    try:
+        data = json.loads(request.data)
+        print(data)
 
-    username = sp_user["id"]
-    id = sp_user["id"]
-    #print(sp_user["id"])
+        msg = ""
+        if User.is_spotify_login():
+            # Integration for Adding to Spotify User Playlist based on track title and artist
+            am = SpotifyHandler.get_oauth_manager()
+            spotify = spotipy.Spotify(auth_manager=am)
+            sp_user = spotify.me()
+            username = sp_user["id"]
 
-    #Using title and artist, find track id
-    track = "not found"
-    tracks = []
-    searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
-    print(searchResults)
-    if (searchResults["tracks"]["total"] > 0):
-        #print(searchResults['tracks']['items'][0]["uri"])
-        track = searchResults['tracks']['items'][0]["uri"]
-        tracks.append(track)
+            # Using title and artist, find track id
+            track_id = "not found"
+            track_ids = []
+            search_results = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
+            print(search_results)
+            if search_results and search_results["tracks"]["total"] > 0:
+                track_id = search_results['tracks']['items'][0]["id"]
+                track_ids.append(track_id)
 
-    #Find Playlist and Add
-    #[TODO] If Playlist is not found, create one
-    if (track != "not found"):
-        playlists = spotify.user_playlists(username)
-        for playlist in playlists['items']:
-            if playlist['owner']['id'] == username:
-                #print(playlist)
-                if (playlist['name'] == "TapTune Project") :
-                    print ('  total tracks', playlist['tracks']['total'])
-                    print(tracks)
-                    spotify.user_playlist_add_tracks(username, playlist_id=playlist['uri'], tracks = tracks)
-        
-        msg = "Song added to Spotify playlist - [TapTune]."
-        category = "success"
-    
-    else:
-        msg = "Song could not be found based on title and artist"
-        category = "warning"
+            # Find Playlist and Add track
+            if track_id != "not found":
+                # get playlists from spotify
+                playlists = spotify.current_user_playlists()
+                print(playlists)
+
+                tt_playlist = None
+
+                # find TapTune playlist
+                for playlist in playlists.get('items'):
+                    if playlist.get('name') == "TapTune":
+                        tt_playlist = playlist
+                        break
+
+                if not tt_playlist:
+                    # add spotify playlist
+                    tt_playlist = spotify.user_playlist_create(username, "TapTune", public=False)
+
+                print(tt_playlist)
+                if tt_playlist:
+                    # remove track from spotify playlist
+                    # doing it this way because the only way to check if a track is in a playlist is to
+                    # loop through all tracks in the playlist (there could be hundreds)
+                    # this is faster and simpler
+                    spotify.playlist_remove_all_occurrences_of_items(tt_playlist.get('id'), track_ids)
+
+                    # add track to spotify playlist
+                    results = spotify.playlist_add_items(tt_playlist.get('id'), track_ids)
+                    print(results)
+                    if results:
+                        msg = "Song added to Spotify playlist - [TapTune]."
+                        category = "success"
+                    else:
+                        msg = "Song could not be added to Spotify playlist - [TapTune]"
+                        category = "danger"
+                else:
+                    msg = "Playlist TapTune could not be created on Spotify"
+                    category = "danger"
+            else:
+                msg = "Song could not be found on Spotify based on title and artist"
+                category = "danger"
+        else:
+            category = "success"
+
+        # add to favorites in TapTune database
+        if category != "danger":
+            if msg != "":
+                msg += "<br>"
+
+            song_id = data[2]
+            r = user.add_favorite_song(song_id)
+            if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+                msg += r
+                category = "danger"
+            else:
+                msg += "Song added to favorites."
+                category = "success"
+
+    except Exception as e:
+        print(e)
+        msg = "Could not add song to Spotify playlist"
+        category = "danger"
 
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
@@ -358,6 +407,7 @@ def test_file_save():
 
     return render_template('index.html', user=None)
 
+
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     User.logout()
@@ -370,10 +420,11 @@ def receiveRhythm():
     print(data)
     return jsonify(data)
 
+
 def adjustArray(array):
     newArray = []
-    #if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3: 
+    # if invalid array, don't consider it but still return it into the userResult
+    if len(array) < 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -381,15 +432,17 @@ def adjustArray(array):
         num = round((data - dif), 3)
         newArray.append(num)
     return newArray
-    
+
+
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
-        
+
         global user_result
         user_result = json.loads(request.data)
         return out
+
 
 @app.route('/multiplerhythm', methods=['GET', 'POST'])
 def multipleRhythmPost():
@@ -403,7 +456,7 @@ def multipleRhythmPost():
                 percussionArray.append(recordedBeats['timestamp'])
             else:
                 harmonicArray.append(recordedBeats['timestamp'])
-        
+
         global user_result
         user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
         print(user_result)
@@ -452,7 +505,6 @@ def melody():
             print(e)
             category = 'danger'
             msg = e
-
 
         resp = {'feedback': msg, 'category': category, 'filename': fileName}
         return make_response(jsonify(resp), 200)
@@ -557,6 +609,20 @@ def source():
     #     return "FAILED UPLOAD"
 
 
+@app.route('/fileSource', methods=['GET', 'POST'])
+def source2():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1]
+        file = data[2]
+        print(artist)
+        print(title)
+        print(file)
+        resp = {"category": "success"}
+        return make_response(jsonify(resp), 200)
+
+
 @app.context_processor
 def get_current_user():
     return {"uuid": str(uuid.uuid4())}
@@ -564,4 +630,3 @@ def get_current_user():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

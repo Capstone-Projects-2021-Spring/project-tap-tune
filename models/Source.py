@@ -483,7 +483,7 @@ class Source:
             res_song = self.fetch_spotify_data()
             print(res_song)
 
-        # check that new song extists
+        # check that new song exists
         if(res_song):
             self.process_wav(filepath, res_song)
             return 1

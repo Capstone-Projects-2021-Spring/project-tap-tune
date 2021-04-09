@@ -284,8 +284,14 @@ class User:
         song_log = []
         try:
             cursor = get_cursor()
-            cursor.execute('SELECT song.*,usl.percent_match,usl.result_date FROM user_song_log as usl JOIN song ON usl.song_id = song.id WHERE usl.user_id = %s',
-                           (self.id,))
+            select_query = """
+                SELECT song.*,ufs.favorited_on,usl.percent_match,usl.result_date 
+                FROM user_song_log as usl 
+                JOIN song ON usl.song_id = song.id 
+                LEFT JOIN user_favorite_song as ufs ON usl.song_id = ufs.song_id 
+                WHERE usl.user_id = %s
+            """
+            cursor.execute(select_query, (self.id,))
             results = cursor.fetchall()
             for song_data in results:
                 song = Song.create(song_data)

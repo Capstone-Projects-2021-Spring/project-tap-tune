@@ -23,7 +23,7 @@
                     {% if user.image %}
                         {# If a photo exists, give the option to change the user photo #}
                         {{ user.image }}
-                        <input type="file" name="image" value="Change Photo">
+{#                        <input type="file" name="image" value="Change Photo">#}
                     {% else %}
                         {# If no photo exists, give the option to upload a new one #}
 {#                        <input type="file" name="image" value="Upload">#}
@@ -52,8 +52,10 @@
                             <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorite Songs</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="Suggestion-tab" data-toggle="tab" href="#suggestions" role="tab" aria-controls="suggestions" aria-selected="false">Song Suggestions</a>
-
                         </li>
                     </ul>
                 </div>
@@ -138,8 +140,12 @@
                                                 Genre: {{song_result['song'].genre}}
                                             </p>
                                             <p>
-                                                Add to Spotify 
-                                                <a id="songLogLink{{loop.index}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
+                                                {%if not song_result['song'].is_favorite() %}
+                                                    {%if user.is_spotify_login() %}
+                                                        Add to Spotify
+                                                    {%endif%}
+                                                    <a id="songLogLink{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
+                                                {%endif%}
                                             </p>
                                         </li>
                                         {%endfor%}
@@ -147,18 +153,37 @@
                                 </div>
                             </div>
                     </div>
-                    <div class="tab-pane fade" id="suggestions" role="tabpanel" aria-labelledby="Suggestion-tab">
+                    <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
+                        <div class="row">
+                            <div class="col-md-6 offset-md-3">
+                                <h3>Favorite Songs</h3>
+                                <ul class="timeline">
+                                    {%for song in user_fav_songs%}
+                                        <li>
+                                            <a href="#">{{song.title}}</a>
+                                            <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
+                                            <p>
+                                                Artist: {{song.artist}}<br>
+                                                Genre: {{song.genre}}
+                                            </p>
+                                        </li>
+                                    {%endfor%}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="suggestions" role="tabpanel" aria-labelledby="suggestions-tab">
                         <div class="row">
                             <div class="col-md-6 offset-md-3">
                                 <h3>Song Suggestions</h3>
                                 <ul class="timeline">
-                                    {%for song_result in user_song_log%}
+                                    {%for song in user_fav_songs%}
                                         <li>
-                                            <a href="#">{{song_result['song'].title}}</a>
-                                            <a href="#" class="float-right">{{(song_result['percent_match']*100)|round(2)}}% | {{song_result['result_date'].strftime('%x')}}</a>
+                                            <a href="#">{{song.title}}</a>
+                                            <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
                                             <p>
-                                                Artist: {{song_result['song'].artist}}<br>
-                                                Genre: {{song_result['song'].genre}}
+                                                Artist: {{song.artist}}<br>
+                                                Genre: {{song.genre}}
                                             </p>
                                         </li>
                                     {%endfor%}
@@ -175,5 +200,5 @@
 
 {% block js %}
     {{super()}}
-    <script src="{{ url_for('static', filename='userProfileTabs.js') }}"></script>
+    <script src="{{ url_for('static', filename='userProfileTabs.js') }}?t={{uuid}}"></script>
 {% endblock %}
