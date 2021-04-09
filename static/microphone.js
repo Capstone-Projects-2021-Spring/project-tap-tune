@@ -1,4 +1,4 @@
-var outFile = Date.now().toString()+'.mp3';
+var outFile = Date.now().toString()+'.wav';
 (async () => {
   let leftchannel = [];
   let rightchannel = [];
@@ -209,7 +209,7 @@ var outFile = Date.now().toString()+'.mp3';
 
 
     // our final binary blob
-    const blob = new Blob ( [ view ], { type : 'audio/mpeg' } );
+    const blob = new Blob ( [ view ], { type : 'audio/wav' } );
 
     const audioUrl = URL.createObjectURL(blob);
     console.log('BLOB ', blob);

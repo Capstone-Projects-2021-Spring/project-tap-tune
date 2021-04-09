@@ -18,6 +18,7 @@ from models.Song import Song
 import time
 from pytube import YouTube
 from pydub import AudioSegment
+import time
 
 creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
 spotify = spotipy.Spotify(client_credentials_manager=creds)
@@ -121,86 +122,6 @@ def add_blank(bin_array, count_val):
         bin_array.append(0)
 
 
-# def valToCount(frame_val):
-#     dict = {
-#         0: "*",
-#         1: "0",
-#         2: "2",
-#         3: "3",
-#         4: "4",
-#         5: "5",
-#         6: "6",
-#         7: "7",
-#         8: "8",
-#         9: "9",
-#         10: "A",
-#         11: "B",
-#         12: "C",
-#         13: "D",
-#         14: "E",
-#         15: "F",
-#         16: "G",
-#         17: "H",
-#         18: "I",
-#         19: "J",
-#         20: "K",
-#         21: "L",
-#         22: "M",
-#         23: "N",
-#         24: "O",
-#         25: "P",
-#         26: "Q",
-#         27: "R",
-#         28: "S",
-#         29: "T",
-#         30: "U",
-#         31: "V",
-#         32: "W",
-#         33: "X",
-#         34: "Y",
-#         35: "Z"
-#     }
-#
-#     key_list = list(dict.keys())
-#     val_list = list(dict.values())
-#
-#     return key_list[val_list.index(frame_val)]
-#
-#
-# def unhash_array(db_string):
-#     # print(len(db_string))
-#     db_tok = db_string.split("*")
-#     bin_array = []
-#     char_val = ""
-#     for val in range (0, len(db_tok)):
-#         frame_val = db_tok[val]
-#         # if blank flag
-#         if(frame_val == ""):
-#             if val != len(db_tok)-1:
-#                 bin_array.append(1)
-#
-#         # if a custom flag
-#         elif(frame_val[0] == "."):
-#             custom_flag = frame_val[1:len(frame_val)-1]
-#             add_blank(bin_array, int(custom_flag))
-#             if val != len(db_tok) - 1:
-#                 bin_array.append(1)
-#
-#         #known flag
-#         else:
-#             char_val = int(valToCount(frame_val))
-#             add_blank(bin_array, char_val)
-#
-#             if(val != len(db_tok)-1):
-#                 bin_array.append(1)
-#
-#     # print("****************SHOULD BE Length of Frames************************")
-#     #     # print(val)
-#     #     # print(len(bin_array))
-#
-#     return bin_array
-
-
 def binToFrames(bin_array):
     frame_array = []
 
@@ -209,31 +130,6 @@ def binToFrames(bin_array):
             frame_array.append(bin_ele)
 
     return frame_array
-
-
-# for file in os.listdir("music"):
-#     print("=================================")
-#     file_parse = file.split("_")
-#
-#     track_artist = str(file_parse[0])
-#     track_title = str(file_parse[1])[0:len(file_parse[1])-4]
-#
-#     file_path = "music/"+file
-#
-#     """SPOTIFY API TO FIND SONG ID"""
-#     creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
-#     spotify = spotipy.Spotify(client_credentials_manager=creds)
-#     print("track_title = ", track_title)
-#     results_2 = spotify.search(q=track_title, limit=10, type="track", market=None)
-#     for albums in results_2["tracks"]["items"]:
-#         preview_url = albums["preview_url"]
-#         for artist in albums["artists"]:
-#             print("spotify artist  = ", artist["name"])
-#             print("track_artist = ", track_artist)
-#             if(artist["name"] == track_artist):
-#                 print(albums["name"])
-#                 break
-    """SPOTIFY API TO GET SONG METADATA"""
 
 
 def artistMod(artist):
@@ -371,29 +267,39 @@ class Source:
     # run librosa analysis to obtain hash values
     # upload results to db - NOT IMPLEMENTED YET
     def process_input_url(self):
+        # if the url exists
         if(self.url):
             print("PROCESSING YOUTUBE VIDEO")
             audio_stream = self.fetch_youtube_audio()
-            """
-            NEED TO SPECIFY DOWNLOAD SPACE TO TMP FOLDER
-            """
-
+            # set the unique filename to a timestamp
             filename = str(time.time()*100.0).replace('.', '')
 
-            # test = audio_stream.download(output_path="models/ytDownloads",filename=filename)
-            # print(test)
-            # filename_mp4 = "models/ytDownloads/"+filename+".mp4"
-            # output_path = "models/ytConverts/" + filename + ".wav"
+            # try to download the youtube audiosegment as an MP4
+            try:
+                """
+                audio_stream.download(output_path="models/ytDownloads", filename=filename)
+                filename_mp4 = "ytDownloads/" + filename + ".mp4"
+                output_path = "ytConverts/" + filename + ".wav"
+                time.sleep(10)
+                """
+                # """UNCOMMENT FOR LIVE SERVER"""
+                audio_stream.download(output_path="/tmp", filename=filename)
+                filename_mp4 = "/tmp/" +filename+ ".mp4"
+                output_path = "/tmp/"+filename+".wav"
+                print(filename_mp4)
+                print("SUCCESSFULLY DOWNLOADED MP4")
+            except Exception as e:
+                print("FAILED DOWNLOADING MP4")
 
-            """UNCOMMENT FOR LIVE SERVER"""
-            audio_stream.download(output_path="/tmp", filename=filename)
-            filename_mp4 = "/tmp/" + filename.replace('.', '') + ".mp4"
-            output_path = "/tmp/"+filename+".wav"
+            # try to convert and download MP4 file
+            try:
+                convert_file = AudioSegment.from_file(file=filename_mp4, format="mp4")
+                convert_file.export(out_f=output_path, format="wav")
+                return output_path
+            except Exception as e:
+                print("FAILED TO CONVERT/SAVE as WAV")
+                return 0
 
-            convert_file = AudioSegment.from_file(file=filename_mp4, format="mp4")
-            convert_file.export(out_f=output_path, format="wav")
-            print("DOWNLOAD WAV")
-            return output_path
         else:
             return 0
 
@@ -403,24 +309,26 @@ class Source:
     # return <Song> if sucessful
     # return 0 if no information was found
     def fetch_spotify_data(self):
+        # create song dict to store values in
+        song_dict = {
+            "title": None,
+            "artist": None,
+            "release_date": None,
+            "genre": None,
+            "onset_hash": None,
+            "peak_hash": None,
+            "harm_hash": None,
+            "perc_hash": None
+        }
         if(self.artist and self.title):
             track_artists = self.artist
             track_title = self.title
 
-            # create song dict to store values in
-            song_dict = {
-                "title" : track_title,
-                "artist": track_artists,
-                "release_date": None,
-                "genre": None,
-                "onset_hash": None,
-                "peak_hash": None,
-                "harm_hash": None,
-                "perc_hash": None
-            }
+            song_dict["title"] = track_title
+            song_dict["artist"] = track_artists
 
             # Search through spotify based on the artist and title input
-            results_2 = spotify.search(q=song_dict.get("title"), limit=10, type="track", market=None)
+            results_2 = spotify.search(q=song_dict.get("title"), limit=20, type="track", market=None)
             for albums in results_2["tracks"]["items"]:
                 for artist in albums["artists"]:
                     if (artist["name"] in track_artists):
@@ -430,6 +338,9 @@ class Source:
                         song_dict["release_date"] = track_release
                         found = True
                         break
+
+                    else:
+                        found = False
                 if (found):
                     """RETRIEVE GENRES FROM SPOTIFY ARTIST SEARCH"""
                     md_results = spotify.artist(artist_id)
@@ -438,31 +349,46 @@ class Source:
                     break
 
             if(song_dict.get("release_date") != None):
-                new_song = Song.insert(song_dict)
-                if(new_song):
-                    return 0
-                else:
-                    print("INSERTED SONG SUCCESSFULLY")
-                    return new_song
+                # new_song = Song.insert(song_dict)
+                # if(new_song):
+                #     print("INSERTED SONG SUCCESSFULLY")
+                #     return new_song
+                # else:
+                #     return 0
+
+                return song_dict, 1
             else:
-                return 0
+                return song_dict, 0
         else:
             print("NO ARTIST OR TITLE INPUT")
-            return 0
+            return song_dict, 0
 
     # run wav file through rhythm analysis
     # @param filepath: path to the wav file to be analyzed
     # @param song: song object, populated with
     # void
-    def process_wav(self, filepath, song):
-        # set the onset and peak hash
-        song.set_onset_hash(onset_hash(filepath))
-        song.set_peak_hash(peak_hash(filepath))
-        # obtain hrm and perc hash values
-        harm, perc = split_hash(filepath)
-        # set the harm and perc hashes
-        song.set_perc_hash(perc)
-        song.set_harm_hash(harm)
+    def process_wav(self, filepath, song_dict):
+        onset = onset_hash(filepath)
+        peak = peak_hash(filepath)
+
+        if((onset != None) and (peak != None)):
+            # set the onset and peak hash
+            song_dict["onset_hash"] = onset
+            song_dict["peak_hash"] = peak
+            # obtain hrm and perc hash values
+            harm, perc = split_hash(filepath)
+            # set the harm and perc hashes
+            song_dict["perc_hash"] = perc
+            song_dict["harm_hash"] = harm
+
+            res = all(song_dict.values())
+            if(res):
+                res_song = Song.insert(song_dict)
+                print("SUCCESSFULLY INSERTED SONG")
+                return res_song
+            else:
+                print("Song fields not filled")
+                return None
 
     # execute functions to insert new song to db by YouTube video
     # check for url, process url for converted file, fetch metadata and crete new song in db
@@ -471,8 +397,10 @@ class Source:
     def process_input(self):
         # if user uploaded file
         if(self.file):
+            print("PROCESSING FILE")
             filepath = self.file
-            res_song = self.fetch_spotify_data()
+            print("TEST")
+            song_dict, check = self.fetch_spotify_data()
 
         # if the user input is a url
         elif(self.url):
@@ -480,19 +408,34 @@ class Source:
             print("PROCESSING URL")
             filepath = self.process_input_url()
             print("PROCESS SPOTIFY DATA")
-            res_song = self.fetch_spotify_data()
-            print(res_song)
+            song_dict, check = self.fetch_spotify_data()
+            print(song_dict)
 
-        # check that new song extists
-        if(res_song):
-            self.process_wav(filepath, res_song)
+        #if there are no inputs
+        else:
+            song_dict = None
+            check = False
+
+        # check that new song exists
+        if(song_dict and check):
+            self.process_wav(filepath, song_dict)
             return 1
         else:
             return 0
 
 
 if __name__ == "__main__":
-    sample_url = "https://www.youtube.com/watch?v=zwyKQnbDJRg" # Bee Gees More Than A Woman
-    obj = Source(url=sample_url, artist="Bee Gees", title="More Than A Woman")
+    sample_url = "https://www.youtube.com/watch?v=D9fAN4tEviw"
+    obj = Source(url=sample_url, artist="Greta Van Fleet", title="edge of darkness")
 
     check = obj.process_input()
+    if(check):
+        print("success")
+
+    else:
+        print("failure")
+    #
+    # artist = "commodores"
+    # song = Song.get_by_artist(artist)
+    #
+    # print(song[0].title)

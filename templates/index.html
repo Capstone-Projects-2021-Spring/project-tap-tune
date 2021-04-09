@@ -64,6 +64,58 @@
         </div>
     </div>
 </section>
+<section class="page-section bg-secondary text-white mb-0" id="crowdsourcingSection">
+  <div class="container">
+      <!-- Crowdsourcing Section Heading-->
+      <h2 class="page-section-heading text-center text-uppercase text-white">Crowdsourcing</h2>
+      <!-- Icon Divider-->
+      <div class="divider-custom divider-light">
+          <div class="divider-custom-line"></div>
+      </div>
+      <!-- Crowdsourcing Section Description-->
+      <div class="row">
+          <div class="col"><p class="lead">Help Taptune by adding a song to our own database that was not found by Rhythm Recording.  All we need is a Song Title, Song Artist, and YouTube Link to the song with good quality.  Your submission will be reviewed and added in around 24 hours. <br><br> Thank you for helping Taptune! </p></div>
+      </div>
+      <!-- Crowdsourcing Form -->
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19.-->
+            <div id="contactForm" name="sentCrowdSourcing" novalidate="novalidate" autocomplete="off">
+                <div class="control-group" >
+                    <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                        <label>Song Title</label>
+                        <input class="form-control" id="song_title" type="text" placeholder="Song Title" required="required" autocomplete="off" data-validation-required-message="Please enter the title of the song." />
+                        <p class="help-block text-danger" id="song_title_help"></p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                        <label>Song Artist</label>
+                        <input class="form-control" id="song_artist" type="text" placeholder="Song Artist" required="required" autocomplete="off" data-validation-required-message="Please enter the artist of t he song." />
+                        <p class="help-block text-danger" id="song_artist_help"></p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                        <label>Youtube Link</label>
+                        <input class="form-control" id="song_link" type="link" placeholder="Youtube Link" required="required" autocomplete="off" data-validation-required-message="Please enter the YouTube link to the song." />
+                        <p class="help-block text-danger" id="song_link_help"></p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                        <input type="file" id="song_file" required="required" data-validation-required-message="Please enter a valid mp3/mp4 file.">
+                        <p class="help-block text-danger" id="song_file_help"></p>
+                    </div>
+                </div>
+                <br />
+                <div id="success"></div>
+                <div class="form-group"><button class="btn btn-primary btn-lg" id="sendSourceButton" type="submit">Submit</button></div>
+            </div>
+        </div>
+    </div>
+  </div>
+</section>
 
 <!-- Panel Instructions for Each Feature-->
 <div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-labelledby="portfolioModal1Label" aria-hidden="true">
@@ -105,7 +157,7 @@
       </div>
   </div>
 </div>
-<!-- Portfolio Modal 2-->
+<!-- Instruction Modal 2-->
 <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-labelledby="portfolioModal2Label" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
@@ -145,4 +197,30 @@
   </div>
 </div>
 
+
+<!-- Modal For Sourcing -->
+<div class="modal fade" id="sourcingModalSongResponse" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Song Received</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Thank you for contributing to TapTune!  After verifying the submission, TapTune's Rhythm Recording will now be able to recognize your song.  </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='crowdsourcing.js') }}"></script>
 {% endblock %}
