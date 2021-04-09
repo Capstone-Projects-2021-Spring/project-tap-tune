@@ -57,6 +57,10 @@ $(document).on("click", "a", function() {
 
 $('#suggestSpotifySongBtn').on('click', function(e){
     var checkboxes = document.querySelectorAll('[data-track]');
+    var suggestedTitle = document.getElementById("suggestedTitle");
+    var suggestedImage = document.getElementById("suggestedImage");
+    var suggestedArtist = document.getElementById("suggestedArtist");
+
     console.log("suggest Button")
     var js_data = [];
     for (var i = 0; i < checkboxes.length; i++) {
@@ -76,6 +80,10 @@ $('#suggestSpotifySongBtn').on('click', function(e){
         data: JSON.stringify(js_data)
     }).done(function (result) {
         console.log("success: " + JSON.stringify(result));
+        console.log(result.data)
+        suggestedTitle.innerText = result.data[0];
+        suggestedArtist.innerText = result.data[1];
+        suggestedImage.src = result.data[2]['url'];
 
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.log("fail: ", textStatus, errorThrown);

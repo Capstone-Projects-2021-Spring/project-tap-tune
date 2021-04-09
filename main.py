@@ -275,38 +275,50 @@ def add_user_log_spotify():
 
 @app.route('/spotify-suggest', methods=['GET', 'POST'])
 def spotify_suggest():
-    #Getting song suggestion based on spotify API
-    data = json.loads(request.data)
+    if request.method == 'POST': 
+        #Getting song suggestion based on spotify API
+        data = json.loads(request.data)
 
-    am = SpotifyHandler.get_oauth_manager()
-    spotify = spotipy.Spotify(auth_manager=am)
+        am = SpotifyHandler.get_oauth_manager()
+        spotify = spotipy.Spotify(auth_manager=am)
 
-    #For each title and artist, find track id
-    track_ids = []
-    for items in data:
-        split = items.split(',')
-        title = split[0]
-        artist = split[1]
-        print(title + artist)
-        searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
-        #print(searchResults)
-        if searchResults and searchResults["tracks"]["total"] > 0:
-            track_id = searchResults['tracks']['items'][0]["id"]
-            track_ids.append(track_id)
-            print(      searchResults['tracks']['items'][0])
+        #For each title and artist, find track id
+        track_ids = []
+        for items in data:
+            split = items.split(',')
+            title = split[0]
+            artist = split[1]
+            print(title + artist)
+            searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
+            #print(searchResults)
+            if searchResults and searchResults["tracks"]["total"] > 0:
+                track_id = searchResults['tracks']['items'][0]["id"]
+                track_ids.append(track_id)
+                #print(      searchResults['tracks']['items'][0])
 
-    #Using Track Ids, get a recommended song through Spotify API
-    if (len(track_ids) > 0):
-        recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=None, limit=5)
-        msg = "Song suggested by related tracks."
-        category = "success"
+        #Using Track Ids, get a recommended song through Spotify API
+        if (len(track_ids) > 0):
+            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            if recommendations:
+                recommendedTitle = recommendations["tracks"][0]["name"]
+                recommendedArtist = recommendations["tracks"][0]["artists"][0]["name"]
+                recommendedSongImage = recommendations["tracks"][0]["album"]["images"][1]
+                msg = "Song suggested by related tracks."
+                data = [recommendedTitle, recommendedArtist, recommendedSongImage]
+                category = "success"
+            else:
+                msg = "Song could not be suggested, no found tracks in input array."
+                data = "None"
+                category = "warning"
+                
+        else:
+            msg = "Song could not be suggested, no found tracks in input array."
+            data = "None"
+            category = "warning"
+
+        resp = {'feedback': msg, 'category': category, 'data': data}
+        return make_response(jsonify(resp), 200)
     
-    else:
-        msg = "Song could not be suggested, no found tracks in input array."
-        category = "warning"
-
-    resp = {'feedback': msg, 'category': category}
-    return make_response(jsonify(resp), 200)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
