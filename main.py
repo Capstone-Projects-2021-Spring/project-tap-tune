@@ -483,6 +483,7 @@ def melody():
             print("Received Audio File")
             if request.files.get('file'):
                 outFile = request.files["file"]
+                print(type(outFile))
                 if request.headers['Host'] == "127.0.0.1:5000":
                     print("HELLO LOCAL SERVER")
                     fileName = outFile.filename
@@ -580,33 +581,15 @@ def source():
         title = data[0]
         artist = data[1]
         url = data[2]
-        print(artist)
-        print(title)
-        print(url)
-        resp = {"category": "success"}
-        return make_response(jsonify(resp), 200)
-        # obj = Source(artist=artist, url=url, title=title)
-        # success = obj.process_input()
+        obj = Source(artist=artist, url=url, title=title)
+        success = obj.process_input()
 
-        # if(success):
-        #     resp = {"category": "success"}
-        #     return make_response(jsonify(resp), 200)
-        # else:
-        #     resp = {"category": "failure"}
-        #     return make_response(jsonify(resp), 200)
-
-    # """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
-    # artist = "Fall Out Boy"
-    # title = "Sugar We're Going Down"
-    # url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
-
-    # obj = Source(artist=artist, url=url, title=title)
-    # sucess = obj.process_input()
-
-    # if(sucess):
-    #     return "SUCCESSFUL UPLOAD"
-    # else:
-    #     return "FAILED UPLOAD"
+        if(success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.route('/fileSource', methods=['GET', 'POST'])
@@ -616,11 +599,16 @@ def source2():
         title = data[0]
         artist = data[1]
         file = data[2]
-        print(artist)
-        print(title)
-        print(file)
-        resp = {"category": "success"}
-        return make_response(jsonify(resp), 200)
+
+        obj = Source(artist=artist, file=file, title=title)
+        success = obj.process_input()
+
+        if (success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.context_processor
