@@ -368,6 +368,7 @@ class Source:
     # @param song: song object, populated with
     # void
     def process_wav(self, filepath, song_dict):
+        print("PROCESSING WAV FILE")
         onset = onset_hash(filepath)
         peak = peak_hash(filepath)
 
@@ -417,7 +418,7 @@ class Source:
             check = False
 
         # check that new song exists
-        if(song_dict and check):
+        if(song_dict != None and song_dict["result_date"] != None):
             self.process_wav(filepath, song_dict)
             return 1
         else:
