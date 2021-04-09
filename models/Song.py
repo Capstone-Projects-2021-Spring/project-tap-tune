@@ -17,7 +17,7 @@ class Song:
 
     BASE_SELECT_QUERY = 'SELECT song.*,fp.perc_hash,fp.harm_hash FROM song LEFT JOIN fingerprint AS fp ON song.`id` = fp.song_id'
 
-    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, perc_hash, harm_hash, preview=None):
+    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, perc_hash, harm_hash, preview=None, favorited_on=None):
         self.id = song_id
         self.title = title
         self.artist = artist
@@ -28,6 +28,7 @@ class Song:
         self.perc_hash = perc_hash
         self.harm_hash = harm_hash
         self.preview = preview
+        self.favorited_on = favorited_on
 
     """
     used to create an instance of the song class from an associative array of attributes
@@ -43,7 +44,7 @@ class Song:
         harm_hash = attr_d.get('harm_hash')
 
         return Song(attr_d['id'], attr_d['title'], attr_d['artist'], release_date, genre
-                    , onset_hash, peak_hash, perc_hash, harm_hash, attr_d.get('preview'))
+                    , onset_hash, peak_hash, perc_hash, harm_hash, attr_d.get('preview'), attr_d.get('favorited_on'))
 
     """
     insert song into database
@@ -185,6 +186,13 @@ class Song:
             return None
 
         return songs
+
+    """
+    check if song is favorite
+    return Boolean
+    """
+    def is_favorite(self):
+        return self.favorited_on is not None
 
     """
     set preview for song
