@@ -273,6 +273,39 @@ def add_user_log_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+@app.route('/spotify-suggest', methods=['GET', 'POST'])
+def spotify_suggest():
+    #Getting song suggestion based on spotify API
+    data = json.loads(request.data)
+
+    am = SpotifyHandler.get_oauth_manager()
+    spotify = spotipy.Spotify(auth_manager=am)
+
+    #For each title and artist, find track id
+    tracks = []
+    for items in data:
+        split = items.split(',')
+        title = split[0]
+        artist = split[1]
+        print(title + artist)
+        searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
+        print(searchResults)
+        if (searchResults["tracks"]["total"] > 0):
+            track = searchResults['tracks']['items'][0]["uri"]
+            print(searchResults['tracks']['items'][0])
+            tracks.append(track)
+
+    #Using Track Ids, get a recommended song through Spotify API
+    if (len(tracks) > 0):
+        msg = "Song suggested by related tracks."
+        category = "success"
+    
+    else:
+        msg = "Song could not be suggested, no found tracks in input array."
+        category = "warning"
+
+    resp = {'feedback': msg, 'category': category}
+    return make_response(jsonify(resp), 200)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
