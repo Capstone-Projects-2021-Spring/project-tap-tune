@@ -10,6 +10,8 @@ import lyricsgenius
 import json
 
 from FingerprintRequest import FingerprintRequest, foundsong
+import speech_recognition
+
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
 import uuid
@@ -128,7 +130,17 @@ def melody_result_page():
             print("[[[[[[[[[[[[[")
             print("SESSION FILENAME = ", recording_filename)
             print("[[[[[[[[[[[[[")
-            result = FingerprintRequest().searchFingerprintAll(recording_filename)
+
+            with speech_recognition.AudioFile(recording_filename) as source:  # Load the file
+                r = speech_recognition.Recognizer()
+                r.energy_threshold = 4000
+                r.dynamic_energy_threshold = True
+                data = r.record(source)
+                lyricsFromFile = r.recognize_google(data)
+
+                result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
+                pass
+
             if result.title == 'None' and result.artists == 'None' and result.score == 'None':
                 print("There are none values")
             else:
@@ -141,7 +153,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            print(lyrics)
+            # print(lyrics)
 
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))

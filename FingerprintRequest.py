@@ -6,9 +6,6 @@ import requests
 import json
 import lyricsgenius
 
-from speech_recognition import Microphone
-import speech_recognition as sr
-
 #TODO: Work on more metadata extraction
 
 def cleanString(string):
@@ -281,14 +278,6 @@ class FingerprintRequest:
                     result.set_genre('None')
                     result.set_score('None')
         return result
-
-
-
-
-
-
-
-
 
 
 #   TESTING   ##################################################################################################################
