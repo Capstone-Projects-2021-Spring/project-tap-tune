@@ -2,12 +2,17 @@ $('#sendSourceButton').on('click', function(e){
     var title = document.getElementById("song_title").value;
     var artist = document.getElementById("song_artist").value;
     var url = document.getElementById("song_link").value;
-    var file = document.getElementById("song_file").value;
+    var outFile = document.getElementById("song_file").value;
+    var button = document.getElementById("sendSourceButton").value;
 
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
     var urlError = document.getElementById("song_link_help");
     $('#sourcingModalSongResponse').hide();
+
+    //console.log(outFile);
+    //console.log(typeof(outFile));
+
     //Verify the required fields
     if (!title) {
         titleError.textContent = "Please enter a song title before submitting.";
@@ -25,8 +30,8 @@ $('#sendSourceButton').on('click', function(e){
         artistError.textContent = "";
     } 
 
-    console.log(file);
-    if (!file && (!url || !(isValidHttpUrl(url)))) {
+    //console.log(file);
+    if (!outFile && (!url || !(isValidHttpUrl(url)))) {
         // urlError.textContent = "Please enter a valid YouTube Link to the song before submitting.";
         urlError.textContent = "Please enter a valid YouTube Link or song file before submitting.";
         return;
@@ -58,9 +63,12 @@ $('#sendSourceButton').on('click', function(e){
 
     //AJAX call to /source to add user's song to database
     var js_data = [title, artist, url];
-    var js_data2 = [title, artist, file];
-    console.log(js_data);
-    console.log(js_data2);
+    //var js_data2 = [title, artist, file];
+    //var fileData = new FormData();
+    //fileData.append('file', outFile);
+
+    //console.log(js_data);
+    //console.log(js_data2);
     //[TODO] Add Ajax Loading Icon Animation next to button here
     if (url) {
         console.log(js_data)
@@ -78,18 +86,24 @@ $('#sendSourceButton').on('click', function(e){
             console.log("fail: ", textStatus, errorThrown);
         });
     } else {
-        $.ajax({
-            url: '/fileSource',
-            type: 'post',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(js_data2)
-        }).done(function (result) {
-            console.log("success: " + JSON.stringify(result));
-            $('#sourcingModalSongResponse').modal();
+        $('#sendSourceButton').on('click', function() {
+            var fileData = new FormData();
+            fileData.append('file', outFile);
+            console.log(fileData);
+            console.log(typeof(fileData));
+            $.ajax({
+                url: '/fileSource',
+                type: 'post',
+                contentType: false,
+                processData: false,
+                data: fileData
+            }).done(function (result) {
+                console.log("success: " + fileData);
+                $('#sourcingModalSongResponse').modal();
 
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log("fail: ", textStatus, errorThrown);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("fail: ", textStatus, errorThrown);
+            });
         });
     }
 
