@@ -434,13 +434,15 @@ def print_long(list):
         i = j
 
 
-# k = original tempo / target tempo ex: for 80 tempo -> 40 tempo, k = 2
+# chenge timestamp to fit specific tempo k, ex change the song to 60 bpm, k=60
 def change_tempo(timestamp, k):
-    adjusted = [i * k for i in timestamp]
+    original_tempo = get_tempo(timestamp)
+    rate = original_tempo/k
+    adjusted = [i * rate for i in timestamp]
     return adjusted
 
 
-# get user tempo
+# get tempo from timestamp
 def get_tempo(timestamp):
     ans = len(timestamp) * 60 / timestamp[-1]
     return ans
@@ -461,10 +463,11 @@ def compare_sync(song_timestamp, user_pattern):
                 header = tail
                 tail += 1
                 offset = 0
-                break;
+                break
             # if we pass the target, stimulate the target
             elif beatlength > target+error:
                 offset += i
+                break
             # keep moving until we find a beat or miss the target
             else:
                 tail += 1
@@ -473,10 +476,10 @@ def compare_sync(song_timestamp, user_pattern):
 
 #
 def match_temposync(song_timestamp, user_pattern):
-    mark = 0.7 * user_pattern
+    mark = 0.7 * len(user_pattern)
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
-        if compare_sync(song_timestamp[i, :], user_pattern) >= mark:
+        if compare_sync(song_timestamp[i:], user_pattern) >= mark:
             return 1
     return 0
 
@@ -509,7 +512,8 @@ if __name__ == "__main__":
     print(tempo)
     tempo, beat = librosa.beat.beat_track(y=y, sr=sr, units='time')
     timestamp_onset = librosa.onset.onset_detect(y=y, sr=sr, units='time')
-    timestamp_onset = drop_ambigious(timestamp_onset)
+    print("timestamp_onset", change_tempo(timestamp_onset,1))
+    # timestamp_onset = drop_ambigious(timestamp_onset)
 
     song_tempo = get_tempo(timestamp_onset)
     k = song_tempo / standard
@@ -526,9 +530,6 @@ if __name__ == "__main__":
     shift = timestamp_onset_re[0] - user_timestamp_re[0]
     for i in range(len(user_timestamp_re)):
         user_timestamp_re[i] = user_timestamp_re[i] + shift
-    # user_timestamp_re: [3.5172413793103448, 2.2014799865455768, 2.959973091153717, 4.543558694920955, 5.324251597712748,
-    #                     6.169693911873528, 7.751429532458797, 8.611671712075346, 9.412714429868819, 10.169357551294988,
-    #                     11.0]
     user_pattern = get_pattern(user_timestamp_re)
     print('user_timestamp_re pattern', user_pattern)
 
