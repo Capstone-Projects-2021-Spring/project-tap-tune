@@ -7,7 +7,7 @@ $('#sendSourceButton').on('click', function(e){
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
     var urlError = document.getElementById("song_link_help");
-
+    $('#sourcingModalSongResponse').hide();
     //Verify the required fields
     if (!title) {
         titleError.textContent = "Please enter a song title before submitting.";
