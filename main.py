@@ -613,12 +613,9 @@ def source():
 def source2():
     if request.method == 'POST':
         data = json.loads(request.data)
-        title = data[0]
-        artist = data[1]
-        file = data[2]
-        print(artist)
-        print(title)
+        file = request.files["file"]
         print(file)
+        print(type(file))
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 
