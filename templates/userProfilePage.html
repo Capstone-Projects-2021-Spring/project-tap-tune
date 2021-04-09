@@ -181,8 +181,13 @@
                                     <div class="row">
                                         <div class="col-xs-1">
                                             <br>
+                                            {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
                                             <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
                                             checked>
+                                            {%else%}
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            unchecked>
+                                            {%endif%}
                                         </div>
                                         <div class="col">
                                             <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>

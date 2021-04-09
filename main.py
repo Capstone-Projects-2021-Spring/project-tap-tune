@@ -282,21 +282,22 @@ def spotify_suggest():
     spotify = spotipy.Spotify(auth_manager=am)
 
     #For each title and artist, find track id
-    tracks = []
+    track_ids = []
     for items in data:
         split = items.split(',')
         title = split[0]
         artist = split[1]
         print(title + artist)
-        searchResults = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
-        print(searchResults)
-        if (searchResults["tracks"]["total"] > 0):
-            track = searchResults['tracks']['items'][0]["uri"]
-            print(searchResults['tracks']['items'][0])
-            tracks.append(track)
+        searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
+        #print(searchResults)
+        if searchResults and searchResults["tracks"]["total"] > 0:
+            track_id = searchResults['tracks']['items'][0]["id"]
+            track_ids.append(track_id)
+            print(      searchResults['tracks']['items'][0])
 
     #Using Track Ids, get a recommended song through Spotify API
-    if (len(tracks) > 0):
+    if (len(track_ids) > 0):
+        recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=None, limit=5)
         msg = "Song suggested by related tracks."
         category = "success"
     
