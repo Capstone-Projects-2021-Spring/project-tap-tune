@@ -610,7 +610,7 @@ def source():
 
 
 @app.route('/fileSource', methods=['GET', 'POST'])
-def source2():
+def fileSource():
     if request.method == 'POST':
         data = json.loads(request.data)
         file = request.files["file"]

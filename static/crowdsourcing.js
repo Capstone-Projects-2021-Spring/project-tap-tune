@@ -3,14 +3,11 @@ $('#sendSourceButton').on('click', function(e){
     var artist = document.getElementById("song_artist").value;
     var url = document.getElementById("song_link").value;
     var outFile = document.getElementById("song_file").value;
-    var button = document.getElementById("sendSourceButton").value;
 
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
     var urlError = document.getElementById("song_link_help");
 
-    //console.log(outFile);
-    //console.log(typeof(outFile));
     //Verify the required fields
     if (!title) {
         titleError.textContent = "Please enter a song title before submitting.";
@@ -84,11 +81,21 @@ $('#sendSourceButton').on('click', function(e){
             console.log("fail: ", textStatus, errorThrown);
         });
     } else {
-        $('#sendSourceButton').on('click', function() {
+            //printing outFile and the type. This is the user's mp3 being uploaded
+            console.log(outFile);
+            console.log(typeof(outFile));
+            //Trying to make a new variable with FormData to convert the string into an file object
             var fileData = new FormData();
-            fileData.append('file', outFile);
+            //Trying to append it here
+            fileData.append("file", outFile);
+            //Trying to add the title artist and the newly file object into an array here
+            var stuff = [title, artist, fileData];
+            //Testing the newly created file object and the type of it
             console.log(fileData);
             console.log(typeof(fileData));
+            //Testing the stuff array with all the variables in it
+            console.log(stuff);
+            console.log(typeof(stuff));
             $.ajax({
                 url: '/fileSource',
                 type: 'post',
@@ -102,7 +109,6 @@ $('#sendSourceButton').on('click', function(e){
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("fail: ", textStatus, errorThrown);
             });
-        });
     }
 
 
