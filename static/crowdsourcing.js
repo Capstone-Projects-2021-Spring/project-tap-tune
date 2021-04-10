@@ -2,14 +2,14 @@ $('#sendSourceButton').on('click', function(e){
     var title = document.getElementById("song_title").value;
     var artist = document.getElementById("song_artist").value;
     var url = document.getElementById("song_link").value;
-    var outFile = document.getElementById("song_file").value;
+    var outFile = document.getElementById("song_file").files[0];
     var button = document.getElementById("sendSourceButton").value;
 
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
     var urlError = document.getElementById("song_link_help");
     $('#sourcingModalSongResponse').hide();
-
+    console.log("SUBMIT BUTTON PRESSED")
     //console.log(outFile);
     //console.log(typeof(outFile));
 
@@ -85,18 +85,23 @@ $('#sendSourceButton').on('click', function(e){
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log("fail: ", textStatus, errorThrown);
         });
-    } else {
-        $('#sendSourceButton').on('click', function() {
+    } else if (outFile) {
+        console.log("FILE UPLOAD CONDITIONAL");
+//        $('#sendSourceButton').on('click', function() {
+            console.log("AJAX CALL INITIATED");
             var fileData = new FormData();
-            fileData.append('file', outFile);
-            console.log(fileData);
-            console.log(typeof(fileData));
+
+            fileData.set('file', outFile);
+
+
+//            console.log(fileData.keys()[0]);
+//            console.log(typeof(fileData));
             $.ajax({
                 url: '/fileSource',
                 type: 'post',
                 contentType: false,
                 processData: false,
-                data: fileData
+                data: fileData, artist
             }).done(function (result) {
                 console.log("success: " + fileData);
                 $('#sourcingModalSongResponse').modal();
@@ -104,8 +109,10 @@ $('#sendSourceButton').on('click', function(e){
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("fail: ", textStatus, errorThrown);
             });
-        });
+//        });
     }
+
+    console.log("FAILED EXECUTION");
 
 
 });
