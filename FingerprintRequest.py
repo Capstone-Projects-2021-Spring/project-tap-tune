@@ -4,7 +4,7 @@ import re
 import acrcloud.acrcloud_extr_tool as ACRext
 import requests
 import json
-from models.Song import Song
+import lyricsgenius
 
 #TODO: Work on more metadata extraction
 
@@ -64,6 +64,7 @@ class FingerprintRequest:
             'return': 'apple_music,spotify',
             'api_token': '5e3d89525fdf63a5f5ef79f3ae87db68'
         }
+        self.lyric_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
 
     def getACRSongFingerprint(self, userfile):
         # @param userfile: audio file path
@@ -150,17 +151,104 @@ class FingerprintRequest:
                 songArray.append(returnsong)
         return songArray
 
+    def get_lyrics(self,songtitle, songartist):
+        genius = lyricsgenius.Genius(self.lyric_access_token)
+        song = genius.search_song(title=songtitle, artist=songartist)
+        lyrics = ''
+        if song:
+            lyrics = song.lyrics
+        return lyrics
 
-    def searchFingerprintAll(self, userfile):
+    def lyricSearch(self, songArray, userInput):
+        # Take the lyrics and song array, loop and change string to find lyrics and all
+        lyricSong = foundsong()
+        print("UserInput: " + userInput)
+
+        #Split UserArray and split it
+        userInputArr = userInput.split(' ')
+        for char in range(0,len(userInputArr)):
+            userInputArr[char] = userInputArr[char].lower()
+
+        foundSongFlag = False
+
+        #Needs a base lyric array of 5 words or so
+        if len(userInputArr) > 5:
+            #Get each song in the array
+            for x in range(0,len(songArray)):
+
+                if foundSongFlag:
+                    pass
+                else:
+                    print("Trying to Match with: " + songArray[x].title + " by " + songArray[x].artists)
+
+                    # Get song title and artist in each array element
+                    currTitle = songArray[x].title
+                    currArtist = ''
+                    if ',' in songArray[x].artists:
+                        currArtist = songArray[x].artists[0: songArray[x].artists.index(',')]
+                    else:
+                        currArtist = songArray[x].artists
+
+                    # Get the Lyrics
+                    lyrics = self.get_lyrics(currTitle, currArtist)
+
+                    # Edit and Split Lyrics so Headers are removed and lyrics are properly split
+                    lyrics = lyrics.replace('\n', ' ')
+                    lyricsArr = lyrics.split(' ')
+                    for y in range(0, len(lyricsArr)):
+                        if '(' in lyricsArr[y]:
+                            index = 0
+                            while ')' not in lyricsArr[y + index]:
+                                lyricsArr[y + index] = ''
+                                index += 1
+                        if '[' in lyricsArr[y] or ']' in lyricsArr[y] or ')' in lyricsArr[y]:
+                            lyricsArr[y] = ''
+                        else:
+                            lyricsArr[y] = lyricsArr[y].replace('?', '')
+                            lyricsArr[y] = lyricsArr[y].replace('!', '')
+                            lyricsArr[y] = lyricsArr[y].replace(',', '')
+                            lyricsArr[y] = lyricsArr[y].lower()
+
+                    # Get rid of all the blank char strings in lyrics array
+                    lyricsArr = list(filter(None, lyricsArr))
+                    # print(lyricsArr)
+
+                    # Need to compare lyrics and userinput now
+                    for z in range(0, len(lyricsArr)):
+                        # Check to see if the first input matches with anything
+                        if userInputArr[0] == lyricsArr[z] and not foundSongFlag:
+                            counter = 1
+                            for restOfTheInput in range(1, len(userInputArr)):
+                                try:
+                                    if userInputArr[restOfTheInput] == lyricsArr[z + restOfTheInput]:
+                                        counter += 1
+                                except:
+                                    pass
+                            if counter >= (len(userInputArr) * .5):
+                                lyricSong.set_title(songArray[x].title)
+                                lyricSong.set_artist(songArray[x].artists)
+                                lyricSong.set_genre(songArray[x].genres)
+                                lyricSong.set_score(songArray[x].score)
+                                foundSongFlag = True;
+                                print('Matched song with: ' + songArray[x].title + ' ' + songArray[x].artists)
+                    if not foundSongFlag:
+                        print("Song did not Match")
+
+        if not foundSongFlag:
+            print("No Songs have matched in the humming return")
+        return lyricSong
+
+    def searchFingerprintAll(self, userfile, userInput):
 
         #Weighted AudD first, then ACR, then humming
         audDfoundSong = self.getAudDFingerprint(userfile)
         ACRfoundSong = self.getACRSongFingerprint(userfile)
         hummingFingerprint = self.getHummingFingerprint(userfile)
 
+        lyricSong = self.lyricSearch(hummingFingerprint, userInput)
+
 
         result = foundsong()
-
         if audDfoundSong.title:
             result.set_title(audDfoundSong.title)
             result.set_artist(audDfoundSong.artists)
@@ -174,70 +262,59 @@ class FingerprintRequest:
                 result.set_score(ACRfoundSong.score)
             else:
                 try:
-                    result.set_title(hummingFingerprint[0].title)
-                    result.set_artist(hummingFingerprint[0].artists)
-                    result.set_genre(hummingFingerprint[0].genres)
-                    result.set_score(hummingFingerprint[0].score)
+                    if (lyricSong.title == ''):
+                        result.set_title(hummingFingerprint[0].title)
+                        result.set_artist(hummingFingerprint[0].artists)
+                        result.set_genre(hummingFingerprint[0].genres)
+                        result.set_score(hummingFingerprint[0].score)
+                    else:
+                        result.set_title(lyricSong.title)
+                        result.set_artist(lyricSong.artists)
+                        result.set_genre(lyricSong.genres)
+                        result.set_score(lyricSong.score)
                 except:
                     result.set_title('None')
                     result.set_artist('None')
                     result.set_genre('None')
                     result.set_score('None')
-
         return result
 
 
-
-'''
-    # This will NOT be used for final implementation. This will primarily be used for backend automatic database insert
-    # Returns a list of song objects with respective metadata and path to actual song file
-    def getACRFingerPrint_Folder(self, folder):
-
-        # Get all the files in the folder
-        # This assumes all the files in the folder are .wav
-        file_list = os.listdir(folder)
-        print(file_list)
-
-        # Makes a list of the absolute path to that file for ACRCloud file access
-        file_abs_path = []
-        for x in range(len(file_list)):
-            file_abs_path.append(folder + "\\" + file_list[x])
-
-        # Makes sure nothing but songs are in the test by checking the end of the path name
-        file_songList = []
-        for x in range(len(file_abs_path)):
-            if ".wav" in file_abs_path[x][len(file_abs_path[x]) - 6:]:
-                file_songList.append(file_abs_path[x])
-
-        # Uses the in class getACRSongFingerprint to get the metadata for each of the songs
-        # Saves the path to the file as attribute in Song Object for hashing later
-        file_returnList = []
-        for x in range(len(file_songList)):
-            print("" + str(x + 1) + ": Finding Metadata for " + file_songList[x])
-            song = self.getACRSongFingerprint(file_songList[x])
-            song.set_path(file_songList[x])
-            file_returnList.append(song)
-
-        print("Task Complete!")
-        return file_returnList
-'''
-
-
-
-
-
-
-
-
-
-
 #   TESTING   ##################################################################################################################
+
 '''
 obj = FingerprintRequest()
 
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\pretender.wav"
 
-file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\september.mp3"
+with sr.AudioFile(file) as source:    # Load the file
+    r = sr.Recognizer()
+    r.energy_threshold = 4000
+    r.dynamic_energy_threshold = True
+    data = r.record(source)
+    recognized = r.recognize_google(data)
+
+
+    lastTest = obj.searchFingerprintAll(file, recognized)
+
+    print(lastTest.title)
+    print(lastTest.artists)
+    print(lastTest.genres)
+    print(lastTest.score)
+
+    pass
 '''
+'''
+testSong = foundsong()
+testSong.set_artist('Foo Fighters')
+testSong.set_title('Pretender')
+
+lyrics = obj.lyricSearchSong(testSong)
+lyrics = lyrics.replace('\n', ' ')
+
+print(lyrics.split(' '))
+'''
+
 '''
 acrSong = obj.getACRSongFingerprint(file)
 print(acrSong.title)

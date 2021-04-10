@@ -10,6 +10,8 @@ import lyricsgenius
 import json
 
 from FingerprintRequest import FingerprintRequest, foundsong
+import speech_recognition
+
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
 import uuid
@@ -98,7 +100,10 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    if objR.numOfAry == 1:
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    else:
+        final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
@@ -116,6 +121,7 @@ def result_page():
 def melody_result_page():
     user = User.current_user()
 
+    melList=''
     melTitle = ''
     melArtist = ''
     melScore = ''
@@ -128,7 +134,18 @@ def melody_result_page():
             print("[[[[[[[[[[[[[")
             print("SESSION FILENAME = ", recording_filename)
             print("[[[[[[[[[[[[[")
-            result = FingerprintRequest().searchFingerprintAll(recording_filename)
+
+            with speech_recognition.AudioFile(recording_filename) as source:  # Load the file
+                r = speech_recognition.Recognizer()
+                r.energy_threshold = 4000
+                r.dynamic_energy_threshold = True
+                data = r.record(source)
+                #Google Speech API Key
+                lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
+
+                result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
+                pass
+
             if result.title == 'None' and result.artists == 'None' and result.score == 'None':
                 print("There are none values")
             else:
@@ -141,7 +158,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            print(lyrics)
+            # print(lyrics)
 
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
@@ -273,6 +290,52 @@ def add_user_log_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+@app.route('/spotify-suggest', methods=['GET', 'POST'])
+def spotify_suggest():
+    if request.method == 'POST': 
+        #Getting song suggestion based on spotify API
+        data = json.loads(request.data)
+
+        am = SpotifyHandler.get_oauth_manager()
+        spotify = spotipy.Spotify(auth_manager=am)
+
+        #For each title and artist, find track id
+        track_ids = []
+        for items in data:
+            split = items.split(',')
+            title = split[0]
+            artist = split[1]
+            print(title + artist)
+            searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
+            #print(searchResults)
+            if searchResults and searchResults["tracks"]["total"] > 0:
+                track_id = searchResults['tracks']['items'][0]["id"]
+                track_ids.append(track_id)
+                #print(      searchResults['tracks']['items'][0])
+
+        #Using Track Ids, get a recommended song through Spotify API
+        if (len(track_ids) > 0):
+            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            if recommendations:
+                recommendedTitle = recommendations["tracks"][0]["name"]
+                recommendedArtist = recommendations["tracks"][0]["artists"][0]["name"]
+                recommendedSongImage = recommendations["tracks"][0]["album"]["images"][1]
+                msg = "Song suggested by related tracks."
+                data = [recommendedTitle, recommendedArtist, recommendedSongImage]
+                category = "success"
+            else:
+                msg = "Song could not be suggested, no found tracks in input array."
+                data = "None"
+                category = "warning"
+                
+        else:
+            msg = "Song could not be suggested, no found tracks in input array."
+            data = "None"
+            category = "warning"
+
+        resp = {'feedback': msg, 'category': category, 'data': data}
+        return make_response(jsonify(resp), 200)
+    
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -483,6 +546,7 @@ def melody():
             print("Received Audio File")
             if request.files.get('file'):
                 outFile = request.files["file"]
+                print(type(outFile))
                 if request.headers['Host'] == "127.0.0.1:5000":
                     print("HELLO LOCAL SERVER")
                     fileName = outFile.filename
@@ -580,39 +644,36 @@ def source():
         title = data[0]
         artist = data[1]
         url = data[2]
-        print(artist)
-        print(title)
-        print(url)
-        resp = {"category": "success"}
-        return make_response(jsonify(resp), 200)
-        # obj = Source(artist=artist, url=url, title=title)
-        # success = obj.process_input()
+        obj = Source(artist=artist, url=url, title=title)
+        success = obj.process_input()
 
-        # if(success):
-        #     resp = {"category": "success"}
-        #     return make_response(jsonify(resp), 200)
-        # else:
-        #     resp = {"category": "failure"}
-        #     return make_response(jsonify(resp), 200)
-
-    # """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
-    # artist = "Fall Out Boy"
-    # title = "Sugar We're Going Down"
-    # url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
-
-    # obj = Source(artist=artist, url=url, title=title)
-    # sucess = obj.process_input()
-
-    # if(sucess):
-    #     return "SUCCESSFUL UPLOAD"
-    # else:
-    #     return "FAILED UPLOAD"
+        if(success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.route('/fileSource', methods=['GET', 'POST'])
 def fileSource():
     if request.method == 'POST':
         data = json.loads(request.data)
+
+        title = data[0]
+        artist = data[1]
+        file = data[2]
+
+        obj = Source(artist=artist, file=file, title=title)
+        success = obj.process_input()
+
+        if (success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
+
         file = request.files["file"]
         print(file)
         print(type(file))
