@@ -386,6 +386,7 @@ class Source:
                         track_release = albums["album"]["release_date"]
                         artist_id = artist["id"]
                         song_dict["release_date"] = track_release
+                        song_dict["artist"] = artist["name"]
                         found = True
                         break
 
