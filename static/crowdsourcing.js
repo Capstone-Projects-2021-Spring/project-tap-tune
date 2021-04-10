@@ -110,6 +110,7 @@ $('#sendSourceButton').on('click', function(e){
 
         fileData.set('file', outFile, filename);
         console.log(typeof(fileData));
+        console.log(outFile)
         console.log("AJAX CALL FOR FILE INITIATED");
         $.ajax({
             url: '/fileSource',
