@@ -481,7 +481,6 @@ def logout():
 
 def receiveRhythm():
     data = request.json
-    print(data)
     return jsonify(data)
 
 
@@ -497,6 +496,20 @@ def adjustArray(array):
         newArray.append(num)
     return newArray
 
+def arrayIntervals(array):
+    newArray = []
+    index = 1
+    if len(array) < 3:
+        newArray = [0]
+        return newArray
+
+    for timestamp in array:
+        if (index < len(array)):
+            prev = array[index-1]
+            num = round((array[index] - prev), 3)
+            newArray.append(num)
+            index += 1
+    return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
@@ -505,6 +518,8 @@ def rhythmPost():
 
         global user_result
         user_result = json.loads(request.data)
+        #user_result = arrayIntervals(json.loads(request.data))
+        print(user_result)
         return out
 
 
@@ -523,6 +538,7 @@ def multipleRhythmPost():
 
         global user_result
         user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        #user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
