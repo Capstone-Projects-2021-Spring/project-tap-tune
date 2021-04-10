@@ -446,6 +446,9 @@ class Source:
     def process_input(self):
         # if user uploaded file
         if(self.file):
+            """
+            - NEED TO CHECK THE FILE EXTENSION FOR ANY FILE CONVERSIONS
+            """
             print("PROCESSING FILE")
             filepath = self.file
             print("TEST")
@@ -497,3 +500,4 @@ if __name__ == "__main__":
     print(string2)
     res = levenshtein_ratio_and_distance(string1.lower(), string2.lower(), ratio_calc=True)
     print(res)
+
