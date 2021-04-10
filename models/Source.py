@@ -286,11 +286,12 @@ class Source:
     # constructor for the source class
     # @param url - youtube url if provided by the user
     # @param file - .wav file uploaded by user
-    def __init__(self, url=None, file=None, title=None, artist=None):
+    def __init__(self, url=None, file=None, title=None, artist=None, ext=None):
         self.url = url
         self.file = file
         self.title = title
         self.artist = artist
+        self.ext = ext
 
     # function to fetch audio stream from youtube
     # returns audio stream, can be saved from call
@@ -349,6 +350,28 @@ class Source:
         else:
             return 0
 
+        # process the file upload
+        # handle any file uploads
+        # return path to wav file
+
+    def process_input_upload(self):
+        if (self.file):
+            filename = str(time.time() * 100.0).replace('.', '')
+            output_path = "/tmp/" + filename + ".wav"
+            try:
+                convert_file = AudioSegment.from_file(file=self.file, format=self.ext)
+                convert_file.export(out_f=output_path, format="wav")
+                print("UPLOAD SUCCESSFUL CONVERSION")
+                return output_path
+            except Exception as e:
+                print("output_path = " + output_path)
+                print("ext = " + self.ext)
+                print("UPLOAD FAILED TO CONVERT/SAVE as WAV")
+                return 0
+            pass
+
+        else:
+            pass
 
     # obtain metadata on song
     # create new Song object
@@ -450,7 +473,7 @@ class Source:
             - NEED TO CHECK THE FILE EXTENSION FOR ANY FILE CONVERSIONS
             """
             print("PROCESSING FILE")
-            filepath = self.file
+            filepath = self.process_input_upload()
             print("TEST")
             song_dict, check = self.fetch_spotify_data()
 

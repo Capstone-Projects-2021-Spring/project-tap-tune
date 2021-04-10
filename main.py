@@ -690,7 +690,8 @@ def source2():
         meta_split[2] = meta_split[2][4:len(meta_split[2])]
         artist = meta_split[0]
         title = meta_split[1]
-        filename_ext = meta_split[2]
+        print(meta_split)
+        filename_ext = meta_split[len(meta_split)-1]
         print(data.filename)
         print(data)
 

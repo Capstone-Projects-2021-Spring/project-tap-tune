@@ -104,12 +104,14 @@ $('#sendSourceButton').on('click', function(e){
         // set fileData to pass back
         var fileData = new FormData();
         console.log(outFile["name"].split("."))
-        var  ext = outFile["name"].split(".")[1]
+        last_ele = ((outFile["name"].split(".")).length) - 1;
+        var  ext = outFile["name"].split(".")[last_ele];
         let upload_data = new file_upload_data(artist, title, ext);
         var filename = JSON.stringify(upload_data.getMeta());
 
         fileData.set('file', outFile, filename);
         console.log(typeof(fileData));
+        console.log(outFile)
         console.log("AJAX CALL FOR FILE INITIATED");
         $.ajax({
             url: '/fileSource',
