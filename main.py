@@ -8,6 +8,7 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
+import time
 
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
@@ -656,15 +657,52 @@ def source():
 
 
 @app.route('/fileSource', methods=['GET', 'POST'])
-def fileSource():
+def source2():
+    """
+    - downloads the file into the directed path
+    - need to fetch ARTIST and TITLE fields
+    """
     if request.method == 'POST':
-        data = json.loads(request.data)
+        data = request.files["file"]
 
-        title = data[0]
-        artist = data[1]
-        file = data[2]
+        # parses the filename to obtain artist, title, and file extension
+        track_meta = data.filename[1:len(data.filename)-1]
+        track_meta = track_meta.replace("%22", "")
+        meta_split = track_meta.split(',')
+        meta_split[0] = meta_split[0][7:len(meta_split[0])]
+        meta_split[1] = meta_split[1][6:len(meta_split[1])]
+        meta_split[2] = meta_split[2][4:len(meta_split[2])]
+        artist = meta_split[0]
+        title = meta_split[1]
+        filename_ext = meta_split[2]
+        print(data.filename)
+        print(data)
 
-        obj = Source(artist=artist, file=file, title=title)
+        # put together a unique filename to save
+        filename_f = str(time.time()*1000).replace('.', '') + "." + filename_ext
+
+        if request.headers['Host'] == "127.0.0.1:5000":
+            print("HELLO LOCAL SERVER")
+            filename_path = filename_f
+        else:
+            print("HELLO LIVE SERVER")
+            filename_path = "/tmp/" + filename_f
+
+        data.save(filename_path)
+
+        print("==================")
+        print(data.filename)
+        print(filename_ext)
+        print(filename_path)
+        print(type(data))
+        #
+        # print(artist)
+        # print(type(artist))
+        # print(title)
+        # print(type(title))
+
+        # process the user inputs to get the necessary info
+        obj = Source(artist=artist, file=filename_path, title=title)
         success = obj.process_input()
 
         if (success):
@@ -674,9 +712,6 @@ def fileSource():
             resp = {"category": "failure"}
             return make_response(jsonify(resp), 200)
 
-        file = request.files["file"]
-        print(file)
-        print(type(file))
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 
