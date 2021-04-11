@@ -215,16 +215,16 @@ $( document ).ready(function() {
     /************************************************************************/
     function returnTimes(){
         if (recordingType.innerHTML == dynamicRecordType) { 
-            var returnArray = adjustArray(timeJsonArray);
-            timeJsonArray = returnArray;
-            return JSON.stringify(returnArray);
+            //var returnArray = adjustArray(timeJsonArray);
+            //timeJsonArray = returnArray;
+            return JSON.stringify(timeJsonArray);
         }
         else {
             //General Recording Return
-            var returnArray = adjustArray(times);
-            console.log("finished array " + returnArray)
-            times = returnArray;
-            return returnArray;
+            //var returnArray = adjustArray(times);
+            //console.log("finished array " + returnArray)
+            //times = returnArray;
+            return times;
         }
     }//end of returnTimes
 

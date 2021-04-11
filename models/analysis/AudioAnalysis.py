@@ -328,9 +328,9 @@ def process_recording(userInput, onsetFrames):
 def process_recording2(userInput, onsetFrames):
     # DB song prep
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
-    songTimestampSync = change_tempo(songTimestamp,60)
+    songTimestampSync = change_tempo(songTimestamp, 60)
     # user input prep
-    input_pattern = get_pattern(change_tempo(userInput,60))
+    input_pattern = get_pattern(change_tempo(userInput, 60))
 
     # compare user input and DB info
     # ---Decision making---
@@ -367,7 +367,7 @@ def get_pattern(timestamp):
 def compare_sync(song_timestamp, user_pattern):
     header = 0
     tail = 1
-    error = 0.3
+    error = 0.2
     hit = 0
     offset = 0
     for i in user_pattern:
@@ -395,8 +395,9 @@ def match_temposync(song_timestamp, user_pattern):
     mark = 0.7 * len(user_pattern)
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
-        if compare_sync(song_timestamp[i:], user_pattern) >= mark:
-            return 1, 100
+        hit = compare_sync(song_timestamp[i:], user_pattern)
+        if  hit >= mark:
+            return 1, hit/len(user_pattern)
     return 0, 0
 
 
@@ -427,7 +428,7 @@ class rhythmAnalysis:
     """
 
     def onset_peak_func(self):
-        # print('array dimension:', self.numOfAry)
+        print('-----------------------------------------------------user input:', self.user_input)
         song_results = []
         db_results = []
 
