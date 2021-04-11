@@ -442,21 +442,25 @@ class Source:
         print("PROCESSING WAV FILE")
         print("PROCESS ONSET HASH")
         onset = onset_hash(filepath)
-        print("PEAK HASH")
+        print("PROCESS PEAK HASH")
         peak = peak_hash(filepath)
-
+        print("CONDITIONAL FOR VALID HASHES")
         if((onset != None) and (peak != None)):
+            print("ADD SONGS TO SONG DICT")
             # set the onset and peak hash
             song_dict["onset_hash"] = onset
             song_dict["peak_hash"] = peak
             # obtain hrm and perc hash values
+            print("PROCESS HARMONIC AND PERCUSSIVE HASHES")
             harm, perc = split_hash(filepath)
             # set the harm and perc hashes
+            print("ADD HASHES TO SONG DICT")
             song_dict["perc_hash"] = perc
             song_dict["harm_hash"] = harm
 
             res = all(song_dict.values())
             if(res):
+                print("INSERT SONG INTO DB")
                 res_song = Song.insert(song_dict)
                 print("SUCCESSFULLY INSERTED SONG")
                 return res_song
