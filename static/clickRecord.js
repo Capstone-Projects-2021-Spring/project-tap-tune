@@ -28,6 +28,7 @@ $( document ).ready(function() {
     harmonicsKeyType = document.getElementById("selected2");
     beatCountElement = document.getElementById("counter-number");
     //recordingKey = document.getElementById("selected2");
+    speedButton = document.getElementById("speedPlay");
 
     startButton.onclick = function () {
         setButtonDisables(true);
@@ -177,7 +178,20 @@ $( document ).ready(function() {
                 console.log("fail: ",textStatus, errorThrown);
             });
 
-            //goToFiltering();
+            //AJAX for multiplier
+                var multiply = multiplier();
+                $.ajax({
+                url: '/multiplier',
+                type : 'post',
+                contentType: 'application/json',
+                dataType : 'json',
+                data : multiply//passing the variable
+            }).done(function(result) {
+                console.log("success for multiplier: " + JSON.stringify(result));
+
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("fail: ",textStatus, errorThrown);
+            });
         }
         else {
             //animation
@@ -508,7 +522,6 @@ $( document ).ready(function() {
             audio.volume = 0.3;
             document.body.appendChild(audio);
             audio.play();
-            
             audio.onended = function () {
                 this.parentNode.removeChild(this);
             }
@@ -525,7 +538,6 @@ $( document ).ready(function() {
                         audio.volume = 0.3;
                         document.body.appendChild(audio);
                         audio.play();
-                        
                         audio.onended = function () {
                             this.parentNode.removeChild(this);
                         }
@@ -534,14 +546,13 @@ $( document ).ready(function() {
             } 
             else {
                 for (var i = 0; i < times.length; i++) {
-                    var millisecondsTime = times[i] * 1000;
+                    var millisecondsTime = (times[i]/(multiplier())) * 1000;
                     setTimeout(() => {
                         var audio = document.createElement('audio');
                         audio.src = sound.src;
                         audio.volume = 0.3;
                         document.body.appendChild(audio);
                         audio.play();
-                        
                         audio.onended = function () {
                             this.parentNode.removeChild(this);
                         }
@@ -553,7 +564,21 @@ $( document ).ready(function() {
         
     playButton.onclick = function () {
         playSound();
-    }
+    }//end of play
+
+    //get the multiplier value from the slider
+    function multiplier(){
+
+    var mult = 0;
+    const playbackrate = document.querySelector('.speedcontrolcontainer input');
+    const display = document.querySelector('.speedcontrolcontainer span');
+    playbackrate.addEventListener('change', e => {
+        console.log("Multiplier "+playbackrate.value);
+    });
+      mult = playbackrate.value;
+      return mult;
+    }//end of multiplier
+
 });
 
 

@@ -289,6 +289,7 @@ def bin_to_frame(bin_array):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
+
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -426,7 +427,6 @@ class rhythmAnalysis:
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
-
     def onset_peak_func(self):
         print('-----------------------------------------------------user input:', self.user_input)
         song_results = []

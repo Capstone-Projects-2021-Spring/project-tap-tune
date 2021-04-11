@@ -10,6 +10,8 @@ import lyricsgenius
 import json
 
 from FingerprintRequest import FingerprintRequest, foundsong
+import speech_recognition
+
 from models.SpotifyHandler import SpotifyHandler
 import spotipy
 import uuid
@@ -131,7 +133,18 @@ def melody_result_page():
             print("[[[[[[[[[[[[[")
             print("SESSION FILENAME = ", recording_filename)
             print("[[[[[[[[[[[[[")
-            result = FingerprintRequest().searchFingerprintAll(recording_filename)
+
+            with speech_recognition.AudioFile(recording_filename) as source:  # Load the file
+                r = speech_recognition.Recognizer()
+                r.energy_threshold = 4000
+                r.dynamic_energy_threshold = True
+                data = r.record(source)
+                #Google Speech API Key
+                lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
+
+                result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
+                pass
+
             if result.title == 'None' and result.artists == 'None' and result.score == 'None':
                 print("There are none values")
             else:
@@ -144,7 +157,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            print(lyrics)
+            # print(lyrics)
 
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
@@ -466,6 +479,18 @@ def multipleRhythmPost():
         return out
 
 
+@app.route('/multiplier', methods=['GET', 'POST'])
+def multiplierPost():
+    if request.method == 'POST':
+        multiplier = request.json
+        #print(multiplier)
+
+        global multiply
+        multiply = json.loads(request.data)
+        print(multiply)
+
+        return jsonify(multiplier)
+
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
     if request.method == 'POST':
@@ -474,6 +499,7 @@ def melody():
             print("Received Audio File")
             if request.files.get('file'):
                 outFile = request.files["file"]
+                print(type(outFile))
                 if request.headers['Host'] == "127.0.0.1:5000":
                     print("HELLO LOCAL SERVER")
                     fileName = outFile.filename
@@ -571,33 +597,15 @@ def source():
         title = data[0]
         artist = data[1]
         url = data[2]
-        print(artist)
-        print(title)
-        print(url)
-        resp = {"category": "success"}
-        return make_response(jsonify(resp), 200)
-        # obj = Source(artist=artist, url=url, title=title)
-        # success = obj.process_input()
+        obj = Source(artist=artist, url=url, title=title)
+        success = obj.process_input()
 
-        # if(success):
-        #     resp = {"category": "success"}
-        #     return make_response(jsonify(resp), 200)
-        # else:
-        #     resp = {"category": "failure"}
-        #     return make_response(jsonify(resp), 200)
-
-    # """EDIT THESE FIELDS TO TEST THE CROWD SOURCING"""
-    # artist = "Fall Out Boy"
-    # title = "Sugar We're Going Down"
-    # url = "https://www.youtube.com/watch?v=3n-9Rsn52Qk"
-
-    # obj = Source(artist=artist, url=url, title=title)
-    # sucess = obj.process_input()
-
-    # if(sucess):
-    #     return "SUCCESSFUL UPLOAD"
-    # else:
-    #     return "FAILED UPLOAD"
+        if(success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.route('/fileSource', methods=['GET', 'POST'])
@@ -607,11 +615,16 @@ def source2():
         title = data[0]
         artist = data[1]
         file = data[2]
-        print(artist)
-        print(title)
-        print(file)
-        resp = {"category": "success"}
-        return make_response(jsonify(resp), 200)
+
+        obj = Source(artist=artist, file=file, title=title)
+        success = obj.process_input()
+
+        if (success):
+            resp = {"category": "success"}
+            return make_response(jsonify(resp), 200)
+        else:
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.context_processor
