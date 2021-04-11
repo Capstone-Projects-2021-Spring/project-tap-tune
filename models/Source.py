@@ -273,9 +273,11 @@ def perc_hash(y_perc, sr):
 
 
 def split_hash(filepath):
+    print(filepath)
     try:
         print("LIBROSA PROCESSING FOR SONG SPLITTING")
         y, sr = librosa.load(filepath)
+        print("LIBROSA EFFECTS HPSS")
         y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
         print("PROCESS HARMONIC HASH")
         harm = harm_hash(y_harm, sr)

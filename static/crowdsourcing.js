@@ -129,8 +129,6 @@ $('#sendSourceButton').on('click', function(e){
 //        });
     }
 
-    console.log("FAILED EXECUTION");
-
 
 });
 
