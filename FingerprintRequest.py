@@ -4,6 +4,7 @@ import re
 import acrcloud.acrcloud_extr_tool as ACRext
 import requests
 import json
+import speech_recognition as sr
 import lyricsgenius
 
 def cleanString(string):
@@ -231,7 +232,7 @@ class FingerprintRequest:
 
                             # Start comparison for the entire songlyrics. Stops if song is found
                             while (restOfTheInput + inputOffset) < len(userInputArr) and not foundSongFlag:
-                                print('comparing: ' + userInputArr[restOfTheInput + inputOffset] + '\t' + lyricsArr[z + restOfTheInput + lyricOffset])
+                                # print('comparing: ' + userInputArr[restOfTheInput + inputOffset] + '\t' + lyricsArr[z + restOfTheInput + lyricOffset])
 
                                 try:
                                     if userInputArr[restOfTheInput+inputOffset] == lyricsArr[z + restOfTheInput + lyricOffset]:
@@ -343,7 +344,7 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
-'''
+
 obj = FingerprintRequest()
 
 file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\katyperry.wav"
@@ -364,7 +365,7 @@ with sr.AudioFile(file) as source:    # Load the file
     print(lastTest.score)
 
     pass
-'''
+
 '''
 testSong = foundsong()
 testSong.set_artist('Foo Fighters')
