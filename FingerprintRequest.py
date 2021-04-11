@@ -344,7 +344,7 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
-
+'''
 obj = FingerprintRequest()
 
 file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\katyperry.wav"
@@ -365,7 +365,7 @@ with sr.AudioFile(file) as source:    # Load the file
     print(lastTest.score)
 
     pass
-
+'''
 '''
 testSong = foundsong()
 testSong.set_artist('Foo Fighters')
