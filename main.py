@@ -509,6 +509,7 @@ def arrayIntervals(array):
             num = round((array[index] - prev), 3)
             newArray.append(num)
             index += 1
+    newArray.pop(0)
     return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
@@ -517,8 +518,10 @@ def rhythmPost():
         out = receiveRhythm()
 
         global user_result
-        user_result = json.loads(request.data)
-        #user_result = arrayIntervals(json.loads(request.data))
+
+        #return time interval with first element dropped
+        #user_result = json.loads(request.data)
+        user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
 
@@ -537,8 +540,9 @@ def multipleRhythmPost():
                 harmonicArray.append(recordedBeats['timestamp'])
 
         global user_result
-        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        #user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
+        #return timestamp or tme interval
+        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
