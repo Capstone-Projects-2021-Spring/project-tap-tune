@@ -4,9 +4,8 @@ import re
 import acrcloud.acrcloud_extr_tool as ACRext
 import requests
 import json
+import speech_recognition as sr
 import lyricsgenius
-
-#TODO: Work on more metadata extraction
 
 def cleanString(string):
     # Gets rid of all special characters that may not be needed. Keeps commas and hyphens
@@ -160,22 +159,33 @@ class FingerprintRequest:
         return lyrics
 
     def lyricSearch(self, songArray, userInput):
+
+        # Inner Function to clear special characters for each word
+        def clearSyntax(string):
+            string = string.replace('?', '')
+            string = string.replace('!', '')
+            string = string.replace(',', '')
+            string = string.replace('.', '')
+            string = string.lower()
+            return string
+
         # Take the lyrics and song array, loop and change string to find lyrics and all
         lyricSong = foundsong()
         print("UserInput: " + userInput)
 
-        #Split UserArray and split it
+        #Split UserArray
         userInputArr = userInput.split(' ')
-        for char in range(0,len(userInputArr)):
-            userInputArr[char] = userInputArr[char].lower()
+        for char in range(0, len(userInputArr)):
+            userInputArr[char] = clearSyntax(userInputArr[char])
 
         foundSongFlag = False
 
-        #Needs a base lyric array of 5 words or so
+        #Needs a base lyric array of at least 5 words
         if len(userInputArr) > 5:
             #Get each song in the array
-            for x in range(0,len(songArray)):
+            for x in range(0, len(songArray)):
 
+                # Goes in top to bottom order. If the song is found, pass the rest of the search
                 if foundSongFlag:
                     pass
                 else:
@@ -189,7 +199,7 @@ class FingerprintRequest:
                     else:
                         currArtist = songArray[x].artists
 
-                    # Get the Lyrics
+                    # Get the Lyrics from Genius API
                     lyrics = self.get_lyrics(currTitle, currArtist)
 
                     # Edit and Split Lyrics so Headers are removed and lyrics are properly split
@@ -204,32 +214,84 @@ class FingerprintRequest:
                         if '[' in lyricsArr[y] or ']' in lyricsArr[y] or ')' in lyricsArr[y]:
                             lyricsArr[y] = ''
                         else:
-                            lyricsArr[y] = lyricsArr[y].replace('?', '')
-                            lyricsArr[y] = lyricsArr[y].replace('!', '')
-                            lyricsArr[y] = lyricsArr[y].replace(',', '')
-                            lyricsArr[y] = lyricsArr[y].lower()
+                            lyricsArr[y] = clearSyntax(lyricsArr[y])
 
                     # Get rid of all the blank char strings in lyrics array
                     lyricsArr = list(filter(None, lyricsArr))
-                    # print(lyricsArr)
 
-                    # Need to compare lyrics and userinput now
+                    # compares each word between lyrics and userInput Lyrics now.
                     for z in range(0, len(lyricsArr)):
-                        # Check to see if the first input matches with anything
+                        # Check to see if the first input matches with anything if yes, check the rest of userInput
                         if userInputArr[0] == lyricsArr[z] and not foundSongFlag:
-                            counter = 1
-                            for restOfTheInput in range(1, len(userInputArr)):
+
+                            # Some variables initialized for the check
+                            counter = 1             # Counter for how many words matched
+                            inputOffset = 0         # Sync variable for userInput
+                            lyricOffset = 0         # Sync Variable for Lyrics
+                            restOfTheInput = 1      # Iterator for each index in userInput array
+
+                            # Start comparison for the entire songlyrics. Stops if song is found
+                            while (restOfTheInput + inputOffset) < len(userInputArr) and not foundSongFlag:
+                                # print('comparing: ' + userInputArr[restOfTheInput + inputOffset] + '\t' + lyricsArr[z + restOfTheInput + lyricOffset])
+
                                 try:
-                                    if userInputArr[restOfTheInput] == lyricsArr[z + restOfTheInput]:
+                                    if userInputArr[restOfTheInput+inputOffset] == lyricsArr[z + restOfTheInput + lyricOffset]:
                                         counter += 1
+                                    else:
+                                        # print('Not matched. Trying Extra Comparisons')
+
+                                        lyricOffsetFlag = False
+                                        inputOffsetFlag = False
+
+                                        # Checks if User word is upcoming in the lyrics. If so, match and sync the userInput to that part in the Lyrics
+                                        for a in range(0, 3):
+                                            if not lyricOffsetFlag:
+                                                try:
+                                                    # print('comparing: ' + userInputArr[restOfTheInput + inputOffset] + '\t' + lyricsArr[z + restOfTheInput + a + lyricOffset])
+                                                    if userInputArr[restOfTheInput + inputOffset] == lyricsArr[z + restOfTheInput + a + lyricOffset]:
+                                                        lyricOffset += a
+                                                        lyricOffsetFlag = True
+                                                        counter += 1
+                                                except IndexError:
+                                                    # print('Out of Bounds. Proceeding')
+                                                    pass
+
+                                        # If the userInput word was not found, see if maybe the Lyric is in the upcomming UserInput. if so, match and sync
+                                        if not lyricOffsetFlag:
+                                            for b in range(0, 3):
+                                                if not inputOffsetFlag:
+                                                    try:
+                                                        # print('comparing: ' + lyricsArr[z + restOfTheInput + lyricOffset] + '\t' + userInputArr[restOfTheInput + b + inputOffset])
+                                                        if lyricsArr[z + restOfTheInput + lyricOffset] == userInputArr[restOfTheInput + b + inputOffset]:
+                                                            inputOffset += b
+                                                            inputOffsetFlag = True
+                                                            counter += 1
+                                                    except IndexError:
+                                                        # print('Out of Bounds. Proceeding')
+                                                        pass
+                                    ''' Logging print statements
+                                    print('Input Offset: ' + str(inputOffset))
+                                    print('Lyric Offset: ' + str(lyricOffset))
+                                    print('Counter : ' + str(counter))
+
+                                    print('Moving to next comparison')
+                                    print('\n')
+                                    '''
+
+                                    restOfTheInput += 1
+
+                                    # If there is a 80% match in the lyrics, then the song is deemed "found"
+                                    if counter >= (len(userInputArr) * .8):
+                                        print(str(counter) + "/" + str(len(userInputArr)) + '=' + str(counter / len(userInputArr)))
+                                        foundSongFlag = True
                                 except:
                                     pass
-                            if counter >= (len(userInputArr) * .5):
+
+                            if foundSongFlag:
                                 lyricSong.set_title(songArray[x].title)
                                 lyricSong.set_artist(songArray[x].artists)
                                 lyricSong.set_genre(songArray[x].genres)
-                                lyricSong.set_score(songArray[x].score)
-                                foundSongFlag = True;
+                                lyricSong.set_score(100)
                                 print('Matched song with: ' + songArray[x].title + ' ' + songArray[x].artists)
                     if not foundSongFlag:
                         print("Song did not Match")
@@ -285,7 +347,7 @@ class FingerprintRequest:
 '''
 obj = FingerprintRequest()
 
-file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\pretender.wav"
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\katyperry.wav"
 
 with sr.AudioFile(file) as source:    # Load the file
     r = sr.Recognizer()
