@@ -487,7 +487,7 @@ def receiveRhythm():
 def adjustArray(array):
     newArray = []
     # if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -497,9 +497,10 @@ def adjustArray(array):
     return newArray
 
 def arrayIntervals(array):
+    #retrive the array intervals of timestamps
     newArray = []
     index = 1
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
 
@@ -509,6 +510,7 @@ def arrayIntervals(array):
             num = round((array[index] - prev), 3)
             newArray.append(num)
             index += 1
+    newArray.pop(0) #pop the first item in case user error
     return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
