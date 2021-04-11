@@ -235,10 +235,12 @@ def peak_hash(file_path):
 
 
 def harm_hash(y_harm, sr):
+    print("HARMONIC ONSET DETECT")
     frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
     bin_array = []
     increment = 0
+    print("BINARY ARRAY BUILDING")
     for x in range(0, frames[len(frames) - 1]):
         if (frames[increment] == x):
             bin_array.append(1)
@@ -247,8 +249,7 @@ def harm_hash(y_harm, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    print("BINARY TO HASH")
     harmonic_hash = hash_array(bin_array)
     return harmonic_hash
 
@@ -266,8 +267,6 @@ def perc_hash(y_perc, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     percussive_hash = hash_array(bin_array)
     return percussive_hash
 
