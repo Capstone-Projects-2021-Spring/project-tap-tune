@@ -440,7 +440,9 @@ class Source:
     # void
     def process_wav(self, filepath, song_dict):
         print("PROCESSING WAV FILE")
+        print("PROCESS ONSET HASH")
         onset = onset_hash(filepath)
+        print("PEAK HASH")
         peak = peak_hash(filepath)
 
         if((onset != None) and (peak != None)):
@@ -461,6 +463,10 @@ class Source:
             else:
                 print("Song fields not filled")
                 return None
+
+        else:
+            print("PEAK AND ONSET HASH NOT VALID")
+            return None
 
     # execute functions to insert new song to db by YouTube video
     # check for url, process url for converted file, fetch metadata and crete new song in db
