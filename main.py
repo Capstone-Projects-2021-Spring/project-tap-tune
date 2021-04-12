@@ -8,6 +8,7 @@ from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
+import time
 
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
@@ -290,6 +291,52 @@ def add_user_log_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+@app.route('/spotify-suggest', methods=['GET', 'POST'])
+def spotify_suggest():
+    if request.method == 'POST': 
+        #Getting song suggestion based on spotify API
+        data = json.loads(request.data)
+
+        am = SpotifyHandler.get_oauth_manager()
+        spotify = spotipy.Spotify(auth_manager=am)
+
+        #For each title and artist, find track id
+        track_ids = []
+        for items in data:
+            split = items.split(',')
+            title = split[0]
+            artist = split[1]
+            print(title + artist)
+            searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
+            #print(searchResults)
+            if searchResults and searchResults["tracks"]["total"] > 0:
+                track_id = searchResults['tracks']['items'][0]["id"]
+                track_ids.append(track_id)
+                #print(      searchResults['tracks']['items'][0])
+
+        #Using Track Ids, get a recommended song through Spotify API
+        if (len(track_ids) > 0):
+            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            if recommendations:
+                recommendedTitle = recommendations["tracks"][0]["name"]
+                recommendedArtist = recommendations["tracks"][0]["artists"][0]["name"]
+                recommendedSongImage = recommendations["tracks"][0]["album"]["images"][1]
+                msg = "Song suggested by related tracks."
+                data = [recommendedTitle, recommendedArtist, recommendedSongImage]
+                category = "success"
+            else:
+                msg = "Song could not be suggested, no found tracks in input array."
+                data = "None"
+                category = "warning"
+                
+        else:
+            msg = "Song could not be suggested, no found tracks in input array."
+            data = "None"
+            category = "warning"
+
+        resp = {'feedback': msg, 'category': category, 'data': data}
+        return make_response(jsonify(resp), 200)
+    
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -434,14 +481,13 @@ def logout():
 
 def receiveRhythm():
     data = request.json
-    print(data)
     return jsonify(data)
 
 
 def adjustArray(array):
     newArray = []
     # if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -450,6 +496,22 @@ def adjustArray(array):
         newArray.append(num)
     return newArray
 
+def arrayIntervals(array):
+    #retrive the array intervals of timestamps
+    newArray = []
+    index = 1
+    if len(array) <= 3:
+        newArray = [0]
+        return newArray
+
+    for timestamp in array:
+        if (index < len(array)):
+            prev = array[index-1]
+            num = round((array[index] - prev), 3)
+            newArray.append(num)
+            index += 1
+    newArray.pop(0) #pop the first item in case user error
+    return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
@@ -457,7 +519,11 @@ def rhythmPost():
         out = receiveRhythm()
 
         global user_result
-        user_result = json.loads(request.data)
+
+        #return time interval with first element dropped
+        #user_result = json.loads(request.data)
+        user_result = arrayIntervals(json.loads(request.data))
+        print(user_result)
         return out
 
 
@@ -475,7 +541,9 @@ def multipleRhythmPost():
                 harmonicArray.append(recordedBeats['timestamp'])
 
         global user_result
-        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        #return timestamp or tme interval
+        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
@@ -611,14 +679,52 @@ def source():
 
 @app.route('/fileSource', methods=['GET', 'POST'])
 def source2():
+    """
+    - downloads the file into the directed path
+    - need to fetch ARTIST and TITLE fields
+    """
     if request.method == 'POST':
-        data = json.loads(request.data)
+        data = request.files["file"]
 
-        title = data[0]
-        artist = data[1]
-        file = data[2]
+        # parses the filename to obtain artist, title, and file extension
+        track_meta = data.filename[1:len(data.filename)-1]
+        track_meta = track_meta.replace("%22", "")
+        meta_split = track_meta.split(',')
+        meta_split[0] = meta_split[0][7:len(meta_split[0])]
+        meta_split[1] = meta_split[1][6:len(meta_split[1])]
+        meta_split[2] = meta_split[2][4:len(meta_split[2])]
+        artist = meta_split[0]
+        title = meta_split[1]
+        print(meta_split)
+        filename_ext = meta_split[len(meta_split)-1]
+        print(data.filename)
+        print(data)
 
-        obj = Source(artist=artist, file=file, title=title)
+        # put together a unique filename to save
+        filename_f = str(time.time()*1000).replace('.', '') + "." + filename_ext
+
+        if request.headers['Host'] == "127.0.0.1:5000":
+            print("HELLO LOCAL SERVER")
+            filename_path = filename_f
+        else:
+            print("HELLO LIVE SERVER")
+            filename_path = "/tmp/" + filename_f
+
+        data.save(filename_path)
+
+        print("==================")
+        print(data.filename)
+        print(filename_ext)
+        print(filename_path)
+        print(type(data))
+        #
+        # print(artist)
+        # print(type(artist))
+        # print(title)
+        # print(type(title))
+
+        # process the user inputs to get the necessary info
+        obj = Source(artist=artist, file=filename_path, title=title)
         success = obj.process_input()
 
         if (success):
@@ -628,9 +734,6 @@ def source2():
             resp = {"category": "failure"}
             return make_response(jsonify(resp), 200)
 
-        file = request.files["file"]
-        print(file)
-        print(type(file))
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 

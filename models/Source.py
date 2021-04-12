@@ -15,13 +15,59 @@
 import librosa, librosa.display
 import spotipy
 from models.Song import Song
-import time
 from pytube import YouTube
 from pydub import AudioSegment
 import time
-
+import numpy as np
 creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef", client_secret="2bcd745069bd4602ae77d1a348c0f2fe")
 spotify = spotipy.Spotify(client_credentials_manager=creds)
+
+
+def levenshtein_ratio_and_distance(s, t, ratio_calc = False):
+    """ levenshtein_ratio_and_distance:
+        Calculates levenshtein distance between two strings.
+        If ratio_calc = True, the function computes the
+        levenshtein distance ratio of similarity between two strings
+        For all i and j, distance[i,j] will contain the Levenshtein
+        distance between the first i characters of s and the
+        first j characters of t
+    """
+    # Initialize matrix of zeros
+    rows = len(s)+1
+    cols = len(t)+1
+    distance = np.zeros((rows,cols),dtype = int)
+
+    # Populate matrix of zeros with the indeces of each character of both strings
+    for i in range(1, rows):
+        for k in range(1,cols):
+            distance[i][0] = i
+            distance[0][k] = k
+
+    # Iterate over the matrix to compute the cost of deletions,insertions and/or substitutions
+    for col in range(1, cols):
+        for row in range(1, rows):
+            if s[row-1] == t[col-1]:
+                cost = 0 # If the characters are the same in the two strings in a given position [i,j] then the cost is 0
+            else:
+                # In order to align the results with those of the Python Levenshtein package, if we choose to calculate the ratio
+                # the cost of a substitution is 2. If we calculate just distance, then the cost of a substitution is 1.
+                if ratio_calc == True:
+                    cost = 2
+                else:
+                    cost = 1
+            distance[row][col] = min(distance[row-1][col] + 1,      # Cost of deletions
+                                 distance[row][col-1] + 1,          # Cost of insertions
+                                 distance[row-1][col-1] + cost)     # Cost of substitutions
+    if ratio_calc == True:
+        # Computation of the Levenshtein Distance Ratio
+        Ratio = ((len(s)+len(t)) - distance[row][col]) / (len(s)+len(t))
+        return Ratio
+    else:
+        # print(distance) # Uncomment if you want to see the matrix showing how the algorithm computes the cost of deletions,
+        # insertions and/or substitutions
+        # This is the minimum number of edits needed to convert string a to string b
+        return "The strings are {} edits away".format(distance[row][col])
+
 
 def countToVal(count):
     dict = {
@@ -189,10 +235,12 @@ def peak_hash(file_path):
 
 
 def harm_hash(y_harm, sr):
+    print("HARMONIC ONSET DETECT")
     frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
     bin_array = []
     increment = 0
+    print("BINARY ARRAY BUILDING")
     for x in range(0, frames[len(frames) - 1]):
         if (frames[increment] == x):
             bin_array.append(1)
@@ -201,8 +249,7 @@ def harm_hash(y_harm, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    print("BINARY TO HASH")
     harmonic_hash = hash_array(bin_array)
     return harmonic_hash
 
@@ -220,31 +267,38 @@ def perc_hash(y_perc, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     percussive_hash = hash_array(bin_array)
     return percussive_hash
 
 
 def split_hash(filepath):
-    y, sr = librosa.load(filepath)
-    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+    print(filepath)
+    try:
+        print("LIBROSA PROCESSING FOR SONG SPLITTING")
+        y, sr = librosa.load(filepath)
+        print("LIBROSA EFFECTS HPSS")
+        y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+        print("PROCESS HARMONIC HASH")
+        harm = harm_hash(y_harm, sr)
+        print("PROCESS PERRCUSSIVE HASH")
+        perc = perc_hash(y_perc, sr)
 
-    harm = harm_hash(y_harm, sr)
-    perc = perc_hash(y_perc, sr)
-
-    return harm, perc
+        return harm, perc
+    except Exception as e:
+        print(e)
+        return None
 
 
 class Source:
     # constructor for the source class
     # @param url - youtube url if provided by the user
     # @param file - .wav file uploaded by user
-    def __init__(self, url=None, file=None, title=None, artist=None):
+    def __init__(self, url=None, file=None, title=None, artist=None, ext=None):
         self.url = url
         self.file = file
         self.title = title
         self.artist = artist
+        self.ext = ext
 
     # function to fetch audio stream from youtube
     # returns audio stream, can be saved from call
@@ -303,6 +357,28 @@ class Source:
         else:
             return 0
 
+        # process the file upload
+        # handle any file uploads
+        # return path to wav file
+
+    def process_input_upload(self):
+        if (self.file):
+            filename = str(time.time() * 100.0).replace('.', '')
+            output_path = "/tmp/" + filename + ".wav"
+            try:
+                convert_file = AudioSegment.from_file(file=self.file, format=self.ext)
+                convert_file.export(out_f=output_path, format="wav")
+                print("UPLOAD SUCCESSFUL CONVERSION")
+                return output_path
+            except Exception as e:
+                print("output_path = " + output_path)
+                print("ext = " + self.ext)
+                print("UPLOAD FAILED TO CONVERT/SAVE as WAV")
+                return 0
+            pass
+
+        else:
+            pass
 
     # obtain metadata on song
     # create new Song object
@@ -331,11 +407,16 @@ class Source:
             results_2 = spotify.search(q=song_dict.get("title"), limit=20, type="track", market=None)
             for albums in results_2["tracks"]["items"]:
                 for artist in albums["artists"]:
-                    if (artist["name"] in track_artists):
+                    print("INPUT ARTIST = " + track_artists)
+                    print("SPOTIFY ARTIST = " + artist["name"])
+                    res = levenshtein_ratio_and_distance(artist["name"].lower(), track_artists.lower(), ratio_calc=True)
+                    print("SIMILARITY RATIO = ", res)
+                    if (res >= .6):
                         track_id = albums["id"]
                         track_release = albums["album"]["release_date"]
                         artist_id = artist["id"]
                         song_dict["release_date"] = track_release
+                        song_dict["artist"] = artist["name"]
                         found = True
                         break
 
@@ -349,15 +430,12 @@ class Source:
                     break
 
             if(song_dict.get("release_date") != None):
-                # new_song = Song.insert(song_dict)
-                # if(new_song):
-                #     print("INSERTED SONG SUCCESSFULLY")
-                #     return new_song
-                # else:
-                #     return 0
-
                 return song_dict, 1
             else:
+                print("SONG NOT FOUND IN SPOTIFY")
+                for albums in results_2["tracks"]["items"]:
+                    for artist in albums["artists"]:
+                        print(artist["name"])
                 return song_dict, 0
         else:
             print("NO ARTIST OR TITLE INPUT")
@@ -368,27 +446,38 @@ class Source:
     # @param song: song object, populated with
     # void
     def process_wav(self, filepath, song_dict):
+        print("PROCESSING WAV FILE")
+        print("PROCESS ONSET HASH")
         onset = onset_hash(filepath)
+        print("PROCESS PEAK HASH")
         peak = peak_hash(filepath)
-
+        print("CONDITIONAL FOR VALID HASHES")
         if((onset != None) and (peak != None)):
+            print("ADD SONGS TO SONG DICT")
             # set the onset and peak hash
             song_dict["onset_hash"] = onset
             song_dict["peak_hash"] = peak
             # obtain hrm and perc hash values
+            print("PROCESS HARMONIC AND PERCUSSIVE HASHES")
             harm, perc = split_hash(filepath)
             # set the harm and perc hashes
+            print("ADD HASHES TO SONG DICT")
             song_dict["perc_hash"] = perc
             song_dict["harm_hash"] = harm
 
             res = all(song_dict.values())
             if(res):
+                print("INSERT SONG INTO DB")
                 res_song = Song.insert(song_dict)
                 print("SUCCESSFULLY INSERTED SONG")
                 return res_song
             else:
                 print("Song fields not filled")
                 return None
+
+        else:
+            print("PEAK AND ONSET HASH NOT VALID")
+            return None
 
     # execute functions to insert new song to db by YouTube video
     # check for url, process url for converted file, fetch metadata and crete new song in db
@@ -397,8 +486,11 @@ class Source:
     def process_input(self):
         # if user uploaded file
         if(self.file):
+            """
+            - NEED TO CHECK THE FILE EXTENSION FOR ANY FILE CONVERSIONS
+            """
             print("PROCESSING FILE")
-            filepath = self.file
+            filepath = self.process_input_upload()
             print("TEST")
             song_dict, check = self.fetch_spotify_data()
 
@@ -417,25 +509,35 @@ class Source:
             check = False
 
         # check that new song exists
-        if(song_dict and check):
+        if(check == 1):
             self.process_wav(filepath, song_dict)
             return 1
         else:
+            print("SPOTIFY DATA NOT FOUND SUBMISSION FAILED")
             return 0
 
 
 if __name__ == "__main__":
-    sample_url = "https://www.youtube.com/watch?v=D9fAN4tEviw"
-    obj = Source(url=sample_url, artist="Greta Van Fleet", title="edge of darkness")
-
-    check = obj.process_input()
-    if(check):
-        print("success")
-
-    else:
-        print("failure")
+    # sample_url = "https://www.youtube.com/watch?v=D9fAN4tEviw"
+    # obj = Source(url=sample_url, artist="Greta Van Fleet", title="edge of darkness")
     #
-    # artist = "commodores"
-    # song = Song.get_by_artist(artist)
+    # check = obj.process_input()
+    # if(check):
+    #     print("success")
     #
-    # print(song[0].title)
+    # else:
+    #     print("failure")
+    # #
+    # # artist = "commodores"
+    # # song = Song.get_by_artist(artist)
+    # #
+    # # print(song[0].title)
+
+    string1 = "HER"
+    string2 = "H.E.R."
+
+    string2 = string2.replace('.', '')
+    print(string2)
+    res = levenshtein_ratio_and_distance(string1.lower(), string2.lower(), ratio_calc=True)
+    print(res)
+

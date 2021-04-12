@@ -236,7 +236,6 @@ $( document ).ready(function() {
         else {
             //General Recording Return
             var returnArray = adjustArray(times);
-            console.log("finished array " + returnArray)
             times = returnArray;
             return returnArray;
         }
@@ -244,7 +243,7 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function adjustArray(array){
-        //adjust array times so that the first array does not count
+        //adjust array times so that the first item does not count and all following items are subtracted from the first timestamp
 
         if (recordingType.innerHTML == dynamicRecordType) { 
             var jsonArray = array;

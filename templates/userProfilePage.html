@@ -54,9 +54,9 @@
                         <li class="nav-item">
                             <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorite Songs</a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" id="Suggestion-tab" data-toggle="tab" href="#suggestions" role="tab" aria-controls="suggestions" aria-selected="false">Song Suggestions</a>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
             </div>
@@ -155,26 +155,56 @@
                     </div>
                     <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
                         <div class="row">
-                            <div class="col-md-6 offset-md-3">
-                                <h3>Favorite Songs</h3>
+                            <div class="col">
+                                <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Suggested Song</h3>
+                                <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below.  Simply check off songs you want the suggestion to be based off and press the Suggest button!  </p>
+                                <div class="col border-left">
+                                    <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
+                                    <h3 id="suggestedTitle" >
+                                        Blue Orchid
+                                    </h3>
+                                    <h4 id="suggestedArtist">
+                                        The White Stripes
+                                    </h4>
+                                    <button id="suggestSpotifySongBtn" type="button" class="btn btn-success"><i class="fab fa-spotify"></i> Refresh</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Favorited Songs</h3>
                                 <ul class="timeline">
                                     {%for song in user_fav_songs%}
-                                        <li>
-                                            <a href="#">{{song.title}}</a>
+                                    <div class="row">
+                                        <div class="col-xs-1">
+                                            <br>
+                                            {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            checked>
+                                            {%else%}
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            unchecked>
+                                            {%endif%}
+                                        </div>
+                                        <div class="col">
+                                            <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
                                             <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
                                             <p>
-                                                Artist: {{song.artist}}<br>
+                                                <span id="songFavoritedTitle{{loop.index}}">
+                                                    Artist: {{song.artist}}
+                                                </span><br>
                                                 Genre: {{song.genre}}
-                                            </p>
-                                        </li>
+                                            </p>    
+                                        </div>
+                                    </div>
                                     {%endfor%}
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="suggestions" role="tabpanel" aria-labelledby="suggestions-tab">
+                    <!-- <div class="tab-pane fade" id="suggestions" role="tabpanel" aria-labelledby="suggestions-tab">
                         <div class="row">
-                            <div class="col-md-6 offset-md-3">
+                            <div class="col">
                                 <h3>Song Suggestions</h3>
                                 <ul class="timeline">
                                     {%for song in user_fav_songs%}
@@ -190,7 +220,7 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
