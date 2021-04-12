@@ -14,6 +14,7 @@ from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
 from models.SpotifyHandler import SpotifyHandler
+from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import uuid
 import os
@@ -316,8 +317,8 @@ def spotify_suggest():
         #Getting song suggestion based on spotify API
         data = json.loads(request.data)
 
-        am = SpotifyHandler.get_oauth_manager()
-        spotify = spotipy.Spotify(auth_manager=am)
+        spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
         #For each title and artist, find track id
         track_ids = []
@@ -337,11 +338,13 @@ def spotify_suggest():
         if (len(track_ids) > 0):
             recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
             if recommendations:
+                print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
                 recommendedArtist = recommendations["tracks"][0]["artists"][0]["name"]
                 recommendedSongImage = recommendations["tracks"][0]["album"]["images"][1]
+                recommendedSongLink = recommendations["tracks"][0]["external_urls"]["spotify"]
                 msg = "Song suggested by related tracks."
-                data = [recommendedTitle, recommendedArtist, recommendedSongImage]
+                data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
