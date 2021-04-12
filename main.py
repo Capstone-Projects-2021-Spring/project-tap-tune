@@ -776,8 +776,8 @@ def source2():
         success = obj.process_input()
 
         """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
-        row = [artist, title, os.path.dirname(os.path.realpath(__file__))]
-        with open('user_uploads.csv', 'a+', newline='') as write_obj:
+        row = [artist, title, success]
+        with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
             csv_writer = csv.writer(write_obj)
             csv_writer.writerow(row)
 
