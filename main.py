@@ -123,12 +123,12 @@ def result_page():
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
-        photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
+        #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, photo=photo)
+    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
@@ -176,7 +176,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            photo  = get_photo(result.title, result.artists)
+            #photo  = get_photo(result.title, result.artists)
             # print(lyrics)
 
             print("STUFFY NOODLES")
@@ -190,7 +190,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList, photo=photo)
+                           score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])
