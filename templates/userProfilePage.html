@@ -144,7 +144,7 @@
                                                     {%if user.is_spotify_login() %}
                                                         Add to Spotify
                                                     {%endif%}
-                                                    <a id="songLogLink{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
+                                                    <a id="songLogLink" data-index="{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
                                                 {%endif%}
                                             </p>
                                         </li>
@@ -159,7 +159,9 @@
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Suggested Song</h3>
                                 <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below.  Simply check off songs you want the suggestion to be based off and press the Suggest button!  </p>
                                 <div class="col border-left">
-                                    <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
+                                    <a id="suggestedImageLink">
+                                        <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
+                                    </a>
                                     <h3 id="suggestedTitle" >
                                         Blue Orchid
                                     </h3>
