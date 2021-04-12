@@ -331,7 +331,7 @@ def process_recording2(userInput, onsetFrames):
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
     songTimestampSync = change_tempo(songTimestamp, 60)
     # user input prep
-    input_pattern = get_pattern(change_tempo(userInput, 60))
+    input_pattern = change_tempo(userInput, 60)
 
     # compare user input and DB info
     # ---Decision making---
@@ -368,7 +368,7 @@ def get_pattern(timestamp):
 def compare_sync(song_timestamp, user_pattern):
     header = 0
     tail = 1
-    error = 0.2
+    error = 0.5
     hit = 0
     offset = 0
     for i in user_pattern:
