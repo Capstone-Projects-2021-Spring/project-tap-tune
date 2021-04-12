@@ -1,12 +1,11 @@
 $(document).on("click", "a", function() {
     var currentId = $(this).attr('id')
 
-    let idType = currentId.substring(0, currentId.length -1);
-
     //If the a element is for the add to Spotify feature
-    if (idType === "songLogLink") {
+    if (currentId === "songLogLink") {
 
-        let idIndex = currentId.slice(-1);
+        let idIndex = $(this).attr('data-index')
+        console.log(idIndex);
         
         let currentTitle = document.getElementById("songLogTitle" + idIndex).innerText;
         let currentArtist = document.getElementById("songLogArtist" + idIndex).innerText;
@@ -59,15 +58,19 @@ $('#suggestSpotifySongBtn').on('click', function(e){
     var checkboxes = document.querySelectorAll('[data-track]');
     var suggestedTitle = document.getElementById("suggestedTitle");
     var suggestedImage = document.getElementById("suggestedImage");
+    var suggestedImageLink = document.getElementById("suggestedImageLink");
     var suggestedArtist = document.getElementById("suggestedArtist");
 
     console.log("suggest Button")
-    var js_data = [];
+    var js_data = new Array();
     for (var i = 0; i < checkboxes.length; i++) {
         var item = checkboxes[i];
         if (item.checked) {
-            js_data[i] = item.getAttribute('data-track');
-            console.log(item.getAttribute('data-track'));
+            if (js_data.length < 5) {
+
+                js_data.push(item.getAttribute('data-track'));
+                console.log(item.getAttribute('data-track'));
+            }
         }
     }
 
@@ -84,7 +87,7 @@ $('#suggestSpotifySongBtn').on('click', function(e){
         suggestedTitle.innerText = result.data[0];
         suggestedArtist.innerText = result.data[1];
         suggestedImage.src = result.data[2]['url'];
-
+        suggestedImageLink.href = result.data[3];
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.log("fail: ", textStatus, errorThrown);
     });

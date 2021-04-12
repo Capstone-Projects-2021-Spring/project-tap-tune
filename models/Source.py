@@ -235,10 +235,12 @@ def peak_hash(file_path):
 
 
 def harm_hash(y_harm, sr):
+    print("HARMONIC ONSET DETECT")
     frames = librosa.onset.onset_detect(y=y_harm, sr=sr, units='frames')  # Librosa Frames
     # frames to binary
     bin_array = []
     increment = 0
+    print("BINARY ARRAY BUILDING")
     for x in range(0, frames[len(frames) - 1]):
         if (frames[increment] == x):
             bin_array.append(1)
@@ -247,8 +249,7 @@ def harm_hash(y_harm, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
+    print("BINARY TO HASH")
     harmonic_hash = hash_array(bin_array)
     return harmonic_hash
 
@@ -266,20 +267,26 @@ def perc_hash(y_perc, sr):
             bin_array.append(0)
     bin_array.append(1)
     # converting to Hash
-    test_array = binToFrames(bin_array)
-    songTimestamp = librosa.frames_to_time(test_array, sr=22050)
     percussive_hash = hash_array(bin_array)
     return percussive_hash
 
 
 def split_hash(filepath):
-    y, sr = librosa.load(filepath)
-    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+    print(filepath)
+    try:
+        print("LIBROSA PROCESSING FOR SONG SPLITTING")
+        y, sr = librosa.load(filepath)
+        print("LIBROSA EFFECTS HPSS")
+        y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+        print("PROCESS HARMONIC HASH")
+        harm = harm_hash(y_harm, sr)
+        print("PROCESS PERRCUSSIVE HASH")
+        perc = perc_hash(y_perc, sr)
 
-    harm = harm_hash(y_harm, sr)
-    perc = perc_hash(y_perc, sr)
-
-    return harm, perc
+        return harm, perc
+    except Exception as e:
+        print(e)
+        return None
 
 
 class Source:
@@ -440,27 +447,41 @@ class Source:
     # void
     def process_wav(self, filepath, song_dict):
         print("PROCESSING WAV FILE")
+        print("PROCESS ONSET HASH")
         onset = onset_hash(filepath)
+        print("PROCESS PEAK HASH")
         peak = peak_hash(filepath)
-
+        print("CONDITIONAL FOR VALID HASHES")
         if((onset != None) and (peak != None)):
+            print("ADD SONGS TO SONG DICT")
             # set the onset and peak hash
             song_dict["onset_hash"] = onset
             song_dict["peak_hash"] = peak
             # obtain hrm and perc hash values
+            print("PROCESS HARMONIC AND PERCUSSIVE HASHES")
             harm, perc = split_hash(filepath)
             # set the harm and perc hashes
+            print("ADD HASHES TO SONG DICT")
+            print(perc)
             song_dict["perc_hash"] = perc
+            print(song_dict["perc_hash"])
             song_dict["harm_hash"] = harm
-
+            print("=============================")
+            print(song_dict)
+            print("=============================")
             res = all(song_dict.values())
             if(res):
+                print("INSERT SONG INTO DB")
                 res_song = Song.insert(song_dict)
                 print("SUCCESSFULLY INSERTED SONG")
                 return res_song
             else:
                 print("Song fields not filled")
                 return None
+
+        else:
+            print("PEAK AND ONSET HASH NOT VALID")
+            return None
 
     # execute functions to insert new song to db by YouTube video
     # check for url, process url for converted file, fetch metadata and crete new song in db
@@ -493,8 +514,8 @@ class Source:
 
         # check that new song exists
         if(check == 1):
-            self.process_wav(filepath, song_dict)
-            return 1
+            # self.process_wav(filepath, song_dict)
+            return filepath
         else:
             print("SPOTIFY DATA NOT FOUND SUBMISSION FAILED")
             return 0
