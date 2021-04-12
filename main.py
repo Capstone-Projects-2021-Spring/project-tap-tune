@@ -2,14 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
-from models.Song import Song
+import pandas as pd
 from models.Source import Source
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
 import time
-
+import csv
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
@@ -689,6 +689,32 @@ def source():
         success = obj.process_input()
 
         if(success):
+            """ADD SONG TO QUEUE"""
+            # song = {
+            #     "title": title,
+            #     "artist": artist,
+            #     "filepath": success
+            # }
+            # song = {'artist': [artist], 'title': [title], 'filepath': [success]}
+            # """ADD TO CSV"""
+            # df = pd.DataFrame.from_dict(data=song)
+            # print(df)
+            # df.to_csv('user_uploads.csv', mode='a', header=False, index=False, sep=',')
+            # output = pd.read_csv('user_uploads.csv', header=0)
+            # print(output.to_string)
+
+            """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
+            row = [artist, title, success]
+            with open('user_uploads.csv', 'a+', newline='') as write_obj:
+                csv_writer = csv.writer(write_obj)
+                csv_writer.writerow(row)
+
+            """EXAMPLE ON READING AND PARSING"""
+            # with open('user_uploads.csv') as csv_file:
+            #     csv_reader = csv.reader(csv_file, delimiter=',')
+            #     for row in csv_reader:
+            #         print(row)
+
             resp = {"category": "success"}
             return make_response(jsonify(resp), 200)
         else:
@@ -745,6 +771,12 @@ def source2():
         # process the user inputs to get the necessary info
         obj = Source(artist=artist, file=filename_path, title=title)
         success = obj.process_input()
+
+        """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
+        row = [artist, title, success]
+        with open('user_uploads.csv', 'a+', newline='') as write_obj:
+            csv_writer = csv.writer(write_obj)
+            csv_writer.writerow(row)
 
         if (success):
             resp = {"category": "success"}
