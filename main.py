@@ -99,7 +99,7 @@ def get_photo(songtitle, songartist):
     searchResults = spotify.search(q="artist:" + songartist + " track:" + songtitle, type="track", limit=1)
     print(searchResults)
     if searchResults and searchResults["tracks"]["total"] > 0:
-        photo = searchResults['tracks']['items'][0]["album"]["images"][1]
+        photo = searchResults["tracks"][0]["album"]["images"][1]
 
     return photo
 
