@@ -280,8 +280,8 @@ class FingerprintRequest:
 
                                     restOfTheInput += 1
 
-                                    # If there is a 80% match in the lyrics, then the song is deemed "found"
-                                    if counter >= (len(userInputArr) * .8):
+                                    # If there is a 60% match in the lyrics, then the song is deemed "found"
+                                    if counter >= (len(userInputArr) * .6):
                                         print(str(counter) + "/" + str(len(userInputArr)) + '=' + str(counter / len(userInputArr)))
                                         foundSongFlag = True
                                 except:
