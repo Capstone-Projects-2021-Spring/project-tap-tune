@@ -229,22 +229,21 @@ $( document ).ready(function() {
     /************************************************************************/
     function returnTimes(){
         if (recordingType.innerHTML == dynamicRecordType) { 
-            //var returnArray = adjustArray(timeJsonArray);
-            //timeJsonArray = returnArray;
+            var returnArray = adjustArray(timeJsonArray);
+            timeJsonArray = returnArray;
             return JSON.stringify(timeJsonArray);
         }
         else {
             //General Recording Return
-            //var returnArray = adjustArray(times);
-            //console.log("finished array " + returnArray)
-            //times = returnArray;
-            return times;
+            var returnArray = adjustArray(times);
+            times = returnArray;
+            return returnArray;
         }
     }//end of returnTimes
 
     /************************************************************************/
     function adjustArray(array){
-        //adjust array times so that the first array does not count
+        //adjust array times so that the first item does not count and all following items are subtracted from the first timestamp
 
         if (recordingType.innerHTML == dynamicRecordType) { 
             var jsonArray = array;
