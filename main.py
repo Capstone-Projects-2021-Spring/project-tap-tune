@@ -511,11 +511,12 @@ def adjustArray(array):
     if len(array) <= 3:
         newArray = [0]
         return newArray
-    dif = array[0]
-    for data in array:
-        num = round((data - dif), 3)
-        newArray.append(num)
-    return newArray
+    # dif = array[0]
+    # for data in array:
+    #     num = round((data - dif), 3)
+    #     newArray.append(num)
+    array.pop(0)
+    return array
 
 def arrayIntervals(array):
     #retrive the array intervals of timestamps
