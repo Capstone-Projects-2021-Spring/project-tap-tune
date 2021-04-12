@@ -22,7 +22,7 @@ import matplotlib.pyplot
 from flask import Flask, render_template, request, json
 import soundfile as sf
 import spotipy
-import AudioAnalysis
+import AudioAnalysis as aa
 import os
 
 
@@ -491,21 +491,26 @@ def match_temposync(song_timestamp, user_pattern):
 
 if __name__ == "__main__":
     # ---song file processing---
-    filepath = '../../sampleMusic/21Guns.wav'
+    filepath = '../../sampleMusic/WeWillRockYou_short.wav'
     songName = filepath[18:-4]
+    user_timestamp = [0.53, 1.084, 2.168, 2.694, 3.273, 4.358, 4.89, 5.458, 6.562, 7.082, 7.64]
+    user_pattern_from_timestamp = get_pattern(change_tempo(user_timestamp, 60))
+    user_pattern = [0.46, 0.508, 1.036, 0.492, 0.568, 1.094, 0.474, 0.55, 1.12, 0.458, 0.553, 1.129, 0.488, 0.564]
+    print('sync pattern:',change_tempo(user_pattern,60))
+    print('sync timestamp then get pattern:', user_pattern_from_timestamp)
 
     # ary = '.36.*D*3*2*3*5*2*3*H*8*7*7*D*I*H*H*4*6*I*2*6*3*J*5*4*8*7*.43.*N*5*3*2*3*8*4*P*7*7*9*P*2*W*4*3*2*F*5*4*5*D*B*4*8*F*4*8*2*7*A*9*A*6*A*8*9*2*6*8*0*A*6*2*6*0*C*4*2*6*9*8*0*9*3*3*3*5*0*7*4*4*J*8*2*8*7*2*6*9*4*3*9*5*4*8*0*9*7*9*2*6*4*3*A*8*9*0*9*7*8*2*7*4*3*9*A*8*0*H*B*7*8*9*9*A*A*7*B*7*4*2*A*J*9*D*4*3*6*8*9*9*8*2*9*G*I*5*4*J*0*K*5*9*8*T*0*7*9*9*0*7*8*7*2*9*B*8*7*9*E*3*C*7*8*0*7*9*9*0*8*3*3*A*9*8*0*9*9*7*9*4*3*C*7*8*0*7*9*8*2*7*0*2*3*9*9*9*0*A*6*9*4*4*4*3*A*8*9*0*6*A*9*3*4*4*4*8*4*5*9*0*K*7*G*A*9*9*4*I*4*2*2*3*8*A*9*9*0*V*D*K*9*0*A*P*8*A*4*3*C*8*A*8*8*7*E*5*8*B*7*3*5*9*8*A*I*2*J*6*4*4*8*2*2*N*0*2*7*G*2*B*3*J*9*B*7*3*5*2*6*8*9*J*.48.*8*A*9*T*9*8*J*9*0*7*I*A*8*9*9*9*B*J*7*7*A*2*6*9*B*9*6*I*D*6*B*Q*4*6*6*2*H*B*Q*4*9*E*9*B*8*8*A*7*4*3*A*8*4*7*9*5*4*K*4*8*K*U*C*3*E*E*B*9*C*3*4*4*2*6*J*B*B*9*5*8*J*9*C*G*H*D*4*P*J*4*9*9*9*9*0*J*6*I*A*9*B*6*C*6*4*9*4*4*E*9*0*J*6*A*8*9*9*4*4*2*8*I*7*4*4*C*5*A*0*9*6*2*A*A*3*K*B*G*B*7*8*A*8*A*0*8*7*3*5*9*4*3*A*L*8*H*4*4*8*A*W*E*5*4*8*5*6*6*C*6*F*6*F*E*7*6*0*.37.*7*6*4*7*4*7*J*9*B*4*J*9*0*A*G*0*G*9*J*V*7*M*5*B*9*L*5*7*5*4*0*7*C*8*9*9*6*4*3*2*K*8*9*A*B*3*4*3*C*J*8*A*G*4*3*A*I*2*8*4*5*6*9*8*A*I*9*J*4*4*8*5*4*J*A*7*9*I*4*5*0*6*9*C*6*J*8*I*2*6*.40.*C*I*6*0*T*7*3*4*T*0*L*4*J*9*9*3*5*2*U*5*8*0*H*9*0*9*6*9*E*3*W*9*3*5*9*F*A*9*9*3*6*C*9*D*A*8*C*9*9*6*9*4*3*A*8*A*0*8*M*D*A*K*T*9*6*2*7*9*8*B*7*R*K*9*2*J*G*8*D*5*B*.36.*4*4*9*9*B*H*B*8*6*K*9*0*H*E*4*8*J*4*6*.37.*8*J*9*0*.45.*A*0*7*9*.43.*3*A*8*9*D*P*7*7*B*B*I*9*9*8*A*0*6*9*2*2*3*9*9*9*7*2*Q*3*G*2*G*8*A*I*0*H*8*A*7*B*I*0*H*8*A*8*9*9*9*9*9*0*5*D*5*C*H*9*9*8*A*8*C*6*8*2*H*8*I*D*G*0*H*0*6*J*9*9*9*J*0*6*9*8*C*6*9*2*G*9*9*8*0*H*M*G*9*8*A*0*5*5*4*J*9*9*9*9*8*9*0*R*9*7*9*.71.*R*E*5*4*9*9*2*B*8*L*B*O*N*S*C*C*C*B*Z*D*3*A*M*I*9*8*2*2*6*N*2*C*I*D*J*9*3*Y*9*4*4*9*B*9*E*C*8*D*F*2*P*2*F*9*W*9*P*A*3*J*6*C*N*A*E*6*9*4*5*5*4*D*T*2*Q*I*T*4*4*C*P*A*0*9*E*.40.*C*7*8*J*J*8*2*A*5*.51.*I*L*.44.*J*9*0*T*G*9*V*G*5*D*C*G*2*.45.*9*F*4*.42.*3*A*2*G*0*G*C*B*2*D*C*N*2*B*D*W*G*9*8*3*5*A*D*0*.42.*8*9*2*7*C*8*G*9*4*2*A*J*C*I*7*8*K*8*9*9*8*2*7*4*3*9*J*A*8*9*E*3*9*A*8*0*6*M*8*3*3*4*5*8*9*A*S*4*3*C*G*0*7*0*7*9*9*4*4*8*I*2*A*6*8*J*9*0*I*9*6*4*2*9*B*K*J*6*G*.57.*N*T*5*.5414.*4*T*2*M*9*F*E*0*E*D*0*6*9*G*0*L*0*7*F*E*0*F*9*4*8*I*5*5*2*5*6*J*5*G*0*5*7*G*2*8*5*9*6*0*5*9*5*A*N*0*4*0*6*8*A*4*9*4*F*2*5*7*6*3*5*9*6*7*7*0*C*2*3*4*6*L*5*4*8*7*6*9*3*A*7*8*7*7*8*8*K*C*5*7*0*5*9*6*2*5*6*8*2*C*E*4*A*3*7*5*3*9*4*7*7*7*9*6*9*5*6*2*8*6*F*G*4*4*6*6*8*3*A*0*F*D*A*6*0*M*0*6*0*M*8*E*6*B*C*2*E*2*7*O*Q*6*3*R*8*4*2*F*D*5*9*8*2*4*A*7*A*I*2*5*9*5*7*K*7*A*R*2*E*5*B*D*F*2*U*2*F*C*F*0*E*F*7*8*0*K*A*G*F*H*J*D*5*6*I*8*U*B*E*5*7*4*4*6*7*7*.40.*H*7*D*0*5*A*F*G*0*I*3*B*S*0*D*2*H*C*6*8*H*U*E*5*A*4*H*3*8*F*Z*D*7*Q*4*P*7*7*.36.*T*6*8*5*A*G*I*H*B*5*J*5*0*F*M*8*0*4*A*5*6*3*7*7*I*C*F*H*D*5*0*S*D*6*A*5*N*2*7*6*8*7*2*4*7*3*.38.*G*6*G*5*A*G*6*8*0*Z*C*F*F*0*E*3*C*4*C*H*5*5*F*X*4*R*8*6*.36.*D*G*E*7*8*0*U*.51.*E*G*F*G*G*F*F*G*A*4*F*8*6*G*G*G*G*F*F*A*5*H*D*G*G*G*G*B*4*E*8*G*F*2*4*0*2*W*A*8*8*A*4*G*D*C*3*E*4*0*H*5*5*7*3*4*E*A*6*8*6*8*0*4*J*I*9*9*7*6*8*K*B*8*7*D*9*8*3*C*7*7*F*G*I*5*0*4*M*5*7*5*7*8*7*G*F*A*3*9*5*G*K*9*B*7*0*D*8*8*7*5*9*2*5*F*C*4*0*2*9*7*7*F*4*8*I*7*9*M*9*5*9*G*A*4*5*E*B*0*H*Y*3*A*F*L*B*8*K*A*8*0*H*3*4*A*5*B*J*8*2*4*7*7*J*K*I*7*0*8*5*5*P*9*6*0*V*0*S*H*V*6*4*7*E*I*F*5*8*H*D*0*D*G*L*B*F*F*H*5*8*4*9*0*6*8*F*J*D*F*5*9*0*4*E*B*0*E*H*V*F*F*X*G*H*I*B*3*D*I*E*0*K*6*L*G*C*6*7*H*6*N*7*8*N*5*7*N*4*L*A*F*8*7*G*J*L*7*G*M*7*7*7*K*D*H*C*0*E*0*N*6*6*2*7*D*H*G*F*M*Q*0*5*8*6*9*.65.*G*E*9*8*W*0*D*8*6*2*C*H*N*7*H*0*G*C*4*3*9*D*7*8*F*G*C*L*E*F*8*7*7*6*0*B*J*.49.*7*B*E*E*G*G*G*F*G*F*7*7*8*6*2*F*E*G*F*6*H*7*B*J*7*0*6*6*9*W*N*6*H*G*F*8*6*Q*8*V*G*5*O*G*7*6*.43.*9*C*Y*F*N*9*X*5*A*D*A*6*E*C*V*5*8*H*5*E*2*7*5*9*5*Y*W*F*H*F*O*7*H*.40.*7*H*N*5*X*2*T*0*4*A*D*4*C*X*2*6*4*O*6*F*H*O*9*.44.*B*.75.*.37.*X*.57.*.48.*I*E*C*4*Q*5*G*E*9*D*9*X*E*F*F*S*L*G*5*I*5*J*K*A*3*7*E*5*8*6*6*9*7*6*6*.44.*9*4*8*7*W*7*8*A*4*P*6*Y*4*9*6*A*D*B*5*F*K*S*G*6*9*F*F*.51.*C*7*9*J*C*7*Q*A*5*J*J*6*5*B*N*7*.65.*8*7*7*M*K*.48.*W*F*F*I*9*4*J*C*4*8*2*2*C*K*G*B*0*F*H*0*9*2*D*G*3*B*5*6*3*5*8*F*I*8*D*J*4*8*8*7*6*G*8*.51.*5*0*D*7*9*5*6*0*8*8*2*4*R*S*F*E*H*J*I*B*H*9*4*F*J*I*A*Y*V*A*4*5*4*6*D*6*0*S*D*X*.46.*G*.6'
     # ary = '.36.*D*3*2*3*5*2*3*H*8*7*.Z'
     # print(unhash_array(ary))
 
     #---------------------------------------------Vocal Seperation----------------------------------------------------
-    y, sr = librosa.load(filepath, duration = 60)
-    S_full, phase = librosa.magphase(librosa.stft(y))
-    S_filter = librosa.decompose.nn_filter(S_full,
-                                           aggregate=np.median,
-                                           metric='cosine',
-                                           width=int(librosa.time_to_frames(2, sr=sr)))
-    S_filter = np.minimum(S_full, S_filter)
+    # y, sr = librosa.load(filepath, duration = 60)
+    # S_full, phase = librosa.magphase(librosa.stft(y))
+    # S_filter = librosa.decompose.nn_filter(S_full,
+    #                                        aggregate=np.median,
+    #                                        metric='cosine',
+    #                                        width=int(librosa.time_to_frames(2, sr=sr)))
+    # S_filter = np.minimum(S_full, S_filter)
     # ----------------------------------------------tempo test-----------------------------------------------------
     """
     compare sync approach: 
@@ -521,12 +526,17 @@ if __name__ == "__main__":
     """
     # standard = 60
     #
-    # y, sr = librosa.load(filepath, duration=30)
+    y, sr = librosa.load(filepath)
     # onset_env = librosa.onset.onset_strength(y, sr=sr)
     # tempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sr)
     # print(tempo)
     # tempo, beat = librosa.beat.beat_track(y=y, sr=sr, units='time')
+    frame_onset = librosa.onset.onset_detect(y=y, sr=sr, units='frames')
     # timestamp_onset = librosa.onset.onset_detect(y=y, sr=sr, units='time')
+    # timestamp_onset_syc = change_tempo(timestamp_onset,60)
+    # showBeatOnALine(timestamp_onset_syc,songName)
+    result,rate=aa.process_recording2(user_pattern_from_timestamp,frame_onset)
+    print(rate)
     # showBeatOnALine(timestamp_onset,songName)
     # print("timestamp_onset", change_tempo(timestamp_onset,1))
     # # timestamp_onset = drop_ambigious(timestamp_onset)
@@ -550,11 +560,11 @@ if __name__ == "__main__":
     # print('user_timestamp_re pattern', user_pattern)
 
     #-----------------------------printing arrays to an image--------------------------------------------
-    # print('timestamp_onset_re:', timestamp_onset_re)
-    # print('user_timestamp_re:',user_timestamp_re)
+    # print('timestamp_onset_re:', timestamp_onset)
+    # print('user_timestamp_re:',user_timestamp)
     # beat_num = []
     # beat_num2 = []
-    # for i in range(len(timestamp_onset_re)):
+    # for i in range(len(timestamp_onset)):
     #     beat_num.append(1)
     #     beat_num2.append(1.1)
     # fig, ax = plt.subplots()

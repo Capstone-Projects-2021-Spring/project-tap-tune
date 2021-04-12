@@ -177,7 +177,7 @@ class Song:
 
             # create song classes and append to songs array
             for song_r in song_rows:
-                print(song_r)
+                #print(song_r)
                 songs.append(Song.create(song_r))
 
         except Exception as e:

@@ -108,7 +108,7 @@ def result_page():
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
-        final_res = final_res[:10]  # truncate array to top 10 results
+        #final_res = final_res[:10]  # truncate array to top 10 results
         print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
@@ -509,7 +509,7 @@ def arrayIntervals(array):
             num = round((array[index] - prev), 3)
             newArray.append(num)
             index += 1
-    newArray.pop(0)
+    #newArray.pop(0)
     return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
@@ -520,8 +520,9 @@ def rhythmPost():
         global user_result
 
         #return time interval with first element dropped
-        #user_result = json.loads(request.data)
-        user_result = arrayIntervals(json.loads(request.data))
+        user_result = json.loads(request.data)
+        user_result.pop(0)
+        # user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
 
@@ -541,8 +542,8 @@ def multipleRhythmPost():
 
         global user_result
         #return timestamp or tme interval
-        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
