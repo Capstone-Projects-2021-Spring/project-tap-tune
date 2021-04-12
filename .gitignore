@@ -10,3 +10,4 @@ models/analysis/__pycache__
 .settings/
 .project
 .pydevproject
+user_uploads.csv
