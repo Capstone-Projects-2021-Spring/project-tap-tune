@@ -511,11 +511,12 @@ def adjustArray(array):
     if len(array) <= 3:
         newArray = [0]
         return newArray
-    dif = array[0]
-    for data in array:
-        num = round((data - dif), 3)
-        newArray.append(num)
-    return newArray
+    # dif = array[0]
+    # for data in array:
+    #     num = round((data - dif), 3)
+    #     newArray.append(num)
+    array.pop(0)
+    return array
 
 def arrayIntervals(array):
     #retrive the array intervals of timestamps
@@ -708,7 +709,7 @@ def source():
 
             """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
             row = [artist, title, success]
-            with open('user_uploads.csv', 'a+', newline='') as write_obj:
+            with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
                 csv_writer = csv.writer(write_obj)
                 csv_writer.writerow(row)
 
