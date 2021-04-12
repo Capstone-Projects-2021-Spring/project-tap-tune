@@ -491,9 +491,9 @@ def match_temposync(song_timestamp, user_pattern):
 
 if __name__ == "__main__":
     # ---song file processing---
-    filepath = '../../sampleMusic/WeWillRockYou_short.wav'
+    filepath = '../../sampleMusic/TheEntertainer.wav'
     songName = filepath[18:-4]
-    user_timestamp = [0.53, 1.084, 2.168, 2.694, 3.273, 4.358, 4.89, 5.458, 6.562, 7.082, 7.64]
+    user_timestamp = [0.476, 0.99, 1.45, 2.148, 2.574, 3.44, 3.863, 6.302, 6.686, 7.106, 7.524, 7.872, 8.28, 8.768, 9.45, 9.798, 10.52]
     user_pattern_from_timestamp = get_pattern(change_tempo(user_timestamp, 60))
     user_pattern = [0.46, 0.508, 1.036, 0.492, 0.568, 1.094, 0.474, 0.55, 1.12, 0.458, 0.553, 1.129, 0.488, 0.564]
     print('sync pattern:',change_tempo(user_pattern,60))
