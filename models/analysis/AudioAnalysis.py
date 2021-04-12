@@ -330,7 +330,7 @@ def process_recording2(userInput, onsetFrames):
     songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
     songTimestampSync = change_tempo(songTimestamp,60)
     # user input prep
-    input_pattern = get_pattern(change_tempo(userInput,60))
+    input_pattern = change_tempo(userInput,60)
 
     # compare user input and DB info
     # ---Decision making---
@@ -395,9 +395,10 @@ def match_temposync(song_timestamp, user_pattern):
     mark = 0.7 * len(user_pattern)
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
-        if compare_sync(song_timestamp[i:], user_pattern) >= mark:
-            return 1, 99
-    return 0, 0
+        hit = compare_sync(song_timestamp[i:], user_pattern)
+        if hit >= mark:
+            return 1, hit/len(user_pattern)
+    return 0, hit/len(user_pattern)
 
 
 class rhythmAnalysis:
