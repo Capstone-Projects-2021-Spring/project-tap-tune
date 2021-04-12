@@ -481,14 +481,13 @@ def logout():
 
 def receiveRhythm():
     data = request.json
-    print(data)
     return jsonify(data)
 
 
 def adjustArray(array):
     newArray = []
     # if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -497,6 +496,22 @@ def adjustArray(array):
         newArray.append(num)
     return newArray
 
+def arrayIntervals(array):
+    #retrive the array intervals of timestamps
+    newArray = []
+    index = 1
+    if len(array) <= 3:
+        newArray = [0]
+        return newArray
+
+    for timestamp in array:
+        if (index < len(array)):
+            prev = array[index-1]
+            num = round((array[index] - prev), 3)
+            newArray.append(num)
+            index += 1
+    newArray.pop(0) #pop the first item in case user error
+    return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
@@ -504,7 +519,11 @@ def rhythmPost():
         out = receiveRhythm()
 
         global user_result
-        user_result = json.loads(request.data)
+
+        #return time interval with first element dropped
+        #user_result = json.loads(request.data)
+        user_result = arrayIntervals(json.loads(request.data))
+        print(user_result)
         return out
 
 
@@ -522,7 +541,9 @@ def multipleRhythmPost():
                 harmonicArray.append(recordedBeats['timestamp'])
 
         global user_result
-        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        #return timestamp or tme interval
+        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
@@ -674,7 +695,8 @@ def source2():
         meta_split[2] = meta_split[2][4:len(meta_split[2])]
         artist = meta_split[0]
         title = meta_split[1]
-        filename_ext = meta_split[2]
+        print(meta_split)
+        filename_ext = meta_split[len(meta_split)-1]
         print(data.filename)
         print(data)
 
