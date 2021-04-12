@@ -332,7 +332,7 @@ def process_recording2(userInput, onsetFrames):
 
     # compare user input and DB info
     # ---Decision making---
-    decision, matching_rate = match_temposync(songTimestampSync, input_pattern)
+    decision, matching_rate = match_temposync(songTimestampSync, userInput)
     if decision == 1:
         print("we have a match!")
         return 1, matching_rate
@@ -393,8 +393,9 @@ def match_temposync(song_timestamp, user_pattern):
     mark = 0.7 * len(user_pattern)
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
-        if compare_sync(song_timestamp[i:], user_pattern) >= mark:
-            return 1, 99
+        hit = compare_sync(song_timestamp[i:], user_pattern)
+        if  hit >= mark:
+            return 1, hit/len(user_pattern)
     return 0, 0
 
 
@@ -442,6 +443,7 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
+        user_pattern = get_pattern(change_tempo(self.user_input, 60))
         for db_track in db_results:
             """
             convert onset_hash to binary array
@@ -463,8 +465,8 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match_peak, matching_rate_peak = process_recording2(self.user_input, peak_frames)
-            match_onset, matching_rate_onset = process_recording2(self.user_input, onset_frames)
+            match_peak, matching_rate_peak = process_recording2(user_pattern, peak_frames)
+            match_onset, matching_rate_onset = process_recording2(user_pattern, onset_frames)
             # match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
             # match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
 
@@ -499,6 +501,8 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
+        user_pattern_perc = change_tempo(self.user_input_perc, 60)
+        user_pattern_harm = change_tempo(self.user_input_harm, 60)
         for db_track in db_results:
             """
             convert onset_hash to binary array
@@ -513,7 +517,7 @@ class rhythmAnalysis:
             else:
                 percussive_array = unhash_array(db_track.perc_hash)
                 percussive_frames = bin_to_frame(percussive_array)
-                match_percussive, matching_rate_percussive = process_recording2(self.user_input_perc, percussive_frames)
+                match_percussive, matching_rate_percussive = process_recording2(user_pattern_perc, percussive_frames)
 
             # if user did not tap to harm, user perc array to match
             if self.user_input_harm[0] == 0 and len(self.user_input_harm) == 1:
@@ -523,7 +527,7 @@ class rhythmAnalysis:
             else:
                 harmonic_array = unhash_array(db_track.harm_hash)
                 harmonic_frames = bin_to_frame(harmonic_array)
-                match_harmonic, matching_rate_harmonic = process_recording2(self.user_input_harm, harmonic_frames)
+                match_harmonic, matching_rate_harmonic = process_recording2(user_pattern_harm, harmonic_frames)
 
             # decide matching rate
             # if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
