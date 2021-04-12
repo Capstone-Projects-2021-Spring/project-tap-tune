@@ -90,6 +90,18 @@ def get_lyrics(songtitle, songartist):
         lyrics = song.lyrics
     return lyrics
 
+def get_photo(songtitle, songartist):
+    am = SpotifyHandler.get_oauth_manager()
+    spotify = spotipy.Spotify(auth_manager=am)
+
+    photo = ''
+    #For each title and artist, find track id
+    searchResults = spotify.search(q="artist:" + songartist + " track:" + songtitle, type="track", limit=1)
+    print(searchResults)
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        photo = searchResults['tracks']['items'][0]["album"]["images"][1]
+
+    return photo
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
@@ -106,16 +118,18 @@ def result_page():
     else:
         final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
     lyrics = ''
+    photo = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
         print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
+        photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
+    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, photo=photo)
 
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
@@ -126,6 +140,7 @@ def melody_result_page():
     melTitle = ''
     melArtist = ''
     melScore = ''
+    photo = ''
 
     try:
         recording_filename = session.get('recording')
@@ -142,8 +157,11 @@ def melody_result_page():
                 r.dynamic_energy_threshold = True
                 data = r.record(source)
                 #Google Speech API Key
-                lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
-
+                try:
+                    lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
+                except:
+                    lyricsFromFile = ''
+                    pass
                 result = FingerprintRequest().searchFingerprintAll(recording_filename, lyricsFromFile)
                 pass
 
@@ -159,6 +177,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
+            photo  = get_photo(result.title, result.artists)
             # print(lyrics)
 
             print("STUFFY NOODLES")
@@ -172,7 +191,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList)
+                           score=melScore, melResults=melList, photo=photo)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -219,7 +238,7 @@ def add_user_log_spotify():
             # Using title and artist, find track id
             track_id = "not found"
             track_ids = []
-            search_results = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track")
+            search_results = spotify.search(q="artist:" + data[1] + " track:" + data[0], type="track", limit=1)
             print(search_results)
             if search_results and search_results["tracks"]["total"] > 0:
                 track_id = search_results['tracks']['items'][0]["id"]
@@ -307,12 +326,12 @@ def spotify_suggest():
             title = split[0]
             artist = split[1]
             print(title + artist)
-            searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track")
+            searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
             #print(searchResults)
             if searchResults and searchResults["tracks"]["total"] > 0:
                 track_id = searchResults['tracks']['items'][0]["id"]
                 track_ids.append(track_id)
-                #print(      searchResults['tracks']['items'][0])
+                #print(searchResults['tracks']['items'][0])
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
@@ -487,7 +506,7 @@ def receiveRhythm():
 def adjustArray(array):
     newArray = []
     # if invalid array, don't consider it but still return it into the userResult
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
     dif = array[0]
@@ -497,9 +516,10 @@ def adjustArray(array):
     return newArray
 
 def arrayIntervals(array):
+    #retrive the array intervals of timestamps
     newArray = []
     index = 1
-    if len(array) < 3:
+    if len(array) <= 3:
         newArray = [0]
         return newArray
 
@@ -509,7 +529,7 @@ def arrayIntervals(array):
             num = round((array[index] - prev), 3)
             newArray.append(num)
             index += 1
-    newArray.pop(0)
+    newArray.pop(0) #pop the first item in case user error
     return newArray
 
 @app.route('/rhythm', methods=['GET', 'POST'])
