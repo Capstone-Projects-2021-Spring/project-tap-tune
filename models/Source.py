@@ -515,8 +515,8 @@ class Source:
 
         # check that new song exists
         if(check == 1):
-            self.process_wav(filepath, song_dict)
-            return 1
+            # self.process_wav(filepath, song_dict)
+            return filepath
         else:
             print("SPOTIFY DATA NOT FOUND SUBMISSION FAILED")
             return 0
