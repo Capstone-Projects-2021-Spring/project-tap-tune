@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
-import pandas as pd
 from models.Source import Source
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
@@ -543,8 +542,9 @@ def rhythmPost():
         global user_result
 
         #return time interval with first element dropped
-        #user_result = json.loads(request.data)
-        user_result = arrayIntervals(json.loads(request.data))
+        user_result = json.loads(request.data)
+        user_result.pop(0)
+        #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
 
@@ -564,8 +564,8 @@ def multipleRhythmPost():
 
         global user_result
         #return timestamp or tme interval
-        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
