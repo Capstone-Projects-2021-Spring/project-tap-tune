@@ -91,15 +91,15 @@ def get_lyrics(songtitle, songartist):
     return lyrics
 
 def get_photo(songtitle, songartist):
-    am = SpotifyHandler.get_oauth_manager()
-    spotify = spotipy.Spotify(auth_manager=am)
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
     photo = ''
     #For each title and artist, find track id
     searchResults = spotify.search(q="artist:" + songartist + " track:" + songtitle, type="track", limit=1)
     print(searchResults)
     if searchResults and searchResults["tracks"]["total"] > 0:
-        photo = searchResults['tracks']['items'][0]["album"]["images"][1]
+        photo = searchResults["tracks"]["items"][0]["album"]["images"][1]
 
     return photo
 
@@ -511,11 +511,12 @@ def adjustArray(array):
     if len(array) <= 3:
         newArray = [0]
         return newArray
-    dif = array[0]
-    for data in array:
-        num = round((data - dif), 3)
-        newArray.append(num)
-    return newArray
+    # dif = array[0]
+    # for data in array:
+    #     num = round((data - dif), 3)
+    #     newArray.append(num)
+    array.pop(0)
+    return array
 
 def arrayIntervals(array):
     #retrive the array intervals of timestamps
