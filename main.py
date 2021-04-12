@@ -542,8 +542,9 @@ def rhythmPost():
         global user_result
 
         #return time interval with first element dropped
-        #user_result = json.loads(request.data)
-        user_result = arrayIntervals(json.loads(request.data))
+        user_result = json.loads(request.data)
+        user_result.pop(0)
+        #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
 
@@ -563,8 +564,8 @@ def multipleRhythmPost():
 
         global user_result
         #return timestamp or tme interval
-        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
@@ -776,7 +777,7 @@ def source2():
 
         """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
         row = [artist, title, success]
-        with open('user_uploads.csv', 'a+', newline='') as write_obj:
+        with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
             csv_writer = csv.writer(write_obj)
             csv_writer.writerow(row)
 
