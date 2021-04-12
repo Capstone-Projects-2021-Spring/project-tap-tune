@@ -328,7 +328,7 @@ def spotify_suggest():
             if searchResults and searchResults["tracks"]["total"] > 0:
                 track_id = searchResults['tracks']['items'][0]["id"]
                 track_ids.append(track_id)
-                #print(      searchResults['tracks']['items'][0])
+                #print(searchResults['tracks']['items'][0])
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
