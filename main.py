@@ -108,7 +108,7 @@ def result_page():
     lyrics = ''
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
-        final_res = final_res[:10]  # truncate array to top 10 results
+        #final_res = final_res[:10]  # truncate array to top 10 results
         print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
