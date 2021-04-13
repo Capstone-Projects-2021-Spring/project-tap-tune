@@ -28,6 +28,9 @@ On Google Chrome navigate to the Tap Tune website.  Click the options on the top
 - IOS Homescreen Download - 
 On safari navigate to the Tap Tune website. Click the options icon on the safari toolbar, and click “Add to Homescreen”. The app icon should be visible on your homescreen and run without using the browser UI.
 
+### QA Acceptance Document for Taptune
+[CLick here to access and download](https://drive.google.com/file/d/1Bqa8j6YiidYOe9mNiEV62bcQkVcnQger/view?usp=sharing)
+
 
 # Contributors
 Peter Ramirez, Aley Chaing, Xufeng Ren, Rishir Patel, Daniel Lee, Wayne Cook
