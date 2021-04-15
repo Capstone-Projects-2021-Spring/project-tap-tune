@@ -73,7 +73,7 @@ class Song:
             # insert fingerprint row
             cursor.execute(
                 'INSERT INTO fingerprint (song_id,perc_hash,harm_hash) VALUES (%s,%s,%s)'
-                , (attr_d['id'], attr_d.get('perch_hash'), attr_d.get('harm_hash')))
+                , (attr_d['id'], attr_d.get('perc_hash'), attr_d.get('harm_hash')))
             db.connection.commit()
 
             return Song.create(attr_d)

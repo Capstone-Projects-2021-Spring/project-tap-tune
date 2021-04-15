@@ -2,18 +2,18 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, j
 from models.Database import db
 from models.Mail import mail
 from models.User import User
-from models.Song import Song
 from models.Source import Source
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
 import json
 import time
-
+import csv
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
 from models.SpotifyHandler import SpotifyHandler
+from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import uuid
 import os
@@ -91,15 +91,15 @@ def get_lyrics(songtitle, songartist):
     return lyrics
 
 def get_photo(songtitle, songartist):
-    am = SpotifyHandler.get_oauth_manager()
-    spotify = spotipy.Spotify(auth_manager=am)
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
     photo = ''
     #For each title and artist, find track id
     searchResults = spotify.search(q="artist:" + songartist + " track:" + songtitle, type="track", limit=1)
     print(searchResults)
     if searchResults and searchResults["tracks"]["total"] > 0:
-        photo = searchResults['tracks']['items'][0]["album"]["images"][1]
+        photo = searchResults["tracks"]["items"][0]["album"]["images"][1]
 
     return photo
 
@@ -122,14 +122,13 @@ def result_page():
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
-        print(final_res)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
-        photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
+        #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
 
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, photo=photo)
+    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
 
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
@@ -177,7 +176,7 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            photo  = get_photo(result.title, result.artists)
+            #photo  = get_photo(result.title, result.artists)
             # print(lyrics)
 
             print("STUFFY NOODLES")
@@ -191,7 +190,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList, photo=photo)
+                           score=melScore, melResults=melList)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -316,8 +315,8 @@ def spotify_suggest():
         #Getting song suggestion based on spotify API
         data = json.loads(request.data)
 
-        am = SpotifyHandler.get_oauth_manager()
-        spotify = spotipy.Spotify(auth_manager=am)
+        spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
         #For each title and artist, find track id
         track_ids = []
@@ -331,17 +330,19 @@ def spotify_suggest():
             if searchResults and searchResults["tracks"]["total"] > 0:
                 track_id = searchResults['tracks']['items'][0]["id"]
                 track_ids.append(track_id)
-                #print(      searchResults['tracks']['items'][0])
+                #print(searchResults['tracks']['items'][0])
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
             recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
             if recommendations:
+                print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
                 recommendedArtist = recommendations["tracks"][0]["artists"][0]["name"]
                 recommendedSongImage = recommendations["tracks"][0]["album"]["images"][1]
+                recommendedSongLink = recommendations["tracks"][0]["external_urls"]["spotify"]
                 msg = "Song suggested by related tracks."
-                data = [recommendedTitle, recommendedArtist, recommendedSongImage]
+                data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
@@ -509,11 +510,12 @@ def adjustArray(array):
     if len(array) <= 3:
         newArray = [0]
         return newArray
-    dif = array[0]
-    for data in array:
-        num = round((data - dif), 3)
-        newArray.append(num)
-    return newArray
+    # dif = array[0]
+    # for data in array:
+    #     num = round((data - dif), 3)
+    #     newArray.append(num)
+    array.pop(0)
+    return array
 
 def arrayIntervals(array):
     #retrive the array intervals of timestamps
@@ -540,8 +542,9 @@ def rhythmPost():
         global user_result
 
         #return time interval with first element dropped
-        #user_result = json.loads(request.data)
-        user_result = arrayIntervals(json.loads(request.data))
+        user_result = json.loads(request.data)
+        user_result.pop(0)
+        #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
 
@@ -561,8 +564,8 @@ def multipleRhythmPost():
 
         global user_result
         #return timestamp or tme interval
-        # user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
+        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
+        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
         print(user_result)
         return out
 
@@ -689,6 +692,32 @@ def source():
         success = obj.process_input()
 
         if(success):
+            """ADD SONG TO QUEUE"""
+            # song = {
+            #     "title": title,
+            #     "artist": artist,
+            #     "filepath": success
+            # }
+            # song = {'artist': [artist], 'title': [title], 'filepath': [success]}
+            # """ADD TO CSV"""
+            # df = pd.DataFrame.from_dict(data=song)
+            # print(df)
+            # df.to_csv('user_uploads.csv', mode='a', header=False, index=False, sep=',')
+            # output = pd.read_csv('user_uploads.csv', header=0)
+            # print(output.to_string)
+
+            """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
+            row = [artist, title, success]
+            with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
+                csv_writer = csv.writer(write_obj)
+                csv_writer.writerow(row)
+
+            """EXAMPLE ON READING AND PARSING"""
+            # with open('user_uploads.csv') as csv_file:
+            #     csv_reader = csv.reader(csv_file, delimiter=',')
+            #     for row in csv_reader:
+            #         print(row)
+
             resp = {"category": "success"}
             return make_response(jsonify(resp), 200)
         else:
@@ -745,6 +774,12 @@ def source2():
         # process the user inputs to get the necessary info
         obj = Source(artist=artist, file=filename_path, title=title)
         success = obj.process_input()
+
+        """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
+        row = [artist, title, success]
+        with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
+            csv_writer = csv.writer(write_obj)
+            csv_writer.writerow(row)
 
         if (success):
             resp = {"category": "success"}

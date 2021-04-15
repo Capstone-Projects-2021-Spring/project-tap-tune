@@ -462,9 +462,13 @@ class Source:
             harm, perc = split_hash(filepath)
             # set the harm and perc hashes
             print("ADD HASHES TO SONG DICT")
+            print(perc)
             song_dict["perc_hash"] = perc
+            print(song_dict["perc_hash"])
             song_dict["harm_hash"] = harm
-
+            print("=============================")
+            print(song_dict)
+            print("=============================")
             res = all(song_dict.values())
             if(res):
                 print("INSERT SONG INTO DB")
@@ -510,8 +514,8 @@ class Source:
 
         # check that new song exists
         if(check == 1):
-            self.process_wav(filepath, song_dict)
-            return 1
+            # self.process_wav(filepath, song_dict)
+            return filepath
         else:
             print("SPOTIFY DATA NOT FOUND SUBMISSION FAILED")
             return 0

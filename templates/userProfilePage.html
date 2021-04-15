@@ -79,7 +79,7 @@
 {#                    <a href="">PHP, .Net</a><br/>#}
 {#                </div>#}
 {#            </div>#}
-            <div class="col-md-8">
+            <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <div class="row">
@@ -125,8 +125,8 @@
                     </div>
                     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
                             <div class="row">
-                                <div class="col-md-6 offset-md-3">
-                                    <h3>Song History</h3>
+                                <div class="col">
+                                    <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>
                                     <ul class="timeline">
                                         {%for song_result in user_song_log%}
                                         <li>
@@ -144,7 +144,7 @@
                                                     {%if user.is_spotify_login() %}
                                                         Add to Spotify
                                                     {%endif%}
-                                                    <a id="songLogLink{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
+                                                    <a id="songLogLink" data-index="{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
                                                 {%endif%}
                                             </p>
                                         </li>
@@ -155,11 +155,13 @@
                     </div>
                     <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
                         <div class="row">
-                            <div class="col">
+                            <div class="col-md-8">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Suggested Song</h3>
                                 <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below.  Simply check off songs you want the suggestion to be based off and press the Suggest button!  </p>
                                 <div class="col border-left">
-                                    <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
+                                    <a id="suggestedImageLink" href="https://open.spotify.com/track/4jU7NPkz4HVnM4hweqNhI1?si=14ba6cc5d2184f64" target="_blank">
+                                        <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
+                                    </a>
                                     <h3 id="suggestedTitle" >
                                         Blue Orchid
                                     </h3>
