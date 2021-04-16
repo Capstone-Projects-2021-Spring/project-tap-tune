@@ -309,6 +309,96 @@ def add_user_log_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+@app.route('/remove-user-fav-spotify', methods=['GET', 'POST'])
+def remove_user_fav_spotify():
+    user = User.current_user()
+
+    try:
+        data = json.loads(request.data)
+        print(data)
+
+        msg = ""
+        if User.is_spotify_login():
+            # Integration for Adding to Spotify User Playlist based on track title and artist
+            am = SpotifyHandler.get_oauth_manager()
+            spotify = spotipy.Spotify(auth_manager=am)
+            sp_user = spotify.me()
+            username = sp_user["id"]
+
+            # Using title and artist, find all track ids to a list
+            track_id = "not found"
+            track_ids = []
+            for items in data :
+                split = items.split(',')
+                title = split[0]
+                artist = split[1]
+                search_results = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+                if search_results and search_results["tracks"]["total"] > 0:
+                    track_id = search_results['tracks']['items'][0]["id"]
+                    track_ids.append(track_id)
+
+            # Find Playlist and Remove track
+            if track_id != "not found":
+                # get playlists from spotify
+                playlists = spotify.current_user_playlists()
+                print(playlists)
+
+                tt_playlist = None
+
+                # find TapTune playlist
+                for playlist in playlists.get('items'):
+                    if playlist.get('name') == "TapTune":
+                        tt_playlist = playlist
+                        break
+
+                if not tt_playlist:
+                    # add spotify playlist
+                    resp = {'feedback': "spotify playlist doesn't exist", 'category': "warning"}
+                    return make_response(jsonify(resp), 200)
+
+                print(tt_playlist)
+                if tt_playlist:
+                    # remove track from spotify playlist
+                    spotify.playlist_remove_all_occurrences_of_items(tt_playlist.get('id'), track_ids)
+                    msg = "Song removed from Spotify playlist - [TapTune]."
+                    category = "success"
+                else:
+                    resp = {'feedback': "spotify playlist doesn't exist", 'category': "warning"}
+                    return make_response(jsonify(resp), 200)
+            else:
+                msg = "Song could not be found on Spotify based on title and artist"
+                category = "danger"
+        else:
+            category = "success"
+
+        # add to favorites in TapTune database
+        # [TODO With Wayne here]
+        # 
+        # if category != "danger":
+            # if msg != "":
+            #     msg += "<br>"
+
+            for items in data :
+                split = items.split(',')
+                title = split[0]
+                artist = split[1]
+                songid = split[2]
+                # r = user.remmove_song(song_id)
+            # if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+            #     msg += r
+            #     category = "danger"
+            # else:
+            #     msg += "Song added to favorites."
+            #     category = "success"
+
+    except Exception as e:
+        print(e)
+        msg = "Could not remove song from Spotify playlist"
+        category = "danger"
+
+    resp = {'feedback': msg, 'category': category}
+    return make_response(jsonify(resp), 200)
+
 @app.route('/spotify-suggest', methods=['GET', 'POST'])
 def spotify_suggest():
     if request.method == 'POST': 
