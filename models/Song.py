@@ -1,6 +1,5 @@
 from models.Database import db, get_cursor
 # from database_sep import db, get_cursor
-
 """
 Song class models and contains information about a song.
 """
@@ -154,7 +153,7 @@ class Song:
         artist_f = '%' + artist + '%'
 
         # setup query
-        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist LIKE %s'
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist SOUNDS LIKE %s'
 
         # get songs from database
         return Song.__get_songs(query, [artist_f])

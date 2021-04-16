@@ -501,8 +501,6 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
-        user_pattern_perc = change_tempo(self.user_input_perc, 60)
-        user_pattern_harm = change_tempo(self.user_input_harm, 60)
         for db_track in db_results:
             """
             convert onset_hash to binary array
@@ -515,6 +513,7 @@ class rhythmAnalysis:
                 match_percussive = 0
                 matching_rate_percussive = 0
             else:
+                user_pattern_perc = change_tempo(self.user_input_perc, 60)
                 percussive_array = unhash_array(db_track.perc_hash)
                 percussive_frames = bin_to_frame(percussive_array)
                 match_percussive, matching_rate_percussive = process_recording2(user_pattern_perc, percussive_frames)
@@ -525,6 +524,7 @@ class rhythmAnalysis:
                 match_harmonic = 0
                 matching_rate_harmonic = 0
             else:
+                user_pattern_harm = change_tempo(self.user_input_harm, 60)
                 harmonic_array = unhash_array(db_track.harm_hash)
                 harmonic_frames = bin_to_frame(harmonic_array)
                 match_harmonic, matching_rate_harmonic = process_recording2(user_pattern_harm, harmonic_frames)
