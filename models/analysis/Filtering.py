@@ -6,9 +6,7 @@
 
 import lyricsgenius
 import spotipy
-import json
 from models.Song import Song
-from models.Database import db, get_cursor
 
 # Set user's credencials to access Spotify data
 scope = 'user-read-private user-read-playback-state user-modify-playback-state'

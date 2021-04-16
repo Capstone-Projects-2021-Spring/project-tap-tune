@@ -175,16 +175,22 @@
                         <div class="row">
                             <div class="col">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Favorited Songs</h3>
+                                <div class="col border-left">
+                                        <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
+                                        <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
+                                        <br>
+                                        <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
+                                </div>
                                 <ul class="timeline">
                                     {%for song in user_fav_songs%}
                                     <div class="row">
                                         <div class="col-xs-1">
                                             <br>
                                             {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" data-song-id="song.id" name="scales" class="mt-2"
                                             checked>
                                             {%else%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2"
                                             unchecked>
                                             {%endif%}
                                         </div>
