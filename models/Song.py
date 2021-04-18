@@ -176,7 +176,7 @@ class Song:
 
             # create song classes and append to songs array
             for song_r in song_rows:
-                print(song_r)
+                # print(song_r)
                 songs.append(Song.create(song_r))
 
         except Exception as e:
@@ -254,7 +254,7 @@ class Song:
             db.connection.commit()
 
             if cursor.rowcount < 1:
-                print('update failed')
+                # print('update failed')
                 return False
 
             # set the attribute to provided value
