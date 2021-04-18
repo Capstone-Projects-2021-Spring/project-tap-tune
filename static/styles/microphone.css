@@ -65,3 +65,13 @@ select {
   text-align: center;
   padding-top: 20px;
 }
+
+@media screen and (max-width: 600px) {
+
+canvas {
+  margin-top: 10px;
+  background-color: black;
+  width: 75%;
+}
+
+}
