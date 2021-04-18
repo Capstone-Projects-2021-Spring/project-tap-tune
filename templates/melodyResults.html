@@ -71,10 +71,20 @@
           </thead>
           <tbody id = "resultsSecondaryTableBody">
             {% for stuff in melResults %}
+              {%if stuff.title != title %}
+            <tr>
+                <td>{{stuff.title}}</td>
+                <td>{{stuff.artists}}</td>
+                <td>{{stuff.score}}%</td>
+                <td>
+                </td>
+              </tr>
+            {%endif %}
+            {% else %}
               <tr>
-                <td>{{ stuff.title }}</td>
-                <td>{{ stuff.artists }}</td>
-                <td>{{ stuff.score }}%</td>
+                <td>No related searches</td>
+                <td></td>
+                <td></td>
                 <td>
                 </td>
               </tr>
