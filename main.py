@@ -111,6 +111,11 @@ def result_page():
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
 
+    """
+    - find the estimated user bpm
+    - 
+    """
+
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.numOfAry == 1:

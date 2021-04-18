@@ -405,6 +405,9 @@ class rhythmAnalysis:
         if (userTaps != None):
             """
             TODO: merge input_perc and input_harm into one general input
+            
+            SET THE ESTIMATED USER BPM
+            SET THE ESTIMATED GENRES
             """
 
             if isinstance(userTaps[0], list):
@@ -418,6 +421,12 @@ class rhythmAnalysis:
                 self.user_input_perc = userTaps[0]
                 self.user_input_harm = userTaps[1]
             # print('array dimension:', self.numOfAry)
+
+        """
+        if(filterResults == None and genre_est != None
+            filter_results = get songs in db by genre
+        """
+
         if (filterResults != None):
             self.filter_results = filterResults
 
@@ -612,7 +621,18 @@ class rhythmAnalysis:
                     max += 1
             index += 1
 
+        """
+        if (len(song_results) < 1) and (genre_est == None)
+            return None
+            
+        else
+            self.filter_results = get songs from db that aren't in genre_est
+            genre_est = None
+            self.sync_func()
+        """
+
         if len(song_results) < 1:
             return None
+
         else:
             return song_results
