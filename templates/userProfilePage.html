@@ -7,6 +7,7 @@
     </style>
 {% endblock %}
 
+<link rel="stylesheet" id="static/styles/historyPagination.css">
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="static/styles/userProfilePageStyle.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -149,6 +150,14 @@
                                             </p>
                                         </li>
                                         {%endfor%}
+                                        <div class="center">
+                                            <div class="pagination">
+                                                <div id="listingTable"></div>
+                                                <a href="javascript:prevPage()" id="btn_prev">Prev</a>
+                                                <a href="javascript:nextPage()" id="btn_next">Next</a>
+                                                page: <span id="page"></span>
+                                            </div>
+                                        </div>
                                     </ul>
                                 </div>
                             </div>

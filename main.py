@@ -383,13 +383,15 @@ def remove_user_fav_spotify():
                 title = split[0]
                 artist = split[1]
                 songid = split[2]
-                # r = user.remmove_song(song_id)
-            # if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
-            #     msg += r
-            #     category = "danger"
-            # else:
-            #     msg += "Song added to favorites."
-            #     category = "success"
+
+            song_id = request.form['song_id']
+            r = user.delete_favorite_song(song_id)
+            if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+                msg = r
+                category = "danger"
+            else:
+                msg = "Song deleted from favorites."
+                category = "success"
 
     except Exception as e:
         print(e)

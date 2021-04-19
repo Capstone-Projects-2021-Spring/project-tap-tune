@@ -365,4 +365,24 @@ class User:
                     error = User.DUPLICATE_FAVORITE_SONG_ERROR
             return error
         return True
-    
+
+    """
+    adds song to user_favorite_song table
+    returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
+    true on success
+    """
+    def delete_favorite_song(self, song_id):
+        try:
+            cursor = get_cursor()
+            cursor.execute('DELETE FROM user_favorite_song (user_id, song_id) VALUES (%s,%s)',
+                           (self.id, song_id))
+            db.connection.commit()
+        except Exception as e:
+            print(e)
+            error = User.UNKNOWN_ERROR
+            # mysql error code for duplicate entry
+            if e.args[0] == 1062:
+                if 'user_song' in e.args[1]:
+                    error = User.DUPLICATE_FAVORITE_SONG_ERROR
+            return error
+        return True
