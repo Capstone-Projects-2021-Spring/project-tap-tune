@@ -65,16 +65,18 @@
         <audio controls id="percussion2" src="{{ url_for('static', filename='assets/playbackNotes/Drum.wav') }}" volume="0" hidden></audio>
       </div>
       <div class="speedcontrolcontainer">
-  <div>
+  <div class = "mt-3">
     <label for="pbrate">Speed:</label>
     <input type="range" id="pbrate" min=.5 max=3 value=1 step=.1>
     <span></span>
   </div>
 </div>
-      <div class="container d-flex align-items-center flex-column">
-        <h1 disabled id="counter-number" class="py-5 counter-text">0</h1>
-      </div>
-    </div>
+<div class="container d-flex align-items-center flex-column" style="display: none;">
+  <h1 disabled id="counter-number" class="py-5 counter-text" hidden>0</h1>
+</div>
+<div class="container">
+  <div class="waveform">
+    <canvas class="js-canvas waveform-canvas"></canvas>
   </div>
 </div>
 {% endblock %}

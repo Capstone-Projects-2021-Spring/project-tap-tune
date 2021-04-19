@@ -1,10 +1,30 @@
+//Variables for Recording
 var startTime;
 var instanceTime;
 var times = new Array();
 var timeArray = [];
 var timeJsonArray = [];
 var dif;
+var beatCount = 0;
 
+let isRecording = false;
+let isPlaying = false;
+
+// Canvas variables
+const barWidth = 6;
+const barGutter = 7;
+const barColorMute = "#878787";
+const barColor = "#595959";
+const barColorStart = "#f70000";
+const barColorEnd = "#00c92c";
+//const barColor2;
+let bars = [];
+let width = 0;
+let height = 0;
+let halfHeight = 0;
+let drawing = false;
+
+//More UI Elements
 var cursorX = null;
 let startButton = null;
 let tapButton = null;
@@ -17,6 +37,11 @@ let recordingType = null;
 let beatCountElement = null;
 var dynamicRecordType = "Percussion + Harmonics";
 $( document ).ready(function() {
+
+    // UI Elements
+    const canvas = document.querySelector('.js-canvas');
+    let canvasContext = canvas.getContext('2d');
+
     tapButton = document.getElementById("tapScreenButton");
     startButton = document.getElementById("startRecordingBtn");
     resetButton = document.getElementById("resetRecordingBtn");
@@ -30,20 +55,32 @@ $( document ).ready(function() {
     //recordingKey = document.getElementById("selected2");
     speedButton = document.getElementById("speedPlay");
 
+    /*************************************************************************/
     startButton.onclick = function () {
         setButtonDisables(true);
         resetCounterStyle(1);
         playButton.disabled = true;
+
+        //Canvas Animation + Ripple
+        bars.push(30)
+        bars.push(30)
+        animateRipple("start")
     }//end of startButton
 
     /*************************************************************************/
-
     tapButton.onclick = function () {
         if (beatCountElement.disabled == false) {
             if (startTime) {
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-
+                beatCount+=1;
+                playSound(true);
+                bars.pop()
+                bars.pop()
+                bars.pop()
+                bars.push(10)
+                bars.push(20)
+                bars.push(10)
                 //Recording Type is HarmonicLeft/PercussionRight
                 if (recordingType.innerHTML == dynamicRecordType) {
                     var recordingTapType = getRecordingTypeMouse();
@@ -78,75 +115,42 @@ $( document ).ready(function() {
         return dif;
     }//end of tapButton
     /*************************************************************************/
-    resetButton.onclick = function () {
 
+    resetButton.onclick = function () {
+        //Reset HTML values and disables
         finishButton.innerHTML = "Stop";
         beatCountElement.innerHTML = 0;
+        beatCount=0;
         playButton.disabled = true;
         setButtonDisables(false);
         resetCounterStyle(0);
 
-        if (startTime){
+        //Log the arrays that were recorded so far
+        console.log("Time Reset");
+        console.log("Stop: "+dif);
+        console.log("END ARRAY: "+returnTimes());
 
-            console.log("Time Reset");
-            console.log("Stop: "+dif);
-            console.log("END ARRAY: "+returnTimes());
-            //do something with the return times array here
-
-            timeArray = [];
-            times = new Array();
-            timeJsonArray = [];
-            startTime = null;
-
-            //animation
-            var resetButtonRect = resetButton.getBoundingClientRect();
-            var element, circle, d, x, y;
-            element = $("#tapScreenButton");
-            if(element.find(".md-click-circle").length == 0) {
-                element.prepend("<span class='md-click-circle'></span>");
-            }
-            circle = element.find(".md-click-circle");
-            circle.removeClass("md-click-animate-red");
-            circle.removeClass("md-click-animate-green");
-            circle.removeClass("md-click-animate-orange");
-            circle.removeClass("md-click-animate-gray");
-            circle.removeClass("md-click-animate");
-            if(!circle.height() && !circle.width()) {
-                d = Math.max(element.outerWidth(), element.outerHeight());
-                circle.css({height: d, width: d});
-            }
-
-            x = ((resetButtonRect.right - resetButtonRect.left) / 2) + resetButtonRect.left - circle.width()/2;
-            y = ((resetButtonRect.bottom - resetButtonRect.top) / 2) + resetButtonRect.top - circle.height()/2;
-            circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-gray");
-
-            //also set playbutton to disabled again
-            playButton.disabled = true;
-
-        }//enf of if
-
-        else{
-            console.log("time has not started");
-            timeArray = [];
-            times = new Array();
-            timeJsonArray = [];
-            startTime = null;
-        }//end of else
-
+        //Reset the recording values
+        timeArray = [];
+        times = new Array();
+        timeJsonArray = [];
+        startTime = null;
+        
+        //animation
+        animateRipple("reset");
 
     }//end of stopButton
 
     /*************************************************************************/
     finishButton.onclick = function () {
         if (startTime){
-
             console.log("Time Stop");
             console.log("Stop: "+dif);
             console.log("END ARRAY: " + returnTimes());
             beatCountElement.disabled = true;
             playButton.disabled = false;
             startTime = null;
-            if (parseInt(beatCountElement.innerHTML) < 5) {
+            if (beatCount < 5) {
                 finishButton.disabled = true;
             }
         }
@@ -195,26 +199,7 @@ $( document ).ready(function() {
         }
         else {
             //animation
-            var finishButtonRect = finishButton.getBoundingClientRect();
-            var element, circle, d, x, y;
-            element = $("#tapScreenButton");
-            if(element.find(".md-click-circle").length == 0) {
-                element.prepend("<span class='md-click-circle'></span>");
-            }
-            circle = element.find(".md-click-circle");
-            circle.removeClass("md-click-animate-red");
-            circle.removeClass("md-click-animate-orange");
-            circle.removeClass("md-click-animate-green");
-            circle.removeClass("md-click-animate-gray");
-            circle.removeClass("md-click-animate");
-            if(!circle.height() && !circle.width()) {
-                d = Math.max(element.outerWidth(), element.outerHeight());
-                circle.css({height: d, width: d});
-            }
-
-            x = ((finishButtonRect.right - finishButtonRect.left) / 2) + finishButtonRect.left - circle.width()/2;
-            y = ((finishButtonRect.bottom - finishButtonRect.top) / 2) + finishButtonRect.top - circle.height()/2;
-            circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-green");
+            animateRipple("finish");
             
             //change text class to be stagnat and confirm user submit 
             //Also enable playback button
@@ -275,9 +260,10 @@ $( document ).ready(function() {
     });
 
     /***************************************************************************/
+    //[TODO] Update Keytap to include the canvas animation ]
+    //[TODO] Adjust Keytap to update correct array
     function record(){
-
-        //32 is the space bar
+        //82 is the r button
         if(event.keyCode == 82){
             if (beatCountElement.disabled == false) {
                 //console.log(startTime);
@@ -287,112 +273,58 @@ $( document ).ready(function() {
                 times.push(dif);
                 console.log("TAP TIME: "+dif);
                 console.log(times);
-
-                var element, circle, d, x, y;
-                element = $("#tapScreenButton");
-                if(element.find(".md-click-circle").length == 0) {
-                    element.prepend("<span class='md-click-circle'></span>");
-                }
-                circle = element.find(".md-click-circle");
-                circle.removeClass("md-click-animate-red");
-                circle.removeClass("md-click-animate-gray");
-                circle.removeClass("md-click-animate-orange");
-                circle.removeClass("md-click-animate-green");
-                circle.removeClass("md-click-animate");
-                if(!circle.height() && !circle.width()) {
-                    d = Math.max(element.outerWidth(), element.outerHeight());
-                    circle.css({height: d, width: d});
-                }
-                x = ((element.offset().right - element.offset().left) / 2)  - circle.width()/2;
-                y = ((element.offset().bottom - element.offset().top) / 2) - circle.height()/2;
-
-
-                circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
-                var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
-                beatCountElement.innerHTML = incrementBeatCount;
-                var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
-                var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
-                if (incrementBeatCount >= 12) {
-                    beatCountElement.style.color = RGBToHex(0, 153, 255);
-                    beatCountElement.style.textShadow = "0 0 16px var(--blue)";
-                }
-                else {
-                    beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
-                }
+                beatCount+=1;
+                playSound(true);
+                bars.pop()
+                bars.pop()
+                bars.pop()
+                bars.push(10)
+                bars.push(20)
+                bars.push(10)
             }//end of if
         }//end of if
     }//end of record
 
-    $('.material-click').on('click', function(e) {
-        var colorBox = getColor(e);
-        if (beatCountElement.disabled == false || colorBox > 0) {
-            var element, circle, d, x, y;
-            element = $(this);
-            if(element.find(".md-click-circle").length == 0) {
-                element.prepend("<span class='md-click-circle'></span>");
-            }
-            circle = element.find(".md-click-circle");
-            circle.removeClass("md-click-animate-red");
-            circle.removeClass("md-click-animate-green");
-            circle.removeClass("md-click-animate-gray");
-            circle.removeClass("md-click-animate-orange");
-            circle.removeClass("md-click-animate");
-            if(!circle.height() && !circle.width()) {
-                d = Math.max(element.outerWidth(), element.outerHeight());
-                circle.css({height: d, width: d});
-            }
-            x = e.pageX - element.offset().left - circle.width()/2;
-            y = e.pageY - element.offset().top - circle.height()/2;
-            if (recordingType.innerHTML == dynamicRecordType) { 
-                var recordingTapType = getRecordingTypeMouse();
-                if (recordingTapType == 1 && (colorBox != 1)) {
-                    colorBox = 2; //make the circle animate as orange
-                }
-            }
+    function animateRipple(button) {
+        switch (button) {
+            case "finish":
+                var ButtonRect = finishButton.getBoundingClientRect();
+                var animateColor = "md-click-animate-green";
+                break;
 
-            switch (colorBox) {
-                case -1:
-                    break;
+            case "start":
+                var ButtonRect = startButton.getBoundingClientRect();
+                var animateColor = "md-click-animate-red";
+                break;
 
-                case 1:
-                    circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-red");
-                    beatCountElement.style.color = RGBToHex(0, 0, 0);
-                    break;
-                case 2:
-                    playSound(true);
-                    circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate-orange");
-                    var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
-                    beatCountElement.innerHTML = incrementBeatCount;
-                    var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
-                    var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
-                    if (incrementBeatCount >= 12) {
-                        beatCountElement.style.color = RGBToHex(0, 153, 255);
-                        beatCountElement.style.textShadow = "0 0 16px var(--blue)";
-                    }
-                    else {
-                        beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
-                    }
-                    break;
-                default:
-                    playSound(true);
-                    circle.css({top: y+'px', left: x+'px'}).addClass("md-click-animate");
-                    var incrementBeatCount = parseInt(beatCountElement.innerHTML) + 1;
-                    beatCountElement.innerHTML = incrementBeatCount;
-                    var healthCountg = Math.floor((incrementBeatCount / 12) * 153);
-                    var healthCountb = Math.floor((incrementBeatCount / 12) * 255);
-                    if (incrementBeatCount >= 12) {
-                        beatCountElement.style.color = RGBToHex(0, 153, 255);
-                        beatCountElement.style.textShadow = "0 0 16px var(--blue)";
-                    }
-                    else {
-                        beatCountElement.style.color = RGBToHex(0, healthCountg, healthCountb);
-                    }
-                    break;
-            }
-
+            case "reset":
+                var ButtonRect = resetButton.getBoundingClientRect();
+                var animateColor = "md-click-animate-gray";
+                break;
+        
+            default:
+                break;
+        }
+        var element, circle, d, x, y;
+        element = $("#tapScreenButton");
+        if(element.find(".md-click-circle").length == 0) {
+            element.prepend("<span class='md-click-circle'></span>");
+        }
+        circle = element.find(".md-click-circle");
+        circle.removeClass("md-click-animate-red");
+        circle.removeClass("md-click-animate-orange");
+        circle.removeClass("md-click-animate-green");
+        circle.removeClass("md-click-animate-gray");
+        circle.removeClass("md-click-animate");
+        if(!circle.height() && !circle.width()) {
+            d = Math.max(element.outerWidth(), element.outerHeight());
+            circle.css({height: d, width: d});
         }
 
-    });
+        x = ((ButtonRect.right - ButtonRect.left) / 2) + ButtonRect.left - circle.width()/2;
+        y = ((ButtonRect.bottom - ButtonRect.top) / 2) + ButtonRect.top - circle.height()/2;
+        circle.css({top: y+'px', left: x+'px'}).addClass(animateColor);
+    }
 
     function RGBToHex(r,g,b) {
         r = r.toString(16);
@@ -567,18 +499,121 @@ $( document ).ready(function() {
 
     //get the multiplier value from the slider
     function multiplier(){
-
-    var mult = 0;
-    const playbackrate = document.querySelector('.speedcontrolcontainer input');
-    const display = document.querySelector('.speedcontrolcontainer span');
-    playbackrate.addEventListener('change', e => {
-        console.log("Multiplier "+playbackrate.value);
-    });
-      mult = playbackrate.value;
-      return mult;
+        var mult = 0;
+        const playbackrate = document.querySelector('.speedcontrolcontainer input');
+        const display = document.querySelector('.speedcontrolcontainer span');
+        playbackrate.addEventListener('change', e => {
+            console.log("Multiplier "+playbackrate.value);
+        });
+        mult = playbackrate.value;
+        return mult;
     }//end of multiplier
 
+
+    //----------------------------
+    //METHODS FOR VISUALIZER
+    //----------------------------
+    // Start recording
+    const startRecording = () => {
+      isRecording = true;
+    }  
+  
+    // Stop recording
+    const stopRecording = () => {
+        isRecording = false;
+        bars.push(29);
+        bars.push(29);
+  
+        if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+            renderBars(bars);
+        } else {
+            renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+        }
+    }
+
+    // Reset recording
+    const resetRecording = () => {
+        isRecording = false;
+        bars = [];
+  
+        if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+            renderBars(bars);
+        } else {
+            renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+        }
+    }
+  
+    // Setup the canvas 
+    const setupWaveform = () => {
+      canvasContext = canvas.getContext('2d');
+  
+      width = canvas.offsetWidth;
+      height = canvas.offsetHeight;
+      halfHeight = canvas.offsetHeight / 2;
+  
+      canvasContext.canvas.width = width;
+      canvasContext.canvas.height = height;
+  
+      setInterval(processInput, 50);
+    }
+  
+    // Process the bars, push 1.5 to represent no input
+    //[TODO] Might make it more responsive, right now popping 3 last elements if a tap has bee made
+    //could make it so that it renders one at a time so there is no choppy animations
+    const processInput = canvasProcessingEvent => {
+      if (isRecording) {
+        bars.push(1.5);
+  
+        if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+            renderBars(bars);
+        } else {
+            renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+        }
+  
+      } else {
+        bars = [];
+      }
+    }
+  
+    // Render the bars
+    const renderBars = bars => {
+      if (!drawing) {
+        drawing = true;
+  
+        window.requestAnimationFrame(() => {
+          canvasContext.clearRect(0, 0, width, height);
+  
+          bars.forEach((bar, index) => {
+            if (bar <= 5) {
+                canvasContext.fillStyle = barColorMute;
+            }
+            else if (bar >= 30) {
+                canvasContext.fillStyle = barColorStart;
+            }
+            else if (bar == 29) {
+                canvasContext.fillStyle = barColorEnd;
+            }
+            else {
+                canvasContext.fillStyle = barColor;
+                let counter = "BEAT COUNT - " + beatCount;
+                canvasContext.font = "bold 24px Arial";
+                canvasContext.fillText(counter, canvas.width/20, canvas.height/10);
+            }
+            canvasContext.fillRect((index * (barWidth + barGutter)), halfHeight, barWidth, (halfHeight * (bar / 100)));
+            canvasContext.fillRect((index * (barWidth + barGutter)), (halfHeight - (halfHeight * (bar / 100))), barWidth, (halfHeight * (bar / 100)));
+          });
+  
+           drawing = false;
+        });
+      }
+    }
+    
+    // Start the application
+    setupWaveform();
+    
+    // Add event listeners to the buttons
+    startButton .addEventListener('mouseup', startRecording);
+    resetButton .addEventListener('mouseup', resetRecording);
+    finishButton.addEventListener('mouseup', stopRecording);
+    
 });
-
-
-
