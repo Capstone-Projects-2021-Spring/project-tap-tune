@@ -41,5 +41,5 @@ r = requests.get(REC_ENDPOINT + '/', headers=headers,
 
 d = r.json()
 
-print(d['tracks'][0]['album']['artists'][0]['name'])
-print(d['tracks'][0]['name'])
+track_artist = d['tracks'][0]['album']['artists'][0]['name']
+track_title = d['tracks'][0]['name']
