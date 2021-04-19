@@ -1,6 +1,5 @@
 from models.Database import db, get_cursor
 # from database_sep import db, get_cursor
-
 """
 Song class models and contains information about a song.
 """
@@ -154,7 +153,7 @@ class Song:
         artist_f = '%' + artist + '%'
 
         # setup query
-        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist LIKE %s'
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist SOUNDS LIKE %s'
 
         # get songs from database
         return Song.__get_songs(query, [artist_f])
@@ -177,7 +176,7 @@ class Song:
 
             # create song classes and append to songs array
             for song_r in song_rows:
-                print(song_r)
+                # print(song_r)
                 songs.append(Song.create(song_r))
 
         except Exception as e:
@@ -255,7 +254,7 @@ class Song:
             db.connection.commit()
 
             if cursor.rowcount < 1:
-                print('update failed')
+                # print('update failed')
                 return False
 
             # set the attribute to provided value
