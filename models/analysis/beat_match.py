@@ -474,6 +474,7 @@ def compare_sync(song_timestamp, user_pattern):
             else:
                 print('    keep moving')
                 tail += 1
+            print(header,tail)
     return hit
 
 
@@ -535,8 +536,8 @@ if __name__ == "__main__":
     # timestamp_onset = librosa.onset.onset_detect(y=y, sr=sr, units='time')
     # timestamp_onset_syc = change_tempo(timestamp_onset,60)
     # showBeatOnALine(timestamp_onset_syc,songName)
-    result,rate=aa.process_recording2(user_pattern_from_timestamp,frame_onset)
-    print(rate)
+    result,rate, matched_pattern =aa.process_recording2(user_pattern_from_timestamp,frame_onset)
+    print(rate,matched_pattern)
     # showBeatOnALine(timestamp_onset,songName)
     # print("timestamp_onset", change_tempo(timestamp_onset,1))
     # # timestamp_onset = drop_ambigious(timestamp_onset)
