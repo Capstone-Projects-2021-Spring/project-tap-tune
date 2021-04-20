@@ -21,6 +21,7 @@ import math
 from models.Database import db, get_cursor
 from models.Song import Song
 import numpy as np
+
 """COMPARISON FUNCTIONS"""
 
 
@@ -288,7 +289,6 @@ def bin_to_frame(bin_array):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
-
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -332,12 +332,12 @@ def process_recording2(userInput, onsetFrames):
 
     # compare user input and DB info
     # ---Decision making---
-    decision, matching_rate = match_temposync(songTimestampSync, userInput)
+    decision, matching_rate,  header, tail = match_temposync(songTimestampSync, userInput)
     if decision == 1:
         print("we have a match!")
-        return 1, matching_rate
+        return 1, matching_rate, songTimestamp[header:tail]
     else:
-        return 0, matching_rate
+        return 0, matching_rate, [0]
 
 
 # chenge timestamp to fit specific tempo k, ex change the song to 60 bpm, k=60
@@ -385,7 +385,7 @@ def compare_sync(song_timestamp, user_pattern):
             # keep moving until we find a beat or miss the target
             else:
                 tail += 1
-    return hit
+    return hit, tail
 
 
 #
@@ -393,10 +393,10 @@ def match_temposync(song_timestamp, user_pattern):
     mark = 0.7 * len(user_pattern)
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
-        hit = compare_sync(song_timestamp[i:], user_pattern)
-        if hit >= mark:
-            return 1, hit/len(user_pattern)
-    return 0, 0
+        hit, tail = compare_sync(song_timestamp[i:], user_pattern)
+        if  hit >= mark:
+            return 1, hit/len(user_pattern), i, i+tail
+    return 0, 0, 0, 0
 
 
 class rhythmAnalysis:
@@ -406,17 +406,17 @@ class rhythmAnalysis:
             """
             TODO: merge input_perc and input_harm into one general input
             """
+            # from front end: general: [[0],[......]]
+            #                 harmonic: [[1],[......]]
+            #                 percussive: [[2],[......]]
 
-            if isinstance(userTaps[0], list):
-                self.numOfAry = 2
-            else:
-                self.numOfAry = 1
 
-            if self.numOfAry == 1:
-                self.user_input = userTaps
-            if self.numOfAry == 2:
-                self.user_input_perc = userTaps[0]
+            if userTaps[0][0] == 0:
+                self.user_input = userTaps[1]
+            if userTaps[0][0] == 1:
                 self.user_input_harm = userTaps[1]
+            if userTaps[0][0] == 2:
+                self.user_input_perc = userTaps[1]
             # print('array dimension:', self.numOfAry)
         if (filterResults != None):
             self.filter_results = filterResults
@@ -424,18 +424,18 @@ class rhythmAnalysis:
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
+
     def onset_peak_func(self):
-        print('-----------------------------------------------------user input:', self.user_input)
-        print('-----------------------------------------------------filter result:', self.filter_results)
+        # print('array dimension:', self.numOfAry)
         song_results = []
         db_results = []
+        match_patterns=[]
 
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
                 filter_ids.append(track.id)
             db_results = Song.get_by_ids(filter_ids)
-
         else:
             # fetch all results and save in song_data list
             db_results = Song.get_all()
@@ -465,8 +465,8 @@ class rhythmAnalysis:
             """
             compare with the user input
             """
-            match_peak, matching_rate_peak = process_recording2(user_pattern, peak_frames)
-            match_onset, matching_rate_onset = process_recording2(user_pattern, onset_frames)
+            match_peak, matching_rate_peak, matched_pattern_peak = process_recording2(user_pattern, peak_frames)
+            match_onset, matching_rate_onset, matched_pattern_onset = process_recording2(user_pattern, onset_frames)
             # match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
             # match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
 
@@ -474,20 +474,22 @@ class rhythmAnalysis:
             max = 0
             print(matching_rate)
             if (match_peak or match_onset):
-                if (matching_rate >= .7):
+                if (matching_rate > .7):
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate})
+                    match_patterns.append(matched_pattern_onset)
                     max += 1
             index += 1
 
         if len(song_results) < 1:
             return None
         else:
-            return song_results
+            return song_results, match_patterns
 
-    def onset_peak_func_hp(self):
+    def onset_peak_func_harmonic(self):
         song_results = []
         db_results = []
+        match_pattern = []
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -507,54 +509,30 @@ class rhythmAnalysis:
             """
             print('song id: ', db_track.id)
 
-            # if user did not tap to perc, use harm array to match
-            if self.user_input_perc[0] == 0 and len(self.user_input_perc) == 1:
-                # print('user did not tap to perc')
-                match_percussive = 0
-                matching_rate_percussive = 0
-            else:
-                user_pattern_perc = change_tempo(self.user_input_perc, 60)
-                percussive_array = unhash_array(db_track.perc_hash)
-                percussive_frames = bin_to_frame(percussive_array)
-                match_percussive, matching_rate_percussive = process_recording2(user_pattern_perc, percussive_frames)
+            user_pattern_harm = change_tempo(self.user_input_harm, 60)
+            harmonic_array = unhash_array(db_track.harm_hash)
+            harmonic_frames = bin_to_frame(harmonic_array)
+            match_harmonic, matching_rate_harmonic, matched_pattern = process_recording2(user_pattern_harm, harmonic_frames)
 
-            # if user did not tap to harm, user perc array to match
-            if self.user_input_harm[0] == 0 and len(self.user_input_harm) == 1:
-                # print('user did not tap to harm')
-                match_harmonic = 0
-                matching_rate_harmonic = 0
-            else:
-                user_pattern_harm = change_tempo(self.user_input_harm, 60)
-                harmonic_array = unhash_array(db_track.harm_hash)
-                harmonic_frames = bin_to_frame(harmonic_array)
-                match_harmonic, matching_rate_harmonic = process_recording2(user_pattern_harm, harmonic_frames)
-
-            # decide matching rate
-            # if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
-            if matching_rate_harmonic == 0 or matching_rate_percussive == 0:
-                if matching_rate_harmonic == 0:
-                    matching_rate = matching_rate_percussive
-                else:
-                    matching_rate = matching_rate_harmonic
-            else:
-                matching_rate = (matching_rate_harmonic + matching_rate_percussive) / 2
             max = 0
-            print(matching_rate)
-            if match_percussive or match_harmonic:
-                if matching_rate > .7:
-                    song_results.append({"song": db_track,
-                                         "percent_match": matching_rate})
-                    max += 1
+
+            if matching_rate_harmonic > .7:
+                song_results.append({"song": db_track,
+                                     "percent_match": matching_rate_harmonic})
+                match_pattern.append(matched_pattern)
+                max += 1
+
             index += 1
 
         if len(song_results) < 1:
             return None
         else:
-            return song_results
+            return song_results, match_pattern
 
-    def sync_func(self):
+    def onset_peak_fun_percussive(self):
         song_results = []
         db_results = []
+        match_patterns=[]
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -574,45 +552,22 @@ class rhythmAnalysis:
             """
             print('song id: ', db_track.id)
 
-            # if user did not tap to perc, use harm array to match
-            if self.user_input_perc[0] == 0 and len(self.user_input_perc) == 1:
-                # print('user did not tap to perc')
-                match_percussive = 0
-                matching_rate_percussive = 0
-            else:
-                percussive_array = unhash_array(db_track.perc_hash)
-                percussive_frames = bin_to_frame(percussive_array)
-                match_percussive, matching_rate_percussive = process_recording2(self.user_input_perc, percussive_frames)
-
-            #if user did not tap to harm, user perc array to match
-            if self.user_input_harm[0] == 0 and len(self.user_input_harm) == 1:
-                # print('user did not tap to harm')
-                match_harmonic = 0
-                matching_rate_harmonic = 0
-            else:
-                harmonic_array = unhash_array(db_track.harm_hash)
-                harmonic_frames = bin_to_frame(harmonic_array)
-                match_harmonic, matching_rate_harmonic = process_recording2(self.user_input_harm, harmonic_frames)
+            percussive_array = unhash_array(db_track.perc_hash)
+            percussive_frames = bin_to_frame(percussive_array)
+            match_percussive, matching_rate_percussive, matched_pattern = process_recording2(self.user_input_perc, percussive_frames)
 
             #decide matching rate
             #if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
-            if matching_rate_harmonic == 0 or matching_rate_percussive == 0:
-                if matching_rate_harmonic == 0:
-                    matching_rate = matching_rate_percussive
-                else:
-                    matching_rate = matching_rate_harmonic
-            else:
-                matching_rate = (matching_rate_harmonic + matching_rate_percussive) / 2
             max = 0
-            print(matching_rate)
-            if match_percussive or match_harmonic:
-                if matching_rate > .7:
+            if match_percussive :
+                if matching_rate_percussive > .7:
                     song_results.append({"song": db_track,
-                                         "percent_match": matching_rate})
+                                         "percent_match": matching_rate_percussive})
+                    match_patterns.append(matched_pattern)
                     max += 1
             index += 1
 
         if len(song_results) < 1:
             return None
         else:
-            return song_results
+            return song_results, match_patterns
