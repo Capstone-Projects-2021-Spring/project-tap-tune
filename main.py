@@ -3,6 +3,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.Source import Source
+from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
@@ -885,6 +886,25 @@ def source2():
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+
+        songs = Song.get_by_title(title=title)
+
+        if(songs != None):
+            """
+            RETURN RESULT TO FRONT END FOR DISPLAY
+            """
+            pass
+
+        else:
+            """
+            RETURN THAT THERE WAS NO SONG FOUND
+            """
+            pass
 
 @app.context_processor
 def get_current_user():

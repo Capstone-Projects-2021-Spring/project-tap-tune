@@ -143,6 +143,22 @@ class Song:
         return Song.__get_songs(query, [genre_f])
 
     """
+    get all songs by title
+    returns None on failure
+    returns array of songs on success (array can be empty)
+    """
+    @staticmethod
+    def get_by_title(title):
+        # format genre for like query
+        title_f = '%' + title + '%'
+
+        # setup query
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.title SOUNDS LIKE %s'
+
+        # get songs from database
+        return Song.__get_songs(query, [title_f])
+
+    """
     get all songs by artist
     returns None on failure
     returns array of songs on success (array can be empty)
