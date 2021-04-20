@@ -13,8 +13,8 @@ let isPlaying = false;
 // Canvas variables
 const barWidth = 6;
 const barGutter = 7;
-const barColorMute = "#878787";
-const barColor = "#595959";
+var barColorMute = "#878787";
+var barColor = "#595959";
 const barColorStart = "#f70000";
 const barColorEnd = "#00c92c";
 //const barColor2;
@@ -82,28 +82,27 @@ $( document ).ready(function() {
                 bars.push(20)
                 bars.push(10)
                 //Recording Type is HarmonicLeft/PercussionRight
-                if (recordingType.innerHTML == dynamicRecordType) {
-                    var recordingTapType = getRecordingTypeMouse();
-                    if (recordingTapType == 0) {
-                        //this is harmonics
-                        timeJsonArray.push({type: recordingTapType, timestamp: dif})
-                    }
-                    else if (recordingTapType == 1) {
-                        //this is percussion
-                        timeJsonArray.push({type: recordingTapType, timestamp: dif})
-                    }
-                    console.log("TAP TIME: " + dif);
-                    console.log(timeJsonArray);
-                }
+                // if (recordingType.innerHTML == dynamicRecordType) {
+                //     var recordingTapType = getRecordingTypeMouse();
+                //     if (recordingTapType == 0) {
+                //         //this is harmonics
+                //         timeJsonArray.push({type: recordingTapType, timestamp: dif})
+                //     }
+                //     else if (recordingTapType == 1) {
+                //         //this is percussion
+                //         timeJsonArray.push({type: recordingTapType, timestamp: dif})
+                //     }
+                //     console.log("TAP TIME: " + dif);
+                //     console.log(timeJsonArray);
+                // }
 
                 //Recording Type is General 
-                else {
+                // else {
                     //do general rhythm recording
-                    
-                    times.push(dif);
-                    console.log("TAP TIME: "+dif);
-                    console.log(times); 
-                }
+                times.push(dif);
+                console.log("TAP TIME: "+dif);
+                console.log(times); 
+                // }
 
             }
             else { //record the first tap
@@ -157,14 +156,14 @@ $( document ).ready(function() {
 
 
         if (finishButton.innerHTML == "Submit"){
-            if (recordingType.innerHTML == dynamicRecordType) { 
-                var js_data = returnTimes();
-                var flask_url = '/multiplerhythm';
-            } 
-            else {
-                var js_data = JSON.stringify(returnTimes());
-                var flask_url = '/rhythm';
-            }
+            // if (recordingType.innerHTML == dynamicRecordType) { 
+            //     var js_data = returnTimes();
+            //     var flask_url = '/multiplerhythm';
+            // } 
+            // else {} commented out since we made a recent change on how to pass the arrays
+            var js_data = JSON.stringify(returnTimes());
+            var flask_url = '/rhythm';
+            
             $.ajax({
                 url: flask_url,
                 type : 'post',
@@ -213,35 +212,44 @@ $( document ).ready(function() {
 
     /************************************************************************/
     function returnTimes(){
-        if (recordingType.innerHTML == dynamicRecordType) { 
-            var returnArray = adjustArray(timeJsonArray);
-            timeJsonArray = returnArray;
-            return JSON.stringify(returnArray);
+        //General Recording Return
+        var returnArray = [];
+        var adjustedArray = adjustArray(times);
+        times = adjustedArray;
+
+        switch (recordingType.innerHTML) {
+            case "Percussion":
+                returnArray.push([1])
+                break;
+            case "Harmonic":
+                returnArray.push([2])
+                break;
+            default:
+                returnArray.push([0])
+                break;
         }
-        else {
-            //General Recording Return
-            var returnArray = adjustArray(times);
-            times = returnArray;
-            return returnArray;
-        }
+
+        returnArray.push(adjustedArray)
+        console.log("array with recordType" + returnArray);
+        return returnArray;
     }//end of returnTimes
 
     /************************************************************************/
     function adjustArray(array){
         //adjust array times so that the first item does not count and all following items are subtracted from the first timestamp
 
-        if (recordingType.innerHTML == dynamicRecordType) { 
-            var jsonArray = array;
-            var dif = jsonArray[0].timestamp;
-            for (var i = 0; i < jsonArray.length; i++) {
-                var num = jsonArray[i].timestamp - dif;
-                jsonArray[i].timestamp = parseFloat(num.toFixed(3));
-            }
-            //console.log("finished array " + timeJsonArray)
-            //times = returnArray;
-            return jsonArray;
-        }
-        else {
+        // if (recordingType.innerHTML == dynamicRecordType) { 
+        //     var jsonArray = array;
+        //     var dif = jsonArray[0].timestamp;
+        //     for (var i = 0; i < jsonArray.length; i++) {
+        //         var num = jsonArray[i].timestamp - dif;
+        //         jsonArray[i].timestamp = parseFloat(num.toFixed(3));
+        //     }
+        //     //console.log("finished array " + timeJsonArray)
+        //     //times = returnArray;
+        //     return jsonArray;
+        // }
+        // else {
 
             var newArray = new Array();
             var dif = array[0];
@@ -249,7 +257,7 @@ $( document ).ready(function() {
                 var num = array[i] - dif;
                 newArray[i] = parseFloat(num.toFixed(3));
             }//end of for
-        }
+        // }
             
         return newArray;
     }//end of returnTimes
@@ -360,8 +368,6 @@ $( document ).ready(function() {
     
     $('#recordingTypeDropdown a').click(function(){
         var selected = $(this).text();
-        //var boolean = (selected == dynamicRecordType);
-        //recordingKeyDropdown.disabled = !boolean;
         $('#selected1').text(selected);
     });
 
@@ -458,24 +464,24 @@ $( document ).ready(function() {
             }
         }
         else {
-            if (recordingType == dynamicRecordType) { 
-                for (var i = 0; i < timeJsonArray.length; i++) {
-                    var timeObj = timeJsonArray[i];
-                    console.log(timeObj);
-                    var millisecondsTime = timeObj.timestamp * 1000;
-                    setTimeout(() => {
-                        var audio = document.createElement('audio');
-                        audio.src = sound.src;
-                        audio.volume = 0.3;
-                        document.body.appendChild(audio);
-                        audio.play();
-                        audio.onended = function () {
-                            this.parentNode.removeChild(this);
-                        }
-                    }, millisecondsTime);
-                }
-            } 
-            else {
+            // if (recordingType == dynamicRecordType) { 
+            //     for (var i = 0; i < timeJsonArray.length; i++) {
+            //         var timeObj = timeJsonArray[i];
+            //         console.log(timeObj);
+            //         var millisecondsTime = timeObj.timestamp * 1000;
+            //         setTimeout(() => {
+            //             var audio = document.createElement('audio');
+            //             audio.src = sound.src;
+            //             audio.volume = 0.3;
+            //             document.body.appendChild(audio);
+            //             audio.play();
+            //             audio.onended = function () {
+            //                 this.parentNode.removeChild(this);
+            //             }
+            //         }, millisecondsTime);
+            //     }
+            // } 
+            // else {
                 for (var i = 0; i < times.length; i++) {
                     var millisecondsTime = (times[i]/(multiplier())) * 1000;
                     setTimeout(() => {
@@ -489,7 +495,7 @@ $( document ).ready(function() {
                         }
                     }, millisecondsTime);
                 }
-            }
+            // }
         }
     }
         
@@ -515,19 +521,37 @@ $( document ).ready(function() {
     //----------------------------
     // Start recording
     const startRecording = () => {
+      //change the visualizer color
+      switch (recordingType.innerHTML) {
+        case "Percussion":
+            barColorMute = "#5cb6ff";
+            barColor = "#249dff";
+            break;
+        case "Harmonic":
+            barColorMute = "#e0a35c";
+            barColor = "#e67b00";
+            break;
+        default:
+            barColorMute = "#878787";
+            barColor = "#595959";
+            break;
+        }
       isRecording = true;
     }  
   
     // Stop recording
     const stopRecording = () => {
-        isRecording = false;
-        bars.push(29);
-        bars.push(29);
-  
-        if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
-            renderBars(bars);
-        } else {
-            renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+        if (finishButton.innerHTML != "Submit"){
+
+            isRecording = false;
+            bars.push(29);
+            bars.push(29);
+            
+            if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+                renderBars(bars);
+            } else {
+                renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+            }
         }
     }
 
