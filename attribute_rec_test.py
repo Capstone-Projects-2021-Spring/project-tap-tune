@@ -30,8 +30,9 @@ track_id = '2FXC3k01G6Gw61bmprjgqS'
 
 # actual GET request with proper header
 r = requests.get(REC_ENDPOINT + '/', headers=headers,
-                 params={'seed_artist' : '2FXC3k01G6Gw61bmprjgqS',
-                         'seed_genres' : 'rock',
+                 params={'seed_artist' : None,
+                         'seed_genres' : None,
+                         'seed_ttacks' : None,
                          'target_acousticness' : .1,
                          'target_danceability' : None,
                          'target_energy' : None,
