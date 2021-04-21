@@ -53,6 +53,10 @@ def rhythm_page():
     user = User.current_user()
     return render_template('recordingRhythm.html', user=user)
 
+@app.route('/about', methods=['GET', 'POST'])
+def about_page():
+    user = User.current_user()
+    return render_template('about.html', user=user)
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
@@ -111,15 +115,14 @@ def result_page():
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
 
-    """
-    - find the estimated user bpm
-    - 
-    """
-
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-
-    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    if objR.input_type == 0:
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
+    if objR.input_type == 1 :
+        final_res = objR.onset_peak_func_harmonic()
+    if objR.input_type == 2:
+        final_res = objR.onset_peak_fun_percussive()
 
     lyrics = ''
     photo = ''
