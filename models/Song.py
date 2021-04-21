@@ -248,12 +248,40 @@ class Song:
         return self.__update_song_val('harm_hash', hash)
 
     """
+    set beat synced onset hash for song
+    return false on failure, true on success
+    """
+    def set_onset_hash_synced(self, hash):
+        return self.__update_song_val('onset_hash_synced', hash)
+
+    """
+    set beat synced peak hash for song
+    return false on failure, true on success
+    """
+    def set_peak_hash_synced(self, hash):
+        return self.__update_song_val('peak_hash_synced', hash)
+
+    """
+    set beat synced percussion hash for song
+    return false on failure, true on success
+    """
+    def set_perc_hash_synced(self, hash):
+        return self.__update_song_val('perc_hash_synced', hash)
+
+    """
+    set beat synced harmonic hash for song
+    return false on failure, true on success
+    """
+    def set_harm_hash_synced(self, hash):
+        return self.__update_song_val('harm_hash_synced', hash)
+
+    """
     private method
     used to update single song attribute value in database
     """
     def __update_song_val(self, col, val):
         # set fingerprint attributes
-        fp_attr = ['perc_hash', 'harm_hash']
+        fp_attr = ['perc_hash', 'harm_hash', 'onset_hash_synced', 'peak_hash_synced', 'perc_hash_synced', 'harm_hash_synced']
 
         if col in fp_attr:
             table = 'fingerprint'
