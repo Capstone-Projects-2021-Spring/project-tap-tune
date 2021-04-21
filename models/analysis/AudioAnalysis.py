@@ -395,7 +395,7 @@ def match_temposync(song_timestamp, user_pattern):
     for i in range(len(song_timestamp)):
         hit, tail = compare_sync(song_timestamp[i:], user_pattern)
         if  hit >= mark:
-            return 1, hit/len(user_pattern), i, i+tail
+            return 1, ((hit/tail)+hit/len(user_pattern))/2, i, i+tail
     return 0, 0, 0, 0
 
 
@@ -410,7 +410,7 @@ class rhythmAnalysis:
             #                 harmonic: [[1],[......]]
             #                 percussive: [[2],[......]]
             self.input_type = userTaps[0][0]
-            self.user_input = userTaps[1]
+            self.user_input = userTaps[1][1:]
             # print('array dimension:', self.numOfAry)
         if (filterResults != None):
             self.filter_results = filterResults
