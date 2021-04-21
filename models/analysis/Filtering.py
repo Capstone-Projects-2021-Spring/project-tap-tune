@@ -6,9 +6,7 @@
 
 import lyricsgenius
 import spotipy
-import json
 from models.Song import Song
-from models.Database import db, get_cursor
 
 # Set user's credencials to access Spotify data
 scope = 'user-read-private user-read-playback-state user-modify-playback-state'
@@ -84,28 +82,32 @@ class Filtering:
     """
 
     def filterGenre(self):
-        song_data = Song.get_by_genre(self.input_genre)
-        """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
-        result_data = []
-        for track in song_data:
-            title = track.title
-            artist = track.artist
+        try:
+            song_data = Song.get_by_genre(self.input_genre)
+            """GO THROUGH SQL AND EXTRACT SPECIFIC DATA FIELDS"""
+            result_data = []
+            for track in song_data:
+                title = track.title
+                artist = track.artist
 
-            """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
-            results_1 = spotify.search(q=title, limit=10, type="track", market=None)
-            preview = "None"
-            for album in results_1["tracks"]["items"]:
-                albumArtist = album["artists"][0]
-                if(albumArtist["name"] == artist):
-                    if (album["preview_url"]):
-                        preview = album["preview_url"]
-                    break
+                """SEARCH SPOTIFY FOR A SAMPLE AUDIO FILE"""
+                results_1 = spotify.search(q=title, limit=10, type="track", market=None)
+                preview = "None"
+                for album in results_1["tracks"]["items"]:
+                    albumArtist = album["artists"][0]
+                    if(albumArtist["name"] == artist):
+                        if (album["preview_url"]):
+                            preview = album["preview_url"]
+                        break
 
-            """APPEND NEW SET OF TRACKS TO THE LIST"""
-            track.set_preview(preview=preview)
-            result_data.append(track)
+                """APPEND NEW SET OF TRACKS TO THE LIST"""
+                track.set_preview(preview=preview)
+                result_data.append(track)
 
-        return result_data
+            return result_data
+        except Exception as e:
+            print("FAILED TO SEARCH FOR GENRE")
+            return []
 
 
     """
@@ -126,55 +128,56 @@ class Filtering:
     """
     def filterLyrics(self, song_results):
         match = 0
-
         """LYRICGENIUS SETUP"""
         client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
         genius = lyricsgenius.Genius(client_access_token)
         result_data = []
 
-        # makes request to genius API and wrapper to search through lyrics
-        request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1))
+        try:
+            # makes request to genius API and wrapper to search through lyrics
+            request = genius.search_lyrics(self.input_lyrics, per_page=50, page=(1))
+            """PARSE DATA FOR ARTIST NAME AND SONG TITLE"""
+            for hit in request['sections'][0]['hits']:
+                artist_name = hit['result']['primary_artist']['name']
+                song_title = hit['result']['title']
 
-        """PARSE DATA FOR ARTIST NAME AND SONG TITLE"""
-        for hit in request['sections'][0]['hits']:
-            artist_name = hit['result']['primary_artist']['name']
-            song_title = hit['result']['title']
+                """SEARCH SPOTIFY FOR AUDIO SAMPLE FILES"""
+                results_1 = spotify.search(q=song_title, limit=10, type="track", market=None)
+                preview = "None"
+                for album in results_1["tracks"]["items"]:
+                    artist = album["artists"][0]
+                    if(artist["name"] == artist_name):
+                        if (album["preview_url"]):
+                            preview = album["preview_url"]
+                        break
 
-            """SEARCH SPOTIFY FOR AUDIO SAMPLE FILES"""
-            results_1 = spotify.search(q=song_title, limit=10, type="track", market=None)
-            preview = "None"
-            for album in results_1["tracks"]["items"]:
-                artist = album["artists"][0]
-                if(artist["name"] == artist_name):
-                    if (album["preview_url"]):  
-                        preview = album["preview_url"]
-                    break  
+                song = self.lyric_song(artist=artist_name, title=song_title)
+                song.preview = preview
+                result_data.append(song)
+            """CROSS COMPARE LYRIC SEARCHES WITH SONG RESULTS"""
+            # if there was a valid song list passed
+            if (song_results != None):
+                return_data = []
 
-            song = self.lyric_song(artist=artist_name, title=song_title)
-            song.set_preview(preview=preview)
-            result_data.append(song)
+                # go through song_results and look for a song match
+                for para_track in song_results:
+                    for lyric_track in result_data:
+                        # CHECK IF SONG TITLES MATHC, ADD THE TRACK TO THE RESULT AND INCREMENT MATCH
+                        if (lyric_track.title == para_track.title):
+                            return_data.append(para_track)
+                            match += 1
 
-        """CROSS COMPARE LYRIC SEARCHES WITH SONG RESULTS"""
-        # if there was a valid song list passed
-        if (song_results != None):
-            return_data = []
+                # if there are matches found return the cross compared list
+                if match > 0:
+                    return return_data
+                else:
+                    return song_results
 
-            # go through song_results and look for a song match
-            for para_track in song_results:
-                for lyric_track in result_data:
-                    # CHECK IF SONG TITLES MATHC, ADD THE TRACK TO THE RESULT AND INCREMENT MATCH
-                    if (lyric_track.title == para_track.title):
-                        return_data.append(para_track)
-                        match += 1
-
-            # if there are matches found return the cross compared list
-            if match > 0:
-                return return_data
+            # if no valid song_results is passed DON'T RETURN LIST BECASUE WE DON'T HAVE THEM
             else:
-                return song_results
-
-        # if no valid song_results is passed DON'T RETURN LIST BECASUE WE DON'T HAVE THEM
-        else:
+                return result_data
+        except Exception as e:
+            print(e)
             return result_data
 
 

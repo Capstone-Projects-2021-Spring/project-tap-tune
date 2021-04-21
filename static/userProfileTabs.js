@@ -92,3 +92,33 @@ $('#suggestSpotifySongBtn').on('click', function(e){
         console.log("fail: ", textStatus, errorThrown);
     });
 });
+
+$('#removeSelectedSongs').on('click', function(e){
+    var checkboxes = document.querySelectorAll('[data-track]');
+
+    console.log("suggest Button")
+    var js_data = new Array();
+    for (var i = 0; i < checkboxes.length; i++) {
+        var item = checkboxes[i];
+        if (item.checked) {
+            if (js_data.length < 5) {
+                js_data.push(item.getAttribute('data-track'));
+                console.log(item.getAttribute('data-track'));
+            }
+        }
+    }
+
+    console.log(js_data)
+    $.ajax({
+        url: '/remove-user-fav-spotify',
+        type: 'post',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(js_data)
+    }).done(function (result) {
+        console.log("success: " + JSON.stringify(result));
+        //INSERT Toast code here for confirmation
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.log("fail: ", textStatus, errorThrown);
+    });
+});

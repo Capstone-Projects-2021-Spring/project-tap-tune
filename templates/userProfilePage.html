@@ -159,6 +159,47 @@
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Suggested Song</h3>
                                 <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below.  Simply check off songs you want the suggestion to be based off and press the Suggest button!  </p>
                                 <div class="col border-left">
+
+                                    <div class="speedcontrolcontainer">
+                                    <div>
+                                      <label for="pbrate">Acousticness:</label>
+                                      <input type="range" id="pbrate" min=0 max=1 value=0 step=.1>
+                                      <span></span>
+                                    </div>
+                                  </div>
+
+                                <div class="speedcontrolcontainer">
+                                    <div>
+                                      <label for="pbrate">Danceability:</label>
+                                      <input type="range" id="pbrate" min=0 max=1 value=0 step=.1>
+                                      <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="speedcontrolcontainer">
+                                    <div>
+                                      <label for="pbrate">Energy:</label>
+                                      <input type="range" id="pbrate" min=0 max=1 value=0 step=.1>
+                                      <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="speedcontrolcontainer">
+                                    <div>
+                                      <label for="pbrate">Instrumentalness:</label>
+                                      <input type="range" id="pbrate" min=0 max=1 value=0 step=.1>
+                                      <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="speedcontrolcontainer">
+                                    <div>
+                                      <label for="pbrate">Loudness:</label>
+                                      <input type="range" id="pbrate" min=0 max=1 value=0 step=.1>
+                                      <span></span>
+                                    </div>
+                                </div>
+
                                     <a id="suggestedImageLink" href="https://open.spotify.com/track/4jU7NPkz4HVnM4hweqNhI1?si=14ba6cc5d2184f64" target="_blank">
                                         <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
                                     </a>
@@ -175,16 +216,22 @@
                         <div class="row">
                             <div class="col">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Favorited Songs</h3>
+                                <div class="col border-left">
+                                        <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
+                                        <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
+                                        <br>
+                                        <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
+                                </div>
                                 <ul class="timeline">
                                     {%for song in user_fav_songs%}
                                     <div class="row">
                                         <div class="col-xs-1">
                                             <br>
                                             {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" data-song-id="song.id" name="scales" class="mt-2"
                                             checked>
                                             {%else%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}}" name="scales" class="mt-2"
+                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2"
                                             unchecked>
                                             {%endif%}
                                         </div>
