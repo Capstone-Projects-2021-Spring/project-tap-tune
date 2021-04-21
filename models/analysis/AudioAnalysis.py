@@ -365,7 +365,7 @@ def get_pattern(timestamp):
 def compare_sync(song_timestamp, user_pattern):
     header = 0
     tail = 1
-    error = 0.3
+    error = 0.2
     hit = 0
     offset = 0
     for i in user_pattern:
@@ -394,8 +394,8 @@ def match_temposync(song_timestamp, user_pattern):
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
         hit, tail = compare_sync(song_timestamp[i:], user_pattern)
-        if  hit >= mark:
-            return 1, hit/len(user_pattern), i, i+tail
+        if hit >= mark:
+            return 1, hit/(tail+1), i, i+tail
     return 0, 0, 0, 0
 
 
