@@ -53,6 +53,10 @@ def rhythm_page():
     user = User.current_user()
     return render_template('recordingRhythm.html', user=user)
 
+@app.route('/about', methods=['GET', 'POST'])
+def about_page():
+    user = User.current_user()
+    return render_template('about.html', user=user)
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
