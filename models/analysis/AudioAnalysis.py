@@ -21,7 +21,6 @@ import math
 from models.Database import db, get_cursor
 from models.Song import Song
 import numpy as np
-
 """COMPARISON FUNCTIONS"""
 
 
@@ -289,6 +288,7 @@ def bin_to_frame(bin_array):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
+
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -365,7 +365,7 @@ def get_pattern(timestamp):
 def compare_sync(song_timestamp, user_pattern):
     header = 0
     tail = 1
-    error = 0.3
+    error = 0.2
     hit = 0
     offset = 0
     for i in user_pattern:
@@ -395,7 +395,7 @@ def match_temposync(song_timestamp, user_pattern):
     for i in range(len(song_timestamp)):
         hit, tail = compare_sync(song_timestamp[i:], user_pattern)
         if  hit >= mark:
-            return 1, hit/len(user_pattern), i, i+tail
+            return 1, ((hit/tail)+hit/len(user_pattern))/2, i, i+tail
     return 0, 0, 0, 0
 
 
@@ -410,7 +410,7 @@ class rhythmAnalysis:
             #                 harmonic: [[1],[......]]
             #                 percussive: [[2],[......]]
             self.input_type = userTaps[0][0]
-            self.user_input = userTaps[1]
+            self.user_input = userTaps[1][1:]
             # print('array dimension:', self.numOfAry)
         if (filterResults != None):
             self.filter_results = filterResults
@@ -418,7 +418,6 @@ class rhythmAnalysis:
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
-
     def onset_peak_func(self):
         # print('array dimension:', self.numOfAry)
         song_results = []
@@ -482,7 +481,6 @@ class rhythmAnalysis:
     def onset_peak_func_harmonic(self):
         song_results = []
         db_results = []
-        match_pattern = []
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
