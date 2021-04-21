@@ -120,9 +120,9 @@ def result_page():
     if objR.input_type == 0:
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
     if objR.input_type == 1 :
-        final_res = objR.onset_peak_func_harmonic()
+        final_res = objR.onset_peak_func_percussive()
     if objR.input_type == 2:
-        final_res = objR.onset_peak_fun_percussive()
+        final_res = objR.onset_peak_fun_harmonic()
 
     lyrics = ''
     photo = ''

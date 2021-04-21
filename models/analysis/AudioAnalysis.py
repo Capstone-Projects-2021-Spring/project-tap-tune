@@ -469,7 +469,8 @@ class rhythmAnalysis:
                 if (matching_rate > .7):
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate,
-                                         "matched_pattern": matched_pattern_onset})
+                                         "matched_pattern": matched_pattern_onset,
+                                         "sync_user_input":user_pattern})
                     max += 1
             index += 1
 
@@ -510,7 +511,8 @@ class rhythmAnalysis:
             if matching_rate_harmonic > .7:
                 song_results.append({"song": db_track,
                                      "percent_match": matching_rate_harmonic,
-                                     "matched_pattern":matched_pattern})
+                                     "matched_pattern":matched_pattern,
+                                     "sync_user_pattern": user_pattern_harm})
 
                 max += 1
 
@@ -555,7 +557,8 @@ class rhythmAnalysis:
                 if matching_rate_percussive > .7:
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate_percussive,
-                                         "matched_pattern": matched_pattern})
+                                         "matched_pattern": matched_pattern,
+                                         "sync_user_pattern":user_pattern_perc})
                     max += 1
             index += 1
 
