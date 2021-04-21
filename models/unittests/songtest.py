@@ -181,6 +181,10 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             peak_hash = '123x'
             perc_hash = 'fff'
             harm_hash = 'xxx'
+            onset_hash_synced = 'abc1_synced'
+            peak_hash_synced = '123x_synced'
+            perc_hash_synced = 'fff_synced'
+            harm_hash_synced = 'xxx_synced'
 
             # test update preview
             rpv = song.set_preview(preview)
@@ -206,6 +210,26 @@ class UserTestCase(flask_unittest.AppClientTestCase):
             rh = song.set_harm_hash(harm_hash)
             self.assertTrue(rh)
             self.assertEqual(song.harm_hash, harm_hash)
+
+            # test update onset hash synced
+            ro = song.set_onset_hash_synced(onset_hash_synced)
+            self.assertTrue(ro)
+            self.assertEqual(song.onset_hash_synced, onset_hash_synced)
+
+            # test update peak hash synced
+            rp = song.set_peak_hash_synced(peak_hash_synced)
+            self.assertTrue(rp)
+            self.assertEqual(song.peak_hash_synced, peak_hash_synced)
+
+            # test update percussion hash synced
+            rpc = song.set_perc_hash_synced(perc_hash_synced)
+            self.assertTrue(rpc)
+            self.assertEqual(song.perc_hash_synced, perc_hash_synced)
+
+            # test update harmonic hash synced
+            rh = song.set_harm_hash_synced(harm_hash_synced)
+            self.assertTrue(rh)
+            self.assertEqual(song.harm_hash_synced, harm_hash_synced)
 
     """
     test get all
