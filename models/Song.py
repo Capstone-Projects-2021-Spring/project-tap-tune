@@ -14,9 +14,15 @@ class Song:
     DUPLICATE_SONG_ERROR = 'duplicate title and artist'
     DUPLICATE_FINGERPRINT_ERROR = 'song already has associated fingerprint'
 
-    BASE_SELECT_QUERY = 'SELECT song.*,fp.perc_hash,fp.harm_hash FROM song LEFT JOIN fingerprint AS fp ON song.`id` = fp.song_id'
+    BASE_SELECT_QUERY = """
+        SELECT 
+            song.*,fp.perc_hash,fp.harm_hash
+            ,fp.onset_hash_synced,fp.peak_hash_synced,fp.perc_hash_synced,fp.harm_hash_synced 
+        FROM song LEFT JOIN fingerprint AS fp ON song.`id` = fp.song_id"""
 
-    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, perc_hash, harm_hash, preview=None, favorited_on=None):
+    def __init__(self, song_id, title, artist, release_date, genre, onset_hash, peak_hash, perc_hash, harm_hash
+                 , onset_hash_synced, peak_hash_synced, perc_hash_synced, harm_hash_synced
+                 , preview=None, favorited_on=None):
         self.id = song_id
         self.title = title
         self.artist = artist
@@ -26,6 +32,10 @@ class Song:
         self.peak_hash = peak_hash
         self.perc_hash = perc_hash
         self.harm_hash = harm_hash
+        self.onset_hash_synced = onset_hash_synced
+        self.peak_hash_synced = peak_hash_synced
+        self.perc_hash_synced = perc_hash_synced
+        self.harm_hash_synced = harm_hash_synced
         self.preview = preview
         self.favorited_on = favorited_on
 
@@ -43,7 +53,10 @@ class Song:
         harm_hash = attr_d.get('harm_hash')
 
         return Song(attr_d['id'], attr_d['title'], attr_d['artist'], release_date, genre
-                    , onset_hash, peak_hash, perc_hash, harm_hash, attr_d.get('preview'), attr_d.get('favorited_on'))
+                    , onset_hash, peak_hash, perc_hash, harm_hash
+                    , attr_d.get('onset_hash_synced'), attr_d.get('peak_hash_synced')
+                    , attr_d.get('perc_hash_synced'), attr_d.get('harm_hash_synced')
+                    , attr_d.get('preview'), attr_d.get('favorited_on'))
 
     """
     insert song into database
@@ -70,9 +83,15 @@ class Song:
             attr_d['id'] = cursor.lastrowid
 
             # insert fingerprint row
+            insert_query = """
+                INSERT INTO fingerprint 
+                (song_id,perc_hash,harm_hash,onset_hash_synced,peak_hash_synced,perc_hash_synced,harm_hash_synced) 
+                VALUES (%s,%s,%s,%s,%s,%s,%s)"""
             cursor.execute(
-                'INSERT INTO fingerprint (song_id,perc_hash,harm_hash) VALUES (%s,%s,%s)'
-                , (attr_d['id'], attr_d.get('perc_hash'), attr_d.get('harm_hash')))
+                insert_query
+                , (attr_d['id'], attr_d.get('perc_hash'), attr_d.get('harm_hash')
+                   , attr_d.get('onset_hash_synced'), attr_d.get('peak_hash_synced')
+                   , attr_d.get('perc_hash_synced'), attr_d.get('harm_hash_synced')))
             db.connection.commit()
 
             return Song.create(attr_d)
@@ -153,10 +172,10 @@ class Song:
         artist_f = '%' + artist + '%'
 
         # setup query
-        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist SOUNDS LIKE %s'
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.artist LIKE %s OR song.artist SOUNDS LIKE %s'
 
         # get songs from database
-        return Song.__get_songs(query, [artist_f])
+        return Song.__get_songs(query, [artist_f, artist])
 
     """
     private method
@@ -176,7 +195,7 @@ class Song:
 
             # create song classes and append to songs array
             for song_r in song_rows:
-                #print(song_r)
+                # print(song_r)
                 songs.append(Song.create(song_r))
 
         except Exception as e:
@@ -229,12 +248,40 @@ class Song:
         return self.__update_song_val('harm_hash', hash)
 
     """
+    set beat synced onset hash for song
+    return false on failure, true on success
+    """
+    def set_onset_hash_synced(self, hash):
+        return self.__update_song_val('onset_hash_synced', hash)
+
+    """
+    set beat synced peak hash for song
+    return false on failure, true on success
+    """
+    def set_peak_hash_synced(self, hash):
+        return self.__update_song_val('peak_hash_synced', hash)
+
+    """
+    set beat synced percussion hash for song
+    return false on failure, true on success
+    """
+    def set_perc_hash_synced(self, hash):
+        return self.__update_song_val('perc_hash_synced', hash)
+
+    """
+    set beat synced harmonic hash for song
+    return false on failure, true on success
+    """
+    def set_harm_hash_synced(self, hash):
+        return self.__update_song_val('harm_hash_synced', hash)
+
+    """
     private method
     used to update single song attribute value in database
     """
     def __update_song_val(self, col, val):
         # set fingerprint attributes
-        fp_attr = ['perc_hash', 'harm_hash']
+        fp_attr = ['perc_hash', 'harm_hash', 'onset_hash_synced', 'peak_hash_synced', 'perc_hash_synced', 'harm_hash_synced']
 
         if col in fp_attr:
             table = 'fingerprint'
@@ -254,7 +301,7 @@ class Song:
             db.connection.commit()
 
             if cursor.rowcount < 1:
-                print('update failed')
+                # print('update failed')
                 return False
 
             # set the attribute to provided value

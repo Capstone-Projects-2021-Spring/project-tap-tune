@@ -21,7 +21,6 @@ import math
 from models.Database import db, get_cursor
 from models.Song import Song
 import numpy as np
-
 """COMPARISON FUNCTIONS"""
 
 
@@ -289,6 +288,7 @@ def bin_to_frame(bin_array):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
+
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -394,8 +394,8 @@ def match_temposync(song_timestamp, user_pattern):
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
         hit, tail = compare_sync(song_timestamp[i:], user_pattern)
-        if hit >= mark:
-            return 1, hit/(tail+1), i, i+tail
+        if  hit >= mark:
+            return 1, hit/len(user_pattern), i, i+tail
     return 0, 0, 0, 0
 
 
@@ -409,14 +409,8 @@ class rhythmAnalysis:
             # from front end: general: [[0],[......]]
             #                 harmonic: [[1],[......]]
             #                 percussive: [[2],[......]]
-
-
-            if userTaps[0][0] == 0:
-                self.user_input = userTaps[1]
-            if userTaps[0][0] == 1:
-                self.user_input_harm = userTaps[1]
-            if userTaps[0][0] == 2:
-                self.user_input_perc = userTaps[1]
+            self.input_type = userTaps[0][0]
+            self.user_input = userTaps[1]
             # print('array dimension:', self.numOfAry)
         if (filterResults != None):
             self.filter_results = filterResults
@@ -424,13 +418,10 @@ class rhythmAnalysis:
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
-
     def onset_peak_func(self):
         # print('array dimension:', self.numOfAry)
         song_results = []
         db_results = []
-        match_patterns=[]
-
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -476,20 +467,20 @@ class rhythmAnalysis:
             if (match_peak or match_onset):
                 if (matching_rate > .7):
                     song_results.append({"song": db_track,
-                                         "percent_match": matching_rate})
-                    match_patterns.append(matched_pattern_onset)
+                                         "percent_match": matching_rate,
+                                         "matched_pattern": matched_pattern_onset,
+                                         "sync_user_input":user_pattern})
                     max += 1
             index += 1
 
         if len(song_results) < 1:
             return None
         else:
-            return song_results, match_patterns
+            return song_results
 
     def onset_peak_func_harmonic(self):
         song_results = []
         db_results = []
-        match_pattern = []
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -503,13 +494,12 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
+        user_pattern_harm = change_tempo(self.user_input, 60)
         for db_track in db_results:
             """
             convert onset_hash to binary array
             """
             print('song id: ', db_track.id)
-
-            user_pattern_harm = change_tempo(self.user_input_harm, 60)
             harmonic_array = unhash_array(db_track.harm_hash)
             harmonic_frames = bin_to_frame(harmonic_array)
             match_harmonic, matching_rate_harmonic, matched_pattern = process_recording2(user_pattern_harm, harmonic_frames)
@@ -518,8 +508,10 @@ class rhythmAnalysis:
 
             if matching_rate_harmonic > .7:
                 song_results.append({"song": db_track,
-                                     "percent_match": matching_rate_harmonic})
-                match_pattern.append(matched_pattern)
+                                     "percent_match": matching_rate_harmonic,
+                                     "matched_pattern":matched_pattern,
+                                     "sync_user_pattern": user_pattern_harm})
+
                 max += 1
 
             index += 1
@@ -527,12 +519,11 @@ class rhythmAnalysis:
         if len(song_results) < 1:
             return None
         else:
-            return song_results, match_pattern
+            return song_results
 
     def onset_peak_fun_percussive(self):
         song_results = []
         db_results = []
-        match_patterns=[]
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -546,6 +537,7 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
+        user_pattern_perc = change_tempo(self.user_input,60)
         for db_track in db_results:
             """
             convert onset_hash to binary array
@@ -554,7 +546,7 @@ class rhythmAnalysis:
 
             percussive_array = unhash_array(db_track.perc_hash)
             percussive_frames = bin_to_frame(percussive_array)
-            match_percussive, matching_rate_percussive, matched_pattern = process_recording2(self.user_input_perc, percussive_frames)
+            match_percussive, matching_rate_percussive, matched_pattern = process_recording2(user_pattern_perc, percussive_frames)
 
             #decide matching rate
             #if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
@@ -562,12 +554,13 @@ class rhythmAnalysis:
             if match_percussive :
                 if matching_rate_percussive > .7:
                     song_results.append({"song": db_track,
-                                         "percent_match": matching_rate_percussive})
-                    match_patterns.append(matched_pattern)
+                                         "percent_match": matching_rate_percussive,
+                                         "matched_pattern": matched_pattern,
+                                         "sync_user_pattern":user_pattern_perc})
                     max += 1
             index += 1
 
         if len(song_results) < 1:
             return None
         else:
-            return song_results, match_patterns
+            return song_results

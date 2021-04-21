@@ -365,3 +365,4 @@ class User:
                     error = User.DUPLICATE_FAVORITE_SONG_ERROR
             return error
         return True
+    
