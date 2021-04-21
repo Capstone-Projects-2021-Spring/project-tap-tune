@@ -10499,3 +10499,18 @@ form .row:first-child .floating-label-form-group {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.waveform {
+  position: relative;
+  
+  padding: 1rem 0;
+  height: 45rem;
+  
+}
+.waveform-canvas {
+  width: 100%;
+  height: 40rem;
+  box-shadow: inset 0 -2em 2em rgba(0,0,0,0.1),
+  0 0  0 1px rgba(172, 240, 255, 0.438),
+  0.2em 0.2em 0.5em rgba(0, 0, 0, 0.2);
+}

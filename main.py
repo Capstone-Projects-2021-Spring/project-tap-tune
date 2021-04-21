@@ -118,10 +118,9 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    if objR.numOfAry == 1:
-        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
-    else:
-        final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+
+    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+
     lyrics = ''
     photo = ''
     if final_res and len(final_res) > 0:
@@ -681,7 +680,7 @@ def rhythmPost():
 
         #return time interval with first element dropped
         user_result = json.loads(request.data)
-        user_result.pop(0)
+        #user_result.pop(0)
         #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
@@ -716,7 +715,7 @@ def multiplierPost():
 
         global multiply
         multiply = json.loads(request.data)
-        print(multiply)
+        #print(multiply)
 
         return jsonify(multiplier)
 
