@@ -463,7 +463,7 @@ def spotify_suggest():
             r = requests.get(REC_ENDPOINT + '/', headers=headers,
                              params={'seed_artist' : None,
                                      'seed_genres' : None,
-                                     'seed_ttacks' : track_ids,
+                                     'seed_tracks' : track_ids,
                                      'target_acousticness' : None,
                                      'target_danceability' : None,
                                      'target_energy' : None,
