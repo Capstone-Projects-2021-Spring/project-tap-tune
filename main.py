@@ -637,7 +637,7 @@ def rhythmPost():
 
         #return time interval with first element dropped
         user_result = json.loads(request.data)
-        user_result.pop(0)
+        #user_result.pop(0)
         #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
@@ -672,7 +672,7 @@ def multiplierPost():
 
         global multiply
         multiply = json.loads(request.data)
-        print(multiply)
+        #print(multiply)
 
         return jsonify(multiplier)
 
