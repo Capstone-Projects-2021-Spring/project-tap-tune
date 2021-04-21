@@ -71,7 +71,7 @@ def filter_page():
     userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
     custobj = test.rhythmAnalysis(userinput)
     print(custobj.onset_peak_func())
-    '''
+    ''' 
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
@@ -205,8 +205,11 @@ def user_page():
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
-    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
-                           user_song_log=user_song_log)
+    r = make_response(render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
+                           user_song_log=user_song_log))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
+    #return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
@@ -411,13 +414,54 @@ def spotify_suggest():
     if request.method == 'POST': 
         #Getting song suggestion based on spotify API
         data = json.loads(request.data)
+        input_tracks = data[0]
+        attributes = data[1] 
+        print(attributes)
 
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
                                                            client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+        """
+        CLIENT_ID = '57483e104132413189f41cd82836d8ef'
+        CLIENT_SECRET = '2bcd745069bd4602ae77d1a348c0f2fe'
+        
+        AUTH_URL = 'https://accounts.spotify.com/api/token'
+        
+        # POST
+        auth_response = requests.post(AUTH_URL, {
+            'grant_type': 'client_credentials',
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+        })
+        
+        # convert the response to JSON
+        auth_response_data = auth_response.json()
+        
+        # save the access token
+        access_token = auth_response_data['access_token']
+        
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token)
+        }
+        
+        # base URL of all Spotify API endpoints
+        REC_ENDPOINT = 'https://api.spotify.com/v1/recommendations'
+        """
 
+        #Parse Slider information
+        # Define Initial Target_Values [Acousticness, Danceability, Energy Instrumentalness, Loudness]
+        target_values = [None, None, None, None, None]
+        for index, item in enumerate(attributes):
+            if item:
+                target_values[index] = item
+        print(target_values)
+
+        #Parse Tracks in data to find track ids
         #For each title and artist, find track id
         track_ids = []
-        for items in data:
+        for items in input_tracks:
+            """
+            INCLUDE PARSING OF SLIDER INFORMATION
+            """
             split = items.split(',')
             title = split[0]
             artist = split[1]
@@ -432,6 +476,21 @@ def spotify_suggest():
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
             recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            """
+            # actual GET request with proper header
+            r = requests.get(REC_ENDPOINT + '/', headers=headers,
+                             params={'seed_artist' : None,
+                                     'seed_genres' : None,
+                                     'seed_tracks' : track_ids,
+                                     'target_acousticness' : target_values[0],
+                                     'target_danceability' : target_values[1],
+                                     'target_energy' :  target_values[2],
+                                     'target_instrumentalness' : target_values[3],
+                                     'target_loudness' :  target_values[4]
+                             })
+            
+            recommendations = r.json()
+            """
             if recommendations:
                 print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
