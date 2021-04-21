@@ -2,7 +2,6 @@
 var startTime;
 var instanceTime;
 var times = new Array();
-var timeArray = [];
 var timeJsonArray = [];
 var dif;
 var beatCount = 0;
@@ -11,6 +10,8 @@ let isRecording = false;
 let isPlaying = false;
 
 // Canvas variables
+var canvas = null;
+var darkModeSwitch = null;
 const barWidth = 6;
 const barGutter = 7;
 var barColorMute = "#878787";
@@ -35,11 +36,11 @@ let recordingTypeDropdown = null;
 let recordingKeyDropdown = null;
 let recordingType = null;
 let beatCountElement = null;
-var dynamicRecordType = "Percussion + Harmonics";
 $( document ).ready(function() {
 
     // UI Elements
-    const canvas = document.querySelector('.js-canvas');
+    canvas = document.getElementById("js-canvas");
+    darkModeSwitch = document.getElementById("toggle-event");
     let canvasContext = canvas.getContext('2d');
 
     tapButton = document.getElementById("tapScreenButton");
@@ -65,55 +66,9 @@ $( document ).ready(function() {
         bars.push(30)
         bars.push(30)
         animateRipple("start")
+        startTime = new Date();
+        console.log(startTime);
     }//end of startButton
-
-    /*************************************************************************/
-    tapButton.onclick = function () {
-        if (beatCountElement.disabled == false) {
-            if (startTime) {
-                instanceTime = new Date();
-                dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
-                beatCount+=1;
-                playSound(true);
-                bars.pop()
-                bars.pop()
-                bars.pop()
-                bars.push(10)
-                bars.push(20)
-                bars.push(10)
-                //Recording Type is HarmonicLeft/PercussionRight
-                // if (recordingType.innerHTML == dynamicRecordType) {
-                //     var recordingTapType = getRecordingTypeMouse();
-                //     if (recordingTapType == 0) {
-                //         //this is harmonics
-                //         timeJsonArray.push({type: recordingTapType, timestamp: dif})
-                //     }
-                //     else if (recordingTapType == 1) {
-                //         //this is percussion
-                //         timeJsonArray.push({type: recordingTapType, timestamp: dif})
-                //     }
-                //     console.log("TAP TIME: " + dif);
-                //     console.log(timeJsonArray);
-                // }
-
-                //Recording Type is General 
-                // else {
-                    //do general rhythm recording
-                times.push(dif);
-                console.log("TAP TIME: "+dif);
-                console.log(times); 
-                // }
-
-            }
-            else { //record the first tap
-                startTime = new Date();
-                console.log(startTime);
-            }
-        }//end of if
-
-        return dif;
-    }//end of tapButton
-    /*************************************************************************/
 
     resetButton.onclick = function () {
         //Reset HTML values and disables
@@ -127,10 +82,9 @@ $( document ).ready(function() {
         //Log the arrays that were recorded so far
         console.log("Time Reset");
         console.log("Stop: "+dif);
-        console.log("END ARRAY: "+returnTimes());
+        console.log("END ARRAY: "+JSON.stringify(returnTimes()));
 
         //Reset the recording values
-        timeArray = [];
         times = new Array();
         timeJsonArray = [];
         startTime = null;
@@ -145,7 +99,7 @@ $( document ).ready(function() {
         if (startTime){
             console.log("Time Stop");
             console.log("Stop: "+dif);
-            console.log("END ARRAY: " + returnTimes());
+            console.log("END ARRAY: "+JSON.stringify(returnTimes()));
             beatCountElement.disabled = true;
             playButton.disabled = false;
             startTime = null;
@@ -209,6 +163,39 @@ $( document ).ready(function() {
 
 
     }//end of stopButton
+    
+    /*************************************************************************/
+    window.addEventListener('mousedown', e => {
+        if (beatCountElement.disabled == false) {
+            if (startTime) {
+                instanceTime = new Date();
+                dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
+
+                //Check If the mouse coordinates of x and y is less than the dimensions of stopButton inside
+                // its CURRENT container of the event, then don't record or play a sound 
+                let ButtonRect = finishButton.getBoundingClientRect();
+                let heightDif = ButtonRect.bottom - ButtonRect.top;
+                let widthDif = ButtonRect.right - ButtonRect.left;
+                let widthBoolean = (e.offsetX > widthDif);
+                let heightBoolean = (e.offsetY > heightDif);
+                if (widthBoolean || heightBoolean) {
+                    playSound(true);
+                    beatCount+=1;
+                    bars.pop()
+                    bars.pop()
+                    bars.pop()
+                    bars.push(10)
+                    bars.push(20)
+                    bars.push(10)
+                    times.push(dif);
+                    console.log("TAP TIME: "+dif);
+                    console.log(times);                  
+                                    
+                }
+            }
+        }
+    });//end of tapButton
+    /*************************************************************************/
 
     /************************************************************************/
     function returnTimes(){
@@ -229,8 +216,7 @@ $( document ).ready(function() {
                 break;
         }
 
-        returnArray.push(adjustedArray)
-        console.log("array with recordType" + returnArray);
+        returnArray.push(adjustedArray);
         return returnArray;
     }//end of returnTimes
 
@@ -268,27 +254,26 @@ $( document ).ready(function() {
     });
 
     /***************************************************************************/
-    //[TODO] Update Keytap to include the canvas animation ]
-    //[TODO] Adjust Keytap to update correct array
     function record(){
         //82 is the r button
-        if(event.keyCode == 82){
-            if (beatCountElement.disabled == false) {
+        if (beatCountElement.disabled == false) {
+            if(event.keyCode >= 48 && event.keyCode <= 57){
                 //console.log(startTime);
+                playSound(true);
                 instanceTime = new Date();
                 dif = (instanceTime.getTime() - startTime.getTime()) / 1000;
 
-                times.push(dif);
-                console.log("TAP TIME: "+dif);
-                console.log(times);
                 beatCount+=1;
-                playSound(true);
                 bars.pop()
                 bars.pop()
                 bars.pop()
                 bars.push(10)
                 bars.push(20)
                 bars.push(10)
+
+                times.push(dif);
+                console.log("TAP TIME: "+dif);
+                console.log(times);
             }//end of if
         }//end of if
     }//end of record
@@ -381,6 +366,7 @@ $( document ).ready(function() {
     
     function onMouseUpdate(e) {
         cursorX = e.pageX;
+        cursory = e.pageY;
     }
 
     function getRecordingTypeMouse() {
@@ -420,7 +406,7 @@ $( document ).ready(function() {
 
     function playSound(single) {
         var recordingType = $('#selected1').text();
-        var quit = true;
+        var enableTapSound = true;
         // Make Playback sound a specific key
         //if (recordingType == dynamicRecordType) {
         var tapKey = $('#selected2').text();
@@ -447,13 +433,14 @@ $( document ).ready(function() {
                 var sound = document.getElementById("harmony7");
                 break;    
             case "Disable Sound":
-                quit = false;
-                return;
+                var sound = document.getElementById("percussion");
+                enableTapSound = false;
+                break;
             default:
                 var sound = document.getElementById("percussion");
                 break;
         }
-        if (single && quit) {
+        if (single && enableTapSound) {
             var audio = document.createElement('audio');
             audio.src = sound.src;
             audio.volume = 0.3;
@@ -463,7 +450,7 @@ $( document ).ready(function() {
                 this.parentNode.removeChild(this);
             }
         }
-        else {
+        else if (!single) {
             // if (recordingType == dynamicRecordType) { 
             //     for (var i = 0; i < timeJsonArray.length; i++) {
             //         var timeObj = timeJsonArray[i];
@@ -532,8 +519,14 @@ $( document ).ready(function() {
             barColor = "#e67b00";
             break;
         default:
-            barColorMute = "#878787";
-            barColor = "#595959";
+            if (darkModeSwitch.checked) {
+                barColorMute = "#302f2d";
+                barColor = "#242423";
+            }
+            else {
+                barColorMute = "#878787";
+                barColor = "#595959";
+            }
             break;
         }
       isRecording = true;
@@ -578,7 +571,7 @@ $( document ).ready(function() {
       canvasContext.canvas.width = width;
       canvasContext.canvas.height = height;
   
-      setInterval(processInput, 50);
+      setInterval(processInput, 70);
     }
   
     // Process the bars, push 1.5 to represent no input
@@ -639,5 +632,26 @@ $( document ).ready(function() {
     startButton .addEventListener('mouseup', startRecording);
     resetButton .addEventListener('mouseup', resetRecording);
     finishButton.addEventListener('mouseup', stopRecording);
+
+    $('#toggle-event').change(function() {
+        var currentType = recordingType.innerHTML;
+        if ($(this).prop('checked')) {
+            //Change CSS to dark mode
+            console.log("darkmode")
+            canvas.className = "js-canvas waveform-canvas-dark";
+            if (currentType != "Percussion" && currentType != "Percussion") {
+                barColorMute = "#302f2d";
+                barColor = "#242423";
+            }
+        }
+        else {
+            //Change CSS to light mode
+            canvas.className = "js-canvas waveform-canvas";
+            if (currentType != "Percussion" && currentType != "Percussion") {
+                barColorMute = "#878787";
+                barColor = "#595959";
+            }
+        }
+    })
     
 });
