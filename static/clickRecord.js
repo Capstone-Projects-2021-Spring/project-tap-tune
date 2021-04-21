@@ -15,7 +15,7 @@ var darkModeSwitch = null;
 const barWidth = 6;
 const barGutter = 7;
 var barColorMute = "#878787";
-var barColor = "#595959";
+var barColor = "#3b3a3a";
 const barColorStart = "#f70000";
 const barColorEnd = "#00c92c";
 //const barColor2;
@@ -525,7 +525,7 @@ $( document ).ready(function() {
             }
             else {
                 barColorMute = "#878787";
-                barColor = "#595959";
+                barColor = "#3b3a3a";
             }
             break;
         }
@@ -635,11 +635,12 @@ $( document ).ready(function() {
 
     $('#toggle-event').change(function() {
         var currentType = recordingType.innerHTML;
+        console.log(currentType)
         if ($(this).prop('checked')) {
             //Change CSS to dark mode
             console.log("darkmode")
             canvas.className = "js-canvas waveform-canvas-dark";
-            if (currentType != "Percussion" && currentType != "Percussion") {
+            if (currentType != "Percussion" && currentType != "Harmonic") {
                 barColorMute = "#302f2d";
                 barColor = "#242423";
             }
@@ -647,11 +648,10 @@ $( document ).ready(function() {
         else {
             //Change CSS to light mode
             canvas.className = "js-canvas waveform-canvas";
-            if (currentType != "Percussion" && currentType != "Percussion") {
+            if (currentType != "Percussion" && currentType != "Harmonic") {
                 barColorMute = "#878787";
-                barColor = "#595959";
+                barColor = "#3b3a3a";
             }
         }
     })
-    
 });

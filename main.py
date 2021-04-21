@@ -117,8 +117,12 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-
-    final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    if objR.input_type == 0:
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
+    if objR.input_type == 1 :
+        final_res = objR.onset_peak_func_harmonic()
+    if objR.input_type == 2:
+        final_res = objR.onset_peak_fun_percussive()
 
     lyrics = ''
     photo = ''
