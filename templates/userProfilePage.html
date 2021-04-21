@@ -17,22 +17,13 @@
     <form method="post">
         <div class="row">
             <div class="col-md-4">
-                <div class="profile-img">
-                    <img src="https://image.flaticon.com/icons/png/128/1946/1946392.png" alt=""/>
-                    {# Check to see if the user has a photo  #}
-                    {% if user.image %}
-                        {# If a photo exists, give the option to change the user photo #}
-                        {{ user.image }}
-{#                        <input type="file" name="image" value="Change Photo">#}
-                    {% else %}
-                        {# If no photo exists, give the option to upload a new one #}
-{#                        <input type="file" name="image" value="Upload">#}
-                    {% endif %}
-
-                    <div class="file btn btn-sm">
-                        Change Photo
-                        <input type="file" name="file"/>
-                    </div>
+                <div class="profile-head">
+                    <h1 style="color: #1abc9c;">
+                        Hey There,
+                    </h1>
+                    <h2>
+                         {{user.username}}
+                    </h2>
                 </div>
             </div>
             <div class="col-md-6">
@@ -84,44 +75,28 @@
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <div class="row">
                             <div class="col-md-6">
-                                <label>User Id</label>
+                                <h3 style="color: #1abc9c;">User Id:</h3>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user.username }}</p>
+                                <h4>{{ user.username }}</h4>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <label>Name</label>
+                                <h3 style="color: #1abc9c;">Name:</h3>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user.name }}</p>
+                                <h4>{{ user.name }}</h4>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <label>Email</label>
+                                <h3 style="color: #1abc9c;">Email:</h3>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user.email }}</p>
+                                <h4>{{ user.email }}</h4>
                             </div>
                         </div>
-{#                        <div class="row">#}
-{#                            <div class="col-md-6">#}
-{#                                <label>Phone</label>#}
-{#                            </div>#}
-{#                            <div class="col-md-6">#}
-{#                                <p>123 456 7890</p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="row">#}
-{#                            <div class="col-md-6">#}
-{#                                <label>Profession</label>#}
-{#                            </div>#}
-{#                            <div class="col-md-6">#}
-{#                                <p>Web Developer and Designer</p>#}
-{#                            </div>#}
-{#                        </div>#}
                     </div>
                     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
                             <div class="row">
