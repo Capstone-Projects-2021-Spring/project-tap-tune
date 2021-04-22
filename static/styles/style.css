@@ -7471,7 +7471,9 @@ button.bg-dark:focus {
 .h-25 {
   height: 25% !important;
 }
-
+.h-33 {
+  height: 33% !important;
+}
 .h-50 {
   height: 50% !important;
 }
@@ -10533,6 +10535,24 @@ form .row:first-child .floating-label-form-group {
              0.3em 0.3em 1em rgba(0,0,0,0.3);
 }
 
+.waveform-canvas2 {
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 -2em 2em rgba(0,0,0,0.1),
+  0 0  0 1px rgba(172, 240, 255, 0.438),
+  0.2em 0.2em 0.5em rgba(0, 0, 0, 0.2);
+}
+
+.waveform-canvas-dark2 {
+  width: 100%;
+  height: 100%;
+  background-color: #59564f;
+  box-shadow:
+       inset 0 -3em 3em rgba(0,0,0,0.1),
+             0 0  0 2px rgb(255,255,255),
+             0.3em 0.3em 1em rgba(0,0,0,0.3);
+}
+
 .spotify-refresh {
   position: absolute; 
   bottom:0.5px; 
@@ -10562,4 +10582,8 @@ form .row:first-child .floating-label-form-group {
 
 .thumb {
   display: none;
+}
+
+tbody tr.active {
+  background-color: rgba(164, 164, 164, 0.283);
 }

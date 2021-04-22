@@ -56,7 +56,9 @@ def rhythm_page():
 @app.route('/about', methods=['GET', 'POST'])
 def about_page():
     user = User.current_user()
-    return render_template('about.html', user=user)
+    r = make_response(render_template('about.html', user=user))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
@@ -118,11 +120,14 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
+        userRecordingType = "General Rhythm"
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
     if objR.input_type == 1 :
-        final_res = objR.onset_peak_func_harmonic()
-    if objR.input_type == 2:
+        userRecordingType = "Percussion"
         final_res = objR.onset_peak_fun_percussive()
+    if objR.input_type == 2:
+        userRecordingType = "Harmonic"
+        final_res = objR.onset_peak_func_harmonic()
 
     lyrics = ''
     photo = ''
@@ -134,8 +139,11 @@ def result_page():
         if user:
             user.add_song_log(final_res)
 
+    userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
+    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
 
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
@@ -512,7 +520,38 @@ def spotify_suggest():
 
         resp = {'feedback': msg, 'category': category, 'data': data}
         return make_response(jsonify(resp), 200)
-    
+
+@app.route('/spotify-track-metadata', methods=['GET', 'POST'])
+def spotify_track_metadata():
+    if request.method == 'POST': 
+        spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+        #Getting song suggestion based on spotify API
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1] 
+
+
+        #Parse Tracks in data to find track id
+        lyrics = ''
+        searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+        if searchResults and searchResults["tracks"]["total"] > 0:
+            trackLink = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
+            trackURI = searchResults["tracks"]['items'][0]["uri"]
+            lyrics = get_lyrics(title, artist)
+            trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
+
+            resp_data = [trackLink, trackURI, lyrics, trackAlbumImage]
+            msg = "Song found, returning links."
+            category = "success"
+        else:
+            msg = "Song could not be found in spotify API"
+            resp_data = "None"
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'data': resp_data}
+        return make_response(jsonify(resp), 200) 
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
