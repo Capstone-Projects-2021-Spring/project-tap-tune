@@ -123,17 +123,11 @@ def result_page():
         userRecordingType = "General Rhythm"
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
     if objR.input_type == 1 :
-<<<<<<< HEAD
         userRecordingType = "Percussion"
         final_res = objR.onset_peak_fun_percussive()
     if objR.input_type == 2:
         userRecordingType = "Harmonic"
         final_res = objR.onset_peak_func_harmonic()
-=======
-        final_res = objR.onset_peak_func_percussive()
-    if objR.input_type == 2:
-        final_res = objR.onset_peak_fun_harmonic()
->>>>>>> 71ff8cf2abac343bf5f25eb849c1ba4ab6bc5430
 
     lyrics = ''
     photo = ''
