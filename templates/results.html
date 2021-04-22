@@ -21,40 +21,136 @@
   </div>
   <div class="container-fluid">
     <div class="row">
+      <!-- ---------------------------------------- -->
+      <!-- Left Hand Col : Selected Results         -->
+      <!-- ---------------------------------------- -->
       <div class="col-md">
-        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Main Search</h1>
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Selected Result</h1>
         <div class="divider-custom2 divider-dark">
           <div class="divider-custom2-line"></div>
         </div>
-        <img class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+        <!-- Top Section : Song Details -->
         <div class="row">
+          <!-- Top Section Left Hand Side :  Image, Title, Song, Match Percentage-->
+          
+          
           <div class="col">
-            <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
-              <span id = "resultsMainSearchTitle">
-                  {{filterResults[0]['song'].title}}
-
-              </span>
-            </h3>
+            <img id="selectedResultImage" class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+            <!--[TODO Needs Testing Possible Looksies]-->
+            <div class="layer w-100 mT-15">
+              <h5 class="mB-5">{{filterResults[0]['song'].title}}</h5>
+              <small class="fw-600 c-grey-700">{{filterResults[0]['song'].artist}}</small> <span class="pull-right c-grey-600 fsz-sm">{{(filterResults[0]['percent_match']*100)|round(2)}}%</span>
+              <div class="progress mT-10">
+                 <div class="progress-bar bgc-blue-grey-500" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:90%"><span class="sr-only">90% Complete</span></div>
+              </div>
+           </div>
+            <!-- <div class="row">
+              <div class="col">
+                <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">
+                  <span id = "selectedResultTitle">
+                    {{filterResults[0]['song'].title}}
+                    
+                  </span>
+                </h3>
+              </div>
+              <div class="col">
+                <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
+                  <span id = "selectedResultMatchPercent" class="text-right" style="color: rgb(0, 145, 0)">
+                    {{(filterResults[0]['percent_match']*100)|round(2)}}%
+                  </span>
+                </h3>
+              </div>
+            </div>
+            <h4 id = "selectedResultArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
+              {{filterResults[0]['song'].artist}}
+            </h4>  -->
           </div>
+          
+          <!-- Top Section Right Hand Side :  Scrollable Lyrics-->
           <div class="col">
-            <h3 class="masthead-subheading text-uppercase font-weight-heavy text-right mb-1">
-              <span id = "resultsMainSearchPercentage" class="text-right" style="color: rgb(0, 145, 0)">
-                  {{(filterResults[0]['percent_match']*100)|round(2)}}%
-              </span>
-            </h3>
-          </div>
-        </div>
-        <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
-            {{filterResults[0]['song'].artist}}
-        </h4> 
-        <div id="module" class="container mb-3">
-          <p id = "resultsMainSearchLyrics" class="collapse multiline" aria-expanded="false">
+            <div id="module" class="container mb-3 overflow-auto">
+              <p id = "selectedResultLyrics" class="collapse multiline" aria-expanded="false">
 {{lyrics}}
-          </p>
-          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>
+              </p>
+              <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>
+            </div>
+          </div>
         </div>
-      </div>
 
+        <!-- Bottom Section : Analysis Details [TODO] Probably Collapse -->
+        <div class="row">
+          <h2 class="masthead-heading text-uppercase mb-0 mt-4">Search Analysis</h2>
+          <div class="divider-custom2 divider-dark">
+            <div class="divider-custom2-line"></div>
+          </div>
+          <!-- Bottom Section Top Row -->
+          <div class="row">
+            <!-- Bottom Section Left Hand Side : -->
+            <!-- Show Spotify API -->
+            <div class="videoWrapper">
+              <iframe id ="selectedResultSpotifyEmbed" src="https://open.spotify.com/embed/track/6IwKcFdiRQZOWeYNhUiWIv" style="border-radius: 10px;" width="100%" height="150px" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            </div>
+          </div>
+
+          <!-- Bottom Section Middle Row -->
+          <div class="row">
+            <div class="col border">
+              Recording Type
+              <br>
+              {{userRecordingType}}
+
+            </div>
+            <div class="col border">
+              Recording Tap Count
+              <br>
+              {{userTapCount}}
+            </div>
+            <div class="col border">
+              <a href="#">
+                Spotify Pattern Timestamp
+                <br>
+                <span id=songPatternTimestamp>2:00</span>
+              </a> 
+            </div>
+          </div>
+
+          <!-- Bottom Section Bottom Row : Canvas -->
+          <div class="row">
+            <div class="container">
+              <div class="row justify-content-center mt-3">   
+                <button id="playUserPatternButton" class="btn-third" disabled>
+                  Play
+                </button>
+                <div class="dropdown ml-3">
+                  <button id="tapKeyDropdown" class="btn btn-third dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span id="selected2">
+                      Select Pattern
+                    </span>
+                  </button>
+                  <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="tapKeyDropdown">
+                    <a class="dropdown-item"><span style="color: #018dff; font-weight: bold;">User Pattern</span></a>
+                    <a class="dropdown-item"><span style="color: #ff4545; font-weight: bold;">Song Pattern</span></a>
+                  </div>
+                </div>
+                <button id="stopCanvasPlaybackButton" class="btn-primary" disabled>
+                  Stop
+                </button>
+              </div>
+              <div class="waveform">
+                <canvas id="js-canvas" class="js-canvas waveform-canvas"></canvas>
+                <div class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input" id="toggle-event">
+                  <label class="custom-control-label" for="toggle-event">Dark Mode</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      <!-- ---------------------------------------- -->
+      <!-- Right Hand Col : Related Results Table  -->
+      <!-- ---------------------------------------- -->
       <div class="col-md">
         <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
         <div class="divider-custom2 divider-dark">
@@ -65,21 +161,15 @@
             <tr>
               <th scope="col">Song Title</th>
               <th scope="col">Song Artist</th>
-              <th scope="col">Match Percentage</th>
-              <th scope="col">Sample Audio Preview</th>
+              <th scope="col">Match %</th>
             </tr>
           </thead>
           <tbody id = "resultsSecondaryTableBody">
             {% for song_result in filterResults %}
-              <tr>
+              <tr class='clickable-row' data-song-pattern="{{song_result.matched_pattern}}">
                 <td>{{ song_result.song.title }}</td>
                 <td>{{ song_result.song.artist }}</td>
                 <td>{{ (song_result.percent_match*100)|round(2) }}%</td>
-                <td>
-                  <audio controls="controls">
-                    <source src="{{ song_result.song.preview }}" type="audio/mpeg"/>
-                  </audio>
-                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -121,4 +211,9 @@
 
 
 </div>
+{% endblock %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='results.js') }}"></script>
 {% endblock %}
