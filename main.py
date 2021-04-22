@@ -9,6 +9,7 @@ import lyricsgenius
 import json
 import time
 import csv
+import requests
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
@@ -428,7 +429,6 @@ def spotify_suggest():
 
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
                                                            client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
-        """
         CLIENT_ID = '57483e104132413189f41cd82836d8ef'
         CLIENT_SECRET = '2bcd745069bd4602ae77d1a348c0f2fe'
         
@@ -453,7 +453,6 @@ def spotify_suggest():
         
         # base URL of all Spotify API endpoints
         REC_ENDPOINT = 'https://api.spotify.com/v1/recommendations'
-        """
 
         #Parse Slider information
         # Define Initial Target_Values [Acousticness, Danceability, Energy Instrumentalness, Loudness]
@@ -483,8 +482,7 @@ def spotify_suggest():
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
-            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
-            """
+            # recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
             # actual GET request with proper header
             r = requests.get(REC_ENDPOINT + '/', headers=headers,
                              params={'seed_artist' : None,
@@ -496,9 +494,8 @@ def spotify_suggest():
                                      'target_instrumentalness' : target_values[3],
                                      'target_loudness' :  target_values[4]
                              })
-            
+            print(target_values)
             recommendations = r.json()
-            """
             if recommendations:
                 print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
