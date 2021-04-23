@@ -133,15 +133,12 @@ $( document ).ready(function() {
 
             //Set the TrackURI, Lyrics, Album Image Src
             selectedResultSpotifyTrackURI = result.data[1] + "#" + currentTimeStamp
+
             var lyrics = result.data[2];
-            if (lyrics.length > 4) {
-                lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
-            }
-            else {
-                lyrics = "Problem loading lyrics";
-            }
+            lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
             selectedResultLyrics.innerHTML  = lyrics
-            if (result.data[3]["url"].length > 1)
+
+            if (result.data[3] != '')
                 selectedResultImage.src         = result.data[3]["url"];
             else 
                 selectedResultImage.src         = "https://www.dia.org/sites/default/files/No_Img_Avail.jpg";

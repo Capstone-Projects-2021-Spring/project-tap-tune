@@ -52,7 +52,7 @@ tbody tr.active {
 .canvas-controls {
     position: absolute; 
     top:1.2rem; 
-    right:3rem;
+    right:2.7rem;
     z-index: 9;
 }
 
@@ -98,10 +98,27 @@ tbody tr.active {
 
 .border-primary {
     border-color: #e82626 !important;
+    background-color: #f8adad13;
   }
 
+  .border-success {
+    border-color: #28a745 !important;
+    background-color: #90eea620;
+  }
   
+  .border-info {
+    border-color: #17a2b8 !important;
+    background-color: #8ddae613;
+  }
+  
+  .border-danger {
+    border-color: #ffc107 !important;
+    background-color: #f2e5bd46;
+  }
 
+  small{
+    font-weight:bolder;
+  }
   
   .btn-primary {
     color: rgb(255, 255, 255);
@@ -199,7 +216,7 @@ tbody tr.active {
 }
 
 .card-hover:hover {
-    opacity: 0.5;
+    opacity: 1;
 }
 
 .waveform {
@@ -214,29 +231,13 @@ tbody tr.active {
     width: 100%;
     height: 28rem;
     border-color: #343a40 !important;
+    background-color: #79767015;
     border: 0.125rem solid rgba(0, 0, 0, 0.125);
     border-radius: 0.5rem;
     border-bottom: transparent solid 4px;
     border-bottom-width: 4px;
     border-bottom-style: solid;
     border-bottom-color: transparent;
-    box-shadow: 0 0.46875rem 2.1875rem rgb(218 98 74 / 3%), 
-      0 0.9375rem 1.40625rem rgb(218 98 74 / 3%), 
-      0 0.25rem 0.53125rem rgb(218 98 74 / 5%), 
-      0 0.125rem 0.1875rem rgb(218 98 74 / 3%);
-  }
-  
-  .waveform-canvas-dark {
-    width: 100%;
-    height: 32rem;
-    background-color: #59564f;
-    border-bottom: transparent solid 4px;
-    border-bottom-width: 4px;
-    border-bottom-style: solid;
-    border-bottom-color: transparent;
-    border-color: #343a40 !important;
-    border: 0.125rem solid rgba(0, 0, 0, 0.125);
-    border-radius: 0.5rem;
     box-shadow: 0 0.46875rem 2.1875rem rgb(218 98 74 / 3%), 
       0 0.9375rem 1.40625rem rgb(218 98 74 / 3%), 
       0 0.25rem 0.53125rem rgb(218 98 74 / 5%), 

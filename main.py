@@ -100,7 +100,7 @@ def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
     song = genius.search_song(title=songtitle, artist=songartist)
-    lyrics = ''
+    lyrics = 'Not Found'
     if song:
         lyrics = song.lyrics
     return lyrics
@@ -550,10 +550,10 @@ def spotify_track_metadata():
         #Parse Tracks in data to find track id
         lyrics = ''
         searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+        lyrics = get_lyrics(title, artist)
         if searchResults and searchResults["tracks"]["total"] > 0:
             trackLink = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
             trackURI = searchResults["tracks"]['items'][0]["uri"]
-            lyrics = get_lyrics(title, artist)
             trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
 
             resp_data = [trackLink, trackURI, lyrics, trackAlbumImage]
@@ -561,7 +561,7 @@ def spotify_track_metadata():
             category = "success"
         else:
             msg = "Song could not be found in spotify API"
-            resp_data = "None"
+            resp_data = ['', '', lyrics, '']
             category = "danger"
 
         resp = {'feedback': msg, 'category': category, 'data': resp_data}
