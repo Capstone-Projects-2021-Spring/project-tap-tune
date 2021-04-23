@@ -13,26 +13,17 @@
 <!------ Include the above in your HEAD tag ---------->
 
 {% block content %}
-<div class="container emp-profile">
+<div class="container emp-profile pr-0">
     <form method="post">
         <div class="row">
             <div class="col-md-4">
-                <div class="profile-img">
-                    <img src="https://image.flaticon.com/icons/png/128/1946/1946392.png" alt=""/>
-                    {# Check to see if the user has a photo  #}
-                    {% if user.image %}
-                        {# If a photo exists, give the option to change the user photo #}
-                        {{ user.image }}
-{#                        <input type="file" name="image" value="Change Photo">#}
-                    {% else %}
-                        {# If no photo exists, give the option to upload a new one #}
-{#                        <input type="file" name="image" value="Upload">#}
-                    {% endif %}
-
-                    <div class="file btn btn-sm">
-                        Change Photo
-                        <input type="file" name="file"/>
-                    </div>
+                <div class="profile-head">
+                    <h1 style="color: #1abc9c;">
+                        {{phrases[rand]}}
+                    </h1>
+                    <h2>
+                         {{user.username}}
+                    </h2>
                 </div>
             </div>
             <div class="col-md-6">
@@ -52,77 +43,43 @@
                             <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorite Songs</a>
+                            <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorites</a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" id="Suggestion-tab" data-toggle="tab" href="#suggestions" role="tab" aria-controls="suggestions" aria-selected="false">Song Suggestions</a>
-                        </li> -->
                     </ul>
                 </div>
             </div>
-{#            <div class="col-md-2">#}
-{#                <input type="submit" class="profile-edit-btn" name="btnAddMore" value="Edit Profile"/>#}
-{#            </div>#}
         </div>
-{#        <div class="row">#}
-{#            <div class="col-md-4">#}
-{#                <div class="profile-work">#}
-{#                    <p>WORK LINK</p>#}
-{#                    <a href="">Website Link</a><br/>#}
-{#                    <a href="">Bootsnipp Profile</a><br/>#}
-{#                    <a href="">Bootply Profile</a>#}
-{#                    <p>SKILLS</p>#}
-{#                    <a href="">Web Designer</a><br/>#}
-{#                    <a href="">Web Developer</a><br/>#}
-{#                    <a href="">WordPress</a><br/>#}
-{#                    <a href="">WooCommerce</a><br/>#}
-{#                    <a href="">PHP, .Net</a><br/>#}
-{#                </div>#}
-{#            </div>#}
             <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
+                    <!-- User Profile Tab -->
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <div class="row">
                             <div class="col-md-6">
-                                <label>User Id</label>
+                                <h3 style="color: #1abc9c;">User Id:</h3>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user.username }}</p>
+                                <h4>{{ user.username }}</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <h3 style="color: #1abc9c;">Name:</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>{{ user.name }}</h4>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <label>Name</label>
+                                <h3 style="color: #1abc9c;">Email:</h3>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user.name }}</p>
+                                <h4>{{ user.email }}</h4>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label>Email</label>
-                            </div>
-                            <div class="col-md-6">
-                                <p>{{ user.email }}</p>
-                            </div>
-                        </div>
-{#                        <div class="row">#}
-{#                            <div class="col-md-6">#}
-{#                                <label>Phone</label>#}
-{#                            </div>#}
-{#                            <div class="col-md-6">#}
-{#                                <p>123 456 7890</p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="row">#}
-{#                            <div class="col-md-6">#}
-{#                                <label>Profession</label>#}
-{#                            </div>#}
-{#                            <div class="col-md-6">#}
-{#                                <p>Web Developer and Designer</p>#}
-{#                            </div>#}
-{#                        </div>#}
                     </div>
+                    <!-- User History Tab -->
                     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
                             <div class="row">
                                 <div class="col">
@@ -153,28 +110,105 @@
                                 </div>
                             </div>
                     </div>
+                    <!-- Favorites/SongSuggestion Tab-->
                     <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
+                        <!-- Song Suggestion Based on selected favorites -->
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md pl-0 pr-0">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Suggested Song</h3>
-                                <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below.  Simply check off songs you want the suggestion to be based off and press the Suggest button!  </p>
-                                <div class="col border-left">
-                                    <a id="suggestedImageLink" href="https://open.spotify.com/track/4jU7NPkz4HVnM4hweqNhI1?si=14ba6cc5d2184f64" target="_blank">
-                                        <img id="suggestedImage" class="img-fluid" src="https://i.scdn.co/image/ab67616d00001e02661d019f34569f79eae9e985">
-                                    </a>
-                                    <h3 id="suggestedTitle" >
-                                        Blue Orchid
-                                    </h3>
-                                    <h4 id="suggestedArtist">
-                                        The White Stripes
-                                    </h4>
-                                    <button id="suggestSpotifySongBtn" type="button" class="btn btn-success"><i class="fab fa-spotify"></i> Refresh</button>
+                                <div class="divider-custom2 p-0">
+                                    <div class="divider-custom2-line"></div>
+                                </div>
+                                <div class= "col-md-9 p-0" >
+                                    <p class="text-muted"> Get a Spotify suggested song based on your selected favorited songs in your user profile below. <br> Simply check off songs you want the suggestion to be based off and press the Refresh button!  <br> Optional Attributes from 0-100 can be applied to the search in the panel below.  <br> If untouched, will be by default not used in our search.  </p>
+                                </div>
+                                <div class="col pt-1">
+                                    <div class="row">
+                                        <div class="col-md pt-0 pl-2 pr-0 mb-2">
+                                            <div class="videoWrapper">
+                                                <iframe id ="suggestframe" src="https://open.spotify.com/embed/track/6IwKcFdiRQZOWeYNhUiWIv" style="border-radius: 10px;" width="100%" height="auto" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                                                <div class="spotify-refresh pb-2">
+                                                    <button id="suggestSpotifySongBtn" type="button" class="btn btn-success"><i class="fab fa-spotify"></i> Refresh</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 pt-0 mb-2 pl-1 pr-0">
+                                            <div class="container rounded border pb-2" style="height: 100%;">
+                                                <!--Attributes Header-->
+                                                <div class="container d-flex align-items-center flex-column">
+                                                    <h5 class="masthead-subheading text-uppercase font-weight-heavy pt-4 pb-0">Spotify Attributes %</h4>
+                                                    <div class="divider-custom3 pt-1 pb-1">
+                                                        <div class="divider-custom3-line"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
+                                                        <label for="pbrate0">Acousticness</label>
+                                                    </div>
+                                                    <!--Attributes Slider-->
+                                                    <div class="col-sm-6 pt-1 pl-1 pr-0">
+                                                        <div class="speedcontrolcontainer pt-1 pb-2">
+                                                            <input class="center-slider" type="range" id="pbrate0" min=0 max=1 value=0 step=.1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
+                                                        <label for="pbrate0">Danceability</label>
+                                                    </div>
+                                                    <!--Attributes Slider-->
+                                                    <div class="col-sm-6 pt-1 pl-1 pr-0">
+                                                        <div class="speedcontrolcontainer pt-1 pb-2">
+                                                            <input class="center-slider" type="range" id="pbrate0" min=0 max=1 value=0 step=.1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
+                                                        <label for="pbrate0">Energy</label>
+                                                    </div>
+                                                    <!--Attributes Slider-->
+                                                    <div class="col-sm-6 pt-1 pl-1 pr-0">
+                                                        <div class="speedcontrolcontainer pt-1 pb-2">
+                                                            <input class="center-slider" type="range" id="pbrate0" min=0 max=1 value=0 step=.1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
+                                                        <label for="pbrate0">Instrumental</label>
+                                                    </div>
+                                                    <!--Attributes Slider-->
+                                                    <div class="col-sm-6 pt-1 pl-1 pr-0">
+                                                        <div class="speedcontrolcontainer pt-1 pb-2">
+                                                            <input class="center-slider" type="range" id="pbrate0" min=0 max=1 value=0 step=.1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
+                                                        <label for="pbrate0">Loudness</label>
+                                                    </div>
+                                                    <!--Attributes Slider-->
+                                                    <div class="col-sm-6 pt-1 pl-1 pr-0">
+                                                        <div class="speedcontrolcontainer pt-1 pb-2">
+                                                            <input class="center-slider" type="range" id="pbrate0" min=0 max=1 value=0 step=.1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- List of User's Favorited Songs -->
                         <div class="row">
                             <div class="col">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Favorited Songs</h3>
+                                <div class="divider-custom2 p-0">
+                                    <div class="divider-custom2-line"></div>
+                                </div>
                                 <div class="col border-left">
                                         <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
                                         <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
@@ -210,25 +244,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="tab-pane fade" id="suggestions" role="tabpanel" aria-labelledby="suggestions-tab">
-                        <div class="row">
-                            <div class="col">
-                                <h3>Song Suggestions</h3>
-                                <ul class="timeline">
-                                    {%for song in user_fav_songs%}
-                                        <li>
-                                            <a href="#">{{song.title}}</a>
-                                            <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
-                                            <p>
-                                                Artist: {{song.artist}}<br>
-                                                Genre: {{song.genre}}
-                                            </p>
-                                        </li>
-                                    {%endfor%}
-                                </ul>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>

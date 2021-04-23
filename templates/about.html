@@ -1,0 +1,177 @@
+{% extends "layout.html" %}
+{% block title %} - About{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename='styles/result.css')}}">
+
+<div class="bgc-blue-grey-500">
+    <div class="container pt-2">
+        <h2 class="masthead-heading text-uppercase mb-0 mt-4">Selected Result</h1>
+        <div class="divider-custom2 divider-dark">
+            <div class="divider-custom2-line"></div>
+        </div>
+        <div class="row">
+            <!-- ---------------------------------------- -->
+            <!-- Right Hand Col : Related Results Table  -->
+            <!-- ---------------------------------------- -->
+            <div class="col bg-light text-dark shadow-sm pt-0">
+                <div class = "row">
+                    <div class="col-md-7">
+                        <img id="selectedResultImage" class="img-fluid shadow-sm" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+                        <div class="row">
+                            <div class="col">    
+                                <h5 id = "selectedResultTitle" class="font-weight-bold">Title</h5>
+                                <div class="col pl-0 pt-1">
+                                    <small id = "selectedResultArtist" style="text-align:left;">
+                                        Artist
+                                        <span id = "selectedResultMatchPercent" style="float:right;">
+                                            90%
+                                        </span>
+                                    </small>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="d-md-flex shadow-sm">
+                            <div class="overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-white" style="width: auto; height:450px;">
+                                <h5 class="font-weight-bold">Lyrics</h5>
+                                <span id = "selectedResultLyrics">
+            Code · Bootstrap https://getbootstrap.com › docs › content › code
+            For example,  element is displayed in a fixed-width font, and the text ...
+            <br></br><br>
+            PrepBootstrap: Bootstrap themes and templateshttps://www.prepbootstrap.com
+            The ultimate source of free and premium Bootstrap themes, templates and other widgets in complete code examples. Download a sample and start building your​ ...
+            ‎Templates · ‎Themes · ‎Premium Themes
+            themes, templates and other widgets in complete code examples. Download a sample and start building your​ ...
+            ‎Templates · ‎Themes · ‎Premium Themes
+            
+            Bootstrap pre tag styling - Tutorialspointhttps://www.tutorialspoint.com › Bootstrap-pre-tag-styli...
+            Jun 18, 2018 — Bootstrap pre tag styling ... If the code needs to be displayed as a standalone block element or if it has multiple lines, then you should use th...
+            themes, templates and other widgets in complete code examples. Download a sample and start building your​ ...
+            ‎Templates · ‎Themes · ‎Premium Themes
+            
+            Bootstrap pre tag styling - Tutorialspointhttps://www.tutorialspoint.com › Bootstrap-pre-tag-styli...
+            Jun 18, 2018 — Bootstrap pre tag styling ... If the code needs to be displayed as a standalone block element or if it has multiple lines, then you should use th...
+            
+            Bootstrap pre tag styling - Tutorialspointhttps://www.tutorialspoint.com › Bootstrap-pre-tag-styli...
+            Jun 18, 2018 — Bootstrap pre tag styling ... If the code needs to be displayed as a standalone block element or if it has multiple lines, then you should use th...
+            
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-3">
+            <div class="col bg-light text-dark shadow-sm pt-0">
+                <div class = "row">
+                    <!-- <iframe id ="selectedResultSpotifyEmbed" src="https://open.spotify.com/embed/track/2sVAKDlRCxmstAi5Oc27f0" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe> -->
+                </div>
+            </div>
+        </div>
+        <!-- Bottom Section : Analysis Details [TODO] Probably Collapse -->
+        <h4 id="collapsible" class="collapsible masthead-heading text-uppercase mb-0 mt-4">Expand Analysis</h4>
+        <div id="collapsibleContent" class="content">
+            <div class="row pt-2">
+                <div class="col-md-3">
+                    <div class="row h-33 border p-3">
+                        Recording Type
+                        <br>
+                        userRecordingType}}
+                    </div>
+                    <div class="row h-33 border p-3 ">
+                        Recording Tap Count
+                        <br>
+                        userTapCount}}
+                    </div>
+                    <div class="row h-33 border p-3">
+                        <a href="#">
+                            Spotify Pattern Timestamp
+                            <br>
+                            <span id=songPatternTimestamp>2:00}}</span>
+                        </a> 
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <!-- Bottom Section Bottom Row : Canvas -->
+                    <div class="row">
+                        <div class="col pt-0">
+                            <div class="row canvas-controls mt-3">   
+                                <button id="playUserPatternButton" class="btn-third" disabled>
+                                    Play
+                                </button>
+                                <div class="dropdown ml-3">
+                                    <button id="tapKeyDropdown" class="btn btn-third dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span id="selected2">
+                                            Select Pattern
+                                        </span>
+                                    </button>
+                                    <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="tapKeyDropdown">
+                                        <a class="dropdown-item"><span style="color: #018dff; font-weight: bold;">User Pattern</span></a>
+                                        <a class="dropdown-item"><span style="color: #ff4545; font-weight: bold;">Song Pattern</span></a>
+                                    </div>
+                                </div>
+                                <button id="stopCanvasPlaybackButton" class="btn-primary" disabled>
+                                    Stop
+                                </button>
+                            </div>
+                            <div class="waveform pt-0">
+                                <canvas id="js-canvas" class="js-canvas waveform-canvas"></canvas>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="toggle-event">
+                                    <label class="custom-control-label" for="toggle-event">Dark Mode</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-2">
+            <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
+            <div class="divider-custom2 divider-dark">
+                <div class="divider-custom2-line"></div>
+            </div>
+            <div class="col-md pl-2 bg-light shadow-sm">
+                <table id = "resultsSecondaryTable" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Song Title</th>
+                            <th scope="col">Song Artist</th>
+                            <th scope="col">Match %</th>
+                        </tr>
+                    </thead>
+                    <tbody id = "resultsSecondaryTableBody">
+                        <tr class='clickable-row' data-song-pattern="at.matched_pattern}}">
+                            <td>Thinking out Loud</td>
+                            <td>Ed Sheeran</td>
+                            <td>90%</td>
+                        </tr>
+                        <tr class='clickable-row' data-song-pattern="at.matched_pattern}}">
+                            <td>Clint Eastwood</td>
+                            <td>Gorillaz</td>
+                            <td>84%</td>
+                        </tr>
+                        <tr class='clickable-row' data-song-pattern="at.matched_pattern}}">
+                            <td>Blame It on the Boogie</td>
+                            <td>The Jacksons</td>
+                            <td>75%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='results.js') }}"></script>
+{% endblock %}
