@@ -9,9 +9,12 @@ import lyricsgenius
 import json
 import time
 import csv
+import requests
+import random
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
+from update_db_songs import update_songs_sync_hash
 from models.SpotifyHandler import SpotifyHandler
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
@@ -48,11 +51,23 @@ def home_page():
     return render_template('index.html', user=user)
 
 
+@app.route('/update-songs')
+def update_songs():
+    update_songs_sync_hash()
+    return render_template('index.html')
+
+
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
 def rhythm_page():
     user = User.current_user()
     return render_template('recordingRhythm.html', user=user)
 
+@app.route('/about', methods=['GET', 'POST'])
+def about_page():
+    user = User.current_user()
+    r = make_response(render_template('about.html', user=user))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
@@ -67,7 +82,7 @@ def filter_page():
     userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
     custobj = test.rhythmAnalysis(userinput)
     print(custobj.onset_peak_func())
-    '''
+    ''' 
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
@@ -113,10 +128,16 @@ def result_page():
 
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
-    if objR.numOfAry == 1:
-        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
-    else:
-        final_res = objR.onset_peak_func_hp()  # returns list of tuples, final_results = [{<Song>, percent_match}, ... ]
+    if objR.input_type == 0:
+        userRecordingType = "General Rhythm"
+        final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
+    if objR.input_type == 1 :
+        userRecordingType = "Percussion"
+        final_res = objR.onset_peak_fun_percussive()
+    if objR.input_type == 2:
+        userRecordingType = "Harmonic"
+        final_res = objR.onset_peak_func_harmonic()
+
     lyrics = ''
     photo = ''
     if final_res and len(final_res) > 0:
@@ -127,8 +148,11 @@ def result_page():
         if user:
             user.add_song_log(final_res)
 
+    userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    return render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res)
+    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
 
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
@@ -195,11 +219,16 @@ def melody_result_page():
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
+    phrases = ["Hey There,", "Hello,", "What's Up?", "Good To See You,", "Greetings,", "Salutations,", "Howdy,", "Hey,", "Nice To See You,"]
+    rand = random.randint(0,8)
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
-    return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
-                           user_song_log=user_song_log)
+    r = make_response(render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
+                           user_song_log=user_song_log, phrases=phrases, rand=rand))
+    r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
+    return r
+    #return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
@@ -406,13 +435,52 @@ def spotify_suggest():
     if request.method == 'POST': 
         #Getting song suggestion based on spotify API
         data = json.loads(request.data)
+        input_tracks = data[0]
+        attributes = data[1] 
+        print(attributes)
 
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
                                                            client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+        CLIENT_ID = '57483e104132413189f41cd82836d8ef'
+        CLIENT_SECRET = '2bcd745069bd4602ae77d1a348c0f2fe'
+        
+        AUTH_URL = 'https://accounts.spotify.com/api/token'
+        
+        # POST
+        auth_response = requests.post(AUTH_URL, {
+            'grant_type': 'client_credentials',
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+        })
+        
+        # convert the response to JSON
+        auth_response_data = auth_response.json()
+        
+        # save the access token
+        access_token = auth_response_data['access_token']
+        
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token)
+        }
+        
+        # base URL of all Spotify API endpoints
+        REC_ENDPOINT = 'https://api.spotify.com/v1/recommendations'
 
+        #Parse Slider information
+        # Define Initial Target_Values [Acousticness, Danceability, Energy Instrumentalness, Loudness]
+        target_values = [None, None, None, None, None]
+        for index, item in enumerate(attributes):
+            if item:
+                target_values[index] = item
+        print(target_values)
+
+        #Parse Tracks in data to find track ids
         #For each title and artist, find track id
         track_ids = []
-        for items in data:
+        for items in input_tracks:
+            """
+            INCLUDE PARSING OF SLIDER INFORMATION
+            """
             split = items.split(',')
             title = split[0]
             artist = split[1]
@@ -426,7 +494,20 @@ def spotify_suggest():
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
-            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            # recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
+            # actual GET request with proper header
+            r = requests.get(REC_ENDPOINT + '/', headers=headers,
+                             params={'seed_artist' : None,
+                                     'seed_genres' : None,
+                                     'seed_tracks' : track_ids,
+                                     'target_acousticness' : target_values[0],
+                                     'target_danceability' : target_values[1],
+                                     'target_energy' :  target_values[2],
+                                     'target_instrumentalness' : target_values[3],
+                                     'target_loudness' :  target_values[4]
+                             })
+            print(target_values)
+            recommendations = r.json()
             if recommendations:
                 print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
@@ -448,7 +529,38 @@ def spotify_suggest():
 
         resp = {'feedback': msg, 'category': category, 'data': data}
         return make_response(jsonify(resp), 200)
-    
+
+@app.route('/spotify-track-metadata', methods=['GET', 'POST'])
+def spotify_track_metadata():
+    if request.method == 'POST': 
+        spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+        #Getting song suggestion based on spotify API
+        data = json.loads(request.data)
+        title = data[0]
+        artist = data[1] 
+
+
+        #Parse Tracks in data to find track id
+        lyrics = ''
+        searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+        if searchResults and searchResults["tracks"]["total"] > 0:
+            trackLink = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
+            trackURI = searchResults["tracks"]['items'][0]["uri"]
+            lyrics = get_lyrics(title, artist)
+            trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
+
+            resp_data = [trackLink, trackURI, lyrics, trackAlbumImage]
+            msg = "Song found, returning links."
+            category = "success"
+        else:
+            msg = "Song could not be found in spotify API"
+            resp_data = "None"
+            category = "danger"
+
+        resp = {'feedback': msg, 'category': category, 'data': resp_data}
+        return make_response(jsonify(resp), 200) 
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -635,7 +747,7 @@ def rhythmPost():
 
         #return time interval with first element dropped
         user_result = json.loads(request.data)
-        user_result.pop(0)
+        #user_result.pop(0)
         #user_result = arrayIntervals(json.loads(request.data))
         print(user_result)
         return out
@@ -670,7 +782,7 @@ def multiplierPost():
 
         global multiply
         multiply = json.loads(request.data)
-        print(multiply)
+        #print(multiply)
 
         return jsonify(multiplier)
 
@@ -886,7 +998,7 @@ def source2():
 
 @app.context_processor
 def get_current_user():
-    return {"uuid": str(uuid.uuid4())}
+    return {"uuid": str(uuid.uuid4()), "user": User.current_user()}
 
 
 if __name__ == '__main__':
