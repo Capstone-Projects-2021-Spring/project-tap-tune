@@ -28,8 +28,7 @@ class foundsong:
         self.genres = ""
         self.score = ""
 
-        # Only for auto database input
-        self.path = ""
+        self.timeCode = ""
 
     def set_title(self, title):
         self.title = title
@@ -44,8 +43,8 @@ class foundsong:
         self.score = score
 
     # Only for auto database input
-    def set_path(self, path):
-        self.path = path
+    def set_timeCode(self, timeCode):
+        self.timeCode = timeCode
 
 
 class FingerprintRequest:
@@ -109,15 +108,16 @@ class FingerprintRequest:
 
             returnsong.set_title(cleanString(str(songlist['title'])))
             returnsong.set_artist(cleanString(str(songlist['artist'])))
+            returnsong.set_timeCode(str(songlist['timecode']))
             try:
                 returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
+                returnsong.set_artist((str(songlist['apple_music']['artistName'])))
             except:
                 print("No Apple Genres")
 
-            returnsong.set_artist((str(songlist['apple_music']['artistName'])))
-            returnsong.set_genre(cleanString(str(songlist['apple_music']['genreNames'])))
             # returnsong.set_score(cleanString(str(songlist['score'])))
 
+        files['file'].close()
         return returnsong
 
 
@@ -154,6 +154,8 @@ class FingerprintRequest:
                 returnsong.set_score(str(songlist[songs]['score']))
 
                 songArray.append(returnsong)
+
+        files['file'].close()
         return songArray
 
     def lyricSearch(self, songArray, userInput, leniency):
@@ -190,7 +192,6 @@ class FingerprintRequest:
 
         foundSongFlag = False
 
-
         #Needs a base lyric array of at least 5 words
         if len(userInputArr) > 5:
             #Get each song in the array
@@ -200,7 +201,7 @@ class FingerprintRequest:
                 if foundSongFlag:
                     pass
                 else:
-                    print("Trying to Match with: " + songArray[x].title + " by " + songArray[x].artists)
+                    #print("Trying to Match with: " + songArray[x].title + " by " + songArray[x].artists + "at " + str(leniency) + " leniency")
 
                     # Get song title and artist in each array element
                     currTitle = songArray[x].title
@@ -356,12 +357,11 @@ class FingerprintRequest:
         if hummingFingerprint[0].title != "There was an Error with the Service":
             lyricSong = self.lyricSearch(hummingFingerprint, userInput, .6)
             songFromLyrics = self.lyricSearch(self.getSongFromLyrics(userInput), userInput, .6)
-
         else:
             lyricSong = hummingFingerprint[0]
 
 
-        if lyricSong.title != '' and songFromLyrics != '':
+        if lyricSong.title != '' and songFromLyrics.title != '':
             songCompare = []
             songCompare.append(lyricSong)
             songCompare.append(songFromLyrics)
@@ -430,6 +430,7 @@ with sr.AudioFile(file) as source:    # Load the file
     print(lastTest.artists)
     print(lastTest.genres)
     print(lastTest.score)
+    print(lastTest.timeCode)
 
     pass
 '''
