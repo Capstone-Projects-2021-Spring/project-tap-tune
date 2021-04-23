@@ -24,7 +24,7 @@ import soundfile as sf
 import spotipy
 import AudioAnalysis as aa
 import os
-
+from models.Song import Song
 
 def get_spotify_analysis(id):
     creds = spotipy.oauth2.SpotifyClientCredentials(client_id="57483e104132413189f41cd82836d8ef",
@@ -527,17 +527,17 @@ if __name__ == "__main__":
     """
     # standard = 60
     #
-    y, sr = librosa.load(filepath)
+    # y, sr = librosa.load(filepath)
     # onset_env = librosa.onset.onset_strength(y, sr=sr)
     # tempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sr)
     # print(tempo)
     # tempo, beat = librosa.beat.beat_track(y=y, sr=sr, units='time')
-    frame_onset = librosa.onset.onset_detect(y=y, sr=sr, units='frames')
+    # frame_onset = librosa.onset.onset_detect(y=y, sr=sr, units='frames')
     # timestamp_onset = librosa.onset.onset_detect(y=y, sr=sr, units='time')
     # timestamp_onset_syc = change_tempo(timestamp_onset,60)
     # showBeatOnALine(timestamp_onset_syc,songName)
-    result,rate, matched_pattern =aa.process_recording2(user_pattern_from_timestamp,frame_onset)
-    print(rate,matched_pattern)
+    # result,rate, matched_pattern =aa.process_recording2(user_pattern_from_timestamp,frame_onset)
+    # print(rate,matched_pattern)
     # showBeatOnALine(timestamp_onset,songName)
     # print("timestamp_onset", change_tempo(timestamp_onset,1))
     # # timestamp_onset = drop_ambigious(timestamp_onset)
