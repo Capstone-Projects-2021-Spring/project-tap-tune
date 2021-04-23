@@ -2,9 +2,6 @@
 {% block title %} - Home{% endblock %}
 {% block head %}
   {{ super() }}
-  <style type="text/css">
-    .important { color: #336699; }
-  </style>
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
@@ -25,33 +22,34 @@
       <div class="row justify-content-center mt-3">    
         <button disabled id="playRecordingBtn" type="button" class="btn btn-success ml-3">Play</button>
         <div class="dropdown ml-3">
-          <button id="recordingTypeDropdown" class="btn btn-third dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button id="recordingTypeDropdown" class="btn btn-third dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span id="selected1">
               Rhythm Type
             </span>
           </button>
-          <div id = "recordingTypeDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">General Recording</a>
-            <a class="dropdown-item" href="#"><span style="color: #018dff; font-weight: bold;">Percussion</span> + <span style="color: #ff8901; font-weight: bold;">Harmonics</span></a>
+          <div id = "recordingTypeDropdown" class="dropdown-menu" aria-labelledby="recordingTypeDropdown">
+            <a class="dropdown-item"><span style="font-weight: bold;">General Recording</span></a>
+            <a class="dropdown-item"><span style="color: #018dff; font-weight: bold;">Percussion</span></a>
+            <a class="dropdown-item"><span style="color: #ff8901; font-weight: bold;">Harmonic</span></a>
           </div>
         </div>
         <div class="dropdown ml-3">
-          <button id="tapKeyDropdown" class="btn btn-third dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button id="tapKeyDropdown" class="btn btn-third dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span id="selected2">
               Tap Key
             </span>
           </button>
-          <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">Disable Sound</a>
-            <a class="dropdown-item" href="#">General</a>
+          <div id="recordingKeyDropdown" class="dropdown-menu" aria-labelledby="tapKeyDropdown">
+            <a class="dropdown-item" >Disable Sound</a>
+            <a class="dropdown-item" >General</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">C</a>
-            <a class="dropdown-item" href="#">D</a>
-            <a class="dropdown-item" href="#">E</a>
-            <a class="dropdown-item" href="#">F</a>
-            <a class="dropdown-item" href="#">G</a>
-            <a class="dropdown-item" href="#">A</a>
-            <a class="dropdown-item" href="#">B</a>
+            <a class="dropdown-item" >C</a>
+            <a class="dropdown-item" >D</a>
+            <a class="dropdown-item" >E</a>
+            <a class="dropdown-item" >F</a>
+            <a class="dropdown-item" >G</a>
+            <a class="dropdown-item" >A</a>
+            <a class="dropdown-item" >B</a>
           </div>
         </div>
         <audio controls id="harmony1" src="{{ url_for('static', filename='assets/playbackNotes/C.wav') }}" volume="0.1" hidden></audio>
@@ -65,18 +63,29 @@
         <audio controls id="percussion2" src="{{ url_for('static', filename='assets/playbackNotes/Drum.wav') }}" volume="0" hidden></audio>
       </div>
       <div class="speedcontrolcontainer">
-  <div>
-    <label for="pbrate">Speed:</label>
-    <input type="range" id="pbrate" min=.5 max=3 value=1 step=.1>
-    <span></span>
-  </div>
-</div>
-      <div class="container d-flex align-items-center flex-column">
-        <h1 disabled id="counter-number" class="py-5 counter-text">0</h1>
+        <div class = "mt-3">
+          <label for="pbrate">Speed: <span id="speedMultipler">1.0</span></label>
+          <input type="range" id="pbrate" min=.5 max=3 value=1 step=.1>
+          
+        </div>
       </div>
     </div>
   </div>
 </div>
+<div class="container d-flex align-items-center flex-column" style="display: none;">
+  <h1 disabled id="counter-number" class="py-5 counter-text" hidden>0</h1>
+</div>
+<div class="container mb-4">
+  <div class="waveform">
+    <canvas id="js-canvas" class="js-canvas waveform-canvas"></canvas>
+    <div class="custom-control custom-switch">
+      <input type="checkbox" class="custom-control-input" id="toggle-event">
+      <label class="custom-control-label" for="toggle-event">Dark Mode</label>
+    </div>
+  </div>
+  <!-- Default switch -->
+</div>
+
 {% endblock %}
 {% block js %}
     {{super()}}
