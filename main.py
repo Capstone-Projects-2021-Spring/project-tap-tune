@@ -14,6 +14,7 @@ import random
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
+from update_db_songs import update_songs_sync_hash
 from models.SpotifyHandler import SpotifyHandler
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
@@ -48,6 +49,12 @@ def home_page():
     # print(request.headers['Host'])
     print(session)
     return render_template('index.html', user=user)
+
+
+@app.route('/update-songs')
+def update_songs():
+    update_songs_sync_hash()
+    return render_template('index.html')
 
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
@@ -989,7 +996,7 @@ def source2():
 
 @app.context_processor
 def get_current_user():
-    return {"uuid": str(uuid.uuid4())}
+    return {"uuid": str(uuid.uuid4()), "user": User.current_user()}
 
 
 if __name__ == '__main__':

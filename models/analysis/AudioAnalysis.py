@@ -234,6 +234,101 @@ def valToCount(frame_val):
     return key_list[val_list.index(frame_val)]
 
 
+# opposite of valToCount
+def countToVal(count):
+    dict = {
+        0: "*",
+        1: "0",
+        2: "2",
+        3: "3",
+        4: "4",
+        5: "5",
+        6: "6",
+        7: "7",
+        8: "8",
+        9: "9",
+        10: "A",
+        11: "B",
+        12: "C",
+        13: "D",
+        14: "E",
+        15: "F",
+        16: "G",
+        17: "H",
+        18: "I",
+        19: "J",
+        20: "K",
+        21: "L",
+        22: "M",
+        23: "N",
+        24: "O",
+        25: "P",
+        26: "Q",
+        27: "R",
+        28: "S",
+        29: "T",
+        30: "U",
+        31: "V",
+        32: "W",
+        33: "X",
+        34: "Y",
+        35: "Z"
+    }
+
+    if count in dict.keys():
+        return dict[count]
+
+    else:
+        dict.update({count : str(count)})
+        ret = "."+dict[count]+"."
+        return ret
+
+
+def hash_array(bin_array):
+    run_count = 0
+    res_string = ""
+    check = 0
+    for frame in bin_array:
+        # if the current frame is a 1
+
+        """
+        LOGIC ERROR:
+        - RESULT BINARY ARRAY ENDING IN 1 WHEN SHOULD BE 0
+        - HASH ENDS IN  'F' NOT 'G'
+        - LAST 0 OF ORIGINAL BINARY ARRAY NOT BEING READ
+        """
+        # Bandaid fixed. Can be cleaned up/refactored/optimized
+
+
+        if(frame == 1) or (check == len(bin_array)-1):
+
+            # Extra Checks to correctly deal with last element in the bin_array
+            # Doesn't look pretty, but it functions at the very least
+            if (check == len(bin_array)-1):
+                if (frame == 1):
+                    char_val = countToVal(run_count)
+                    res_string = res_string + char_val + '*'
+                else:
+                    char_val = countToVal(run_count + 1)
+                    res_string = res_string + char_val
+            ########################################################################
+            else:
+                char_val = countToVal(run_count)
+                if(run_count > 0):
+                    run_count = 0
+                    res_string = res_string+char_val+'*'
+                else:
+                    res_string = res_string+char_val
+
+        # if the current frame is a 0
+        else:
+            run_count = run_count + 1
+
+        check = check+1
+    # print_test(check, "FRAME ITERATION CHECK")
+    return res_string
+
+
 # takes in the db value and unhashes it to form a binary array
 def unhash_array(db_string):
     db_tok = db_string.split("*")
@@ -262,6 +357,23 @@ def unhash_array(db_string):
             if (val != len(db_tok) - 1):
                 bin_array.append(1)
 
+    return bin_array
+
+
+"""
+converts frames array to binary array
+"""
+def frames_to_bin(frames):
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
     return bin_array
 
 
