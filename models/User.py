@@ -376,6 +376,7 @@ class User:
             cursor = get_cursor()
             cursor.execute('DELETE FROM user_favorite_song (user_id, song_id) VALUES (%s,%s)',
                            (self.id, song_id))
+
             db.connection.commit()
         except Exception as e:
             print(e)
