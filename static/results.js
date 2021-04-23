@@ -75,6 +75,7 @@ $( document ).ready(function() {
     $('#resultsSecondaryTableBody').on('click', '.clickable-row', function(event) {
         //1. Hightlight selected Row
         currentRow = $(this);
+        console.log(currentRow)
         $(this).addClass('active').siblings().removeClass('active');
 
         //2. Retrieve the Song, Title, Match Percentage

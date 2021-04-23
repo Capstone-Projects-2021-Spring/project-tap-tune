@@ -9,9 +9,12 @@ import lyricsgenius
 import json
 import time
 import csv
+import requests
+import random
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
+from update_db_songs import update_songs_sync_hash
 from models.SpotifyHandler import SpotifyHandler
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
@@ -46,6 +49,12 @@ def home_page():
     # print(request.headers['Host'])
     print(session)
     return render_template('index.html', user=user)
+
+
+@app.route('/update-songs')
+def update_songs():
+    update_songs_sync_hash()
+    return render_template('index.html')
 
 
 @app.route('/recordingRhythm', methods=['GET', 'POST'])
@@ -213,11 +222,13 @@ def melody_result_page():
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
+    phrases = ["Hey There,", "Hello,", "What's Up?", "Good To See You,", "Greetings,", "Salutations,", "Howdy,", "Hey,", "Nice To See You,"]
+    rand = random.randint(0,8)
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
     r = make_response(render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
-                           user_song_log=user_song_log))
+                           user_song_log=user_song_log, phrases=phrases, rand=rand))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
     #return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
@@ -404,13 +415,15 @@ def remove_user_fav_spotify():
                 title = split[0]
                 artist = split[1]
                 songid = split[2]
-                # r = user.remmove_song(song_id)
-            # if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
-            #     msg += r
-            #     category = "danger"
-            # else:
-            #     msg += "Song added to favorites."
-            #     category = "success"
+
+            # song_id = request.form['song_id']
+            r = user.delete_favorite_song(song_id)
+            if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+                msg = r
+                category = "danger"
+            else:
+                msg = "Song deleted from favorites."
+                category = "success"
 
     except Exception as e:
         print(e)
@@ -431,7 +444,6 @@ def spotify_suggest():
 
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
                                                            client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
-        """
         CLIENT_ID = '57483e104132413189f41cd82836d8ef'
         CLIENT_SECRET = '2bcd745069bd4602ae77d1a348c0f2fe'
         
@@ -456,7 +468,6 @@ def spotify_suggest():
         
         # base URL of all Spotify API endpoints
         REC_ENDPOINT = 'https://api.spotify.com/v1/recommendations'
-        """
 
         #Parse Slider information
         # Define Initial Target_Values [Acousticness, Danceability, Energy Instrumentalness, Loudness]
@@ -486,8 +497,7 @@ def spotify_suggest():
 
         #Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
-            recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
-            """
+            # recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
             # actual GET request with proper header
             r = requests.get(REC_ENDPOINT + '/', headers=headers,
                              params={'seed_artist' : None,
@@ -499,9 +509,8 @@ def spotify_suggest():
                                      'target_instrumentalness' : target_values[3],
                                      'target_loudness' :  target_values[4]
                              })
-            
+            print(target_values)
             recommendations = r.json()
-            """
             if recommendations:
                 print(recommendations)
                 recommendedTitle = recommendations["tracks"][0]["name"]
@@ -992,7 +1001,7 @@ def source2():
 
 @app.context_processor
 def get_current_user():
-    return {"uuid": str(uuid.uuid4())}
+    return {"uuid": str(uuid.uuid4()), "user": User.current_user()}
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@
     </style>
 {% endblock %}
 
+<link rel="stylesheet" id="static/styles/historyPagination.css">
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="static/styles/userProfilePageStyle.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -19,7 +20,7 @@
             <div class="col-md-4">
                 <div class="profile-head">
                     <h1 style="color: #1abc9c;">
-                        Hey There,
+                        {{phrases[rand]}}
                     </h1>
                     <h2>
                          {{user.username}}
@@ -48,6 +49,36 @@
             <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
                     <!-- User Profile Tab -->
+<<<<<<< HEAD
+=======
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 style="color: #1abc9c;">User Id:</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>{{ user.username }}</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <h3 style="color: #1abc9c;">Name:</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>{{ user.name }}</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 style="color: #1abc9c;">Email:</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>{{ user.email }}</h4>
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> b664c423539ec397e2269fed47e221bf4fdb6dc1
                     <!-- User History Tab -->
                     <div class="tab-pane fade show active" id="history" role="tabpanel" aria-labelledby="history-tab">
                             <div class="row">
@@ -75,6 +106,14 @@
                                             </p>
                                         </li>
                                         {%endfor%}
+                                        <div class="center">
+                                            <div class="pagination">
+                                                <div id="listingTable"></div>
+                                                <a href="javascript:prevPage()" id="btn_prev">Prev</a>
+                                                <a href="javascript:nextPage()" id="btn_next">Next</a>
+                                                page: <span id="page"></span>
+                                            </div>
+                                        </div>
                                     </ul>
                                 </div>
                             </div>
