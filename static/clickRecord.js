@@ -15,7 +15,7 @@ var darkModeSwitch = null;
 const barWidth = 6;
 const barGutter = 7;
 var barColorMute = "#878787";
-var barColor = "#595959";
+var barColor = "#3b3a3a";
 const barColorStart = "#f70000";
 const barColorEnd = "#00c92c";
 //const barColor2;
@@ -43,6 +43,7 @@ $( document ).ready(function() {
     darkModeSwitch = document.getElementById("toggle-event");
     let canvasContext = canvas.getContext('2d');
 
+    const playbackrate = document.querySelector('.speedcontrolcontainer input');
     tapButton = document.getElementById("tapScreenButton");
     startButton = document.getElementById("startRecordingBtn");
     resetButton = document.getElementById("resetRecordingBtn");
@@ -136,7 +137,7 @@ $( document ).ready(function() {
             });
 
             //AJAX for multiplier
-                var multiply = multiplier();
+                var multiply = document.getElementById("speedMultipler").innerHTML;
                 $.ajax({
                 url: '/multiplier',
                 type : 'post',
@@ -451,38 +452,20 @@ $( document ).ready(function() {
             }
         }
         else if (!single) {
-            // if (recordingType == dynamicRecordType) { 
-            //     for (var i = 0; i < timeJsonArray.length; i++) {
-            //         var timeObj = timeJsonArray[i];
-            //         console.log(timeObj);
-            //         var millisecondsTime = timeObj.timestamp * 1000;
-            //         setTimeout(() => {
-            //             var audio = document.createElement('audio');
-            //             audio.src = sound.src;
-            //             audio.volume = 0.3;
-            //             document.body.appendChild(audio);
-            //             audio.play();
-            //             audio.onended = function () {
-            //                 this.parentNode.removeChild(this);
-            //             }
-            //         }, millisecondsTime);
-            //     }
-            // } 
-            // else {
-                for (var i = 0; i < times.length; i++) {
-                    var millisecondsTime = (times[i]/(multiplier())) * 1000;
-                    setTimeout(() => {
-                        var audio = document.createElement('audio');
-                        audio.src = sound.src;
-                        audio.volume = 0.3;
-                        document.body.appendChild(audio);
-                        audio.play();
-                        audio.onended = function () {
-                            this.parentNode.removeChild(this);
-                        }
-                    }, millisecondsTime);
-                }
-            // }
+            var multiplierValue = document.getElementById("speedMultipler").innerHTML;
+            for (var i = 0; i < times.length; i++) {
+                var millisecondsTime = (times[i]/(multiplierValue)) * 1000;
+                setTimeout(() => {
+                    var audio = document.createElement('audio');
+                    audio.src = sound.src;
+                    audio.volume = 0.3;
+                    document.body.appendChild(audio);
+                    audio.play();
+                    audio.onended = function () {
+                        this.parentNode.removeChild(this);
+                    }
+                }, millisecondsTime);
+            }
         }
     }
         
@@ -490,19 +473,12 @@ $( document ).ready(function() {
         playSound();
     }//end of play
 
-    //get the multiplier value from the slider
-    function multiplier(){
-        var mult = 0;
-        const playbackrate = document.querySelector('.speedcontrolcontainer input');
-        const display = document.querySelector('.speedcontrolcontainer span');
-        playbackrate.addEventListener('change', e => {
-            console.log("Multiplier "+playbackrate.value);
-        });
-        mult = playbackrate.value;
-        return mult;
-    }//end of multiplier
-
-
+    //get the multiplier value from the slider    
+    playbackrate.addEventListener('change', e => {
+        console.log("Multiplier "+playbackrate.value);
+        document.getElementById("speedMultipler").innerHTML = playbackrate.value;
+    });
+    
     //----------------------------
     //METHODS FOR VISUALIZER
     //----------------------------
@@ -525,7 +501,7 @@ $( document ).ready(function() {
             }
             else {
                 barColorMute = "#878787";
-                barColor = "#595959";
+                barColor = "#3b3a3a";
             }
             break;
         }
@@ -635,11 +611,12 @@ $( document ).ready(function() {
 
     $('#toggle-event').change(function() {
         var currentType = recordingType.innerHTML;
+        console.log(currentType)
         if ($(this).prop('checked')) {
             //Change CSS to dark mode
             console.log("darkmode")
             canvas.className = "js-canvas waveform-canvas-dark";
-            if (currentType != "Percussion" && currentType != "Percussion") {
+            if (currentType != "Percussion" && currentType != "Harmonic") {
                 barColorMute = "#302f2d";
                 barColor = "#242423";
             }
@@ -647,11 +624,10 @@ $( document ).ready(function() {
         else {
             //Change CSS to light mode
             canvas.className = "js-canvas waveform-canvas";
-            if (currentType != "Percussion" && currentType != "Percussion") {
+            if (currentType != "Percussion" && currentType != "Harmonic") {
                 barColorMute = "#878787";
-                barColor = "#595959";
+                barColor = "#3b3a3a";
             }
         }
     })
-    
 });
