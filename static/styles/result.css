@@ -101,6 +101,8 @@ tbody tr.active {
   }
 
   
+
+  
   .btn-primary {
     color: rgb(255, 255, 255);
     background-color: #ff0000db;
@@ -160,6 +162,32 @@ tbody tr.active {
   .btn-secondary:not(:disabled):not(.disabled):active:focus, .btn-secondary:not(:disabled):not(.disabled).active:focus, .show > .btn-secondary.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem rgba(76, 91, 106, 0.5);
   }
+  .btn-third {
+    color: rgb(255, 255, 255);
+    background-color: #3894f0;
+    border-color: #369bff;
+  }
+  .btn-third.hover, .btn-third:hover {
+    color: rgb(255, 255, 255);
+    background-color: #6cb8fa;
+    border-color: #dceeff;
+    box-shadow: 0 0 0 0.2rem rgba(66, 175, 248, 0.836);
+  }
+  .btn-third.disabled, .btn-third:disabled {
+    color: rgb(44, 44, 44);
+    background-color: #ffffff85;
+    border-color: #168aff;
+    pointer-events: none;
+    outline: none;
+  }
+  .btn-third:not(:disabled):not(.disabled):active, .btn-third:not(:disabled):not(.disabled).active, .show > .btn-third.dropdown-toggle {
+    color: rgb(44, 44, 44);
+    background-color: #ffffff85;
+    border-color: #d2e9ff;
+  }
+  .btn-third:not(:disabled):not(.disabled):active:focus, .btn-third:not(:disabled):not(.disabled).active:focus, .show > .btn-third.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(78, 167, 255, 0.5);
+  }
 
   .card-hover {
     -webkit-transition: opacity 1s ease-in-out;
@@ -173,3 +201,44 @@ tbody tr.active {
 .card-hover:hover {
     opacity: 0.5;
 }
+
+.waveform {
+    overflow: visible;
+    position: relative;
+    
+    padding: 1rem 0;
+    height: 29rem;
+    
+  }
+  .waveform-canvas {
+    width: 100%;
+    height: 28rem;
+    border-color: #343a40 !important;
+    border: 0.125rem solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.5rem;
+    border-bottom: transparent solid 4px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: transparent;
+    box-shadow: 0 0.46875rem 2.1875rem rgb(218 98 74 / 3%), 
+      0 0.9375rem 1.40625rem rgb(218 98 74 / 3%), 
+      0 0.25rem 0.53125rem rgb(218 98 74 / 5%), 
+      0 0.125rem 0.1875rem rgb(218 98 74 / 3%);
+  }
+  
+  .waveform-canvas-dark {
+    width: 100%;
+    height: 32rem;
+    background-color: #59564f;
+    border-bottom: transparent solid 4px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: transparent;
+    border-color: #343a40 !important;
+    border: 0.125rem solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.46875rem 2.1875rem rgb(218 98 74 / 3%), 
+      0 0.9375rem 1.40625rem rgb(218 98 74 / 3%), 
+      0 0.25rem 0.53125rem rgb(218 98 74 / 5%), 
+      0 0.125rem 0.1875rem rgb(218 98 74 / 3%);
+  }

@@ -13,13 +13,15 @@ var selectedResultTitle             = null;
 var selectedResultArtist            = null;
 var selectedResultMatchPercent      = null;
 var selectedResultLyrics            = null; 
+var selectedResultTapCount          = null; 
 var selectedResultSpotifyEmbed      = null;
 var selectedResultSpotifyTrackURI   = null;
 var selectedResultSpotifyTimeStamp  = null;
 var selectedResultImage             = null;
 
+var playSongPatternButton           = null;
 var playUserPatternButton           = null;
-var stopCanvasPlaybackButton        = null;
+var userPatternArray                = null;
 
 //Canvas Variables
 var canvas                          = null;
@@ -48,34 +50,41 @@ $( document ).ready(function() {
     selectedResultArtist            = document.getElementById("selectedResultArtist");
     selectedResultSpotifyEmbed      = document.getElementById("selectedResultSpotifyEmbed");
     selectedResultSpotifyTimeStamp  = document.getElementById("songPatternTimestamp");
+    selectedResultTapCount          = document.getElementById("selectedResultTapCount");
     selectedResultLyrics            = document.getElementById("selectedResultLyrics"); 
     selectedResultImage             = document.getElementById("selectedResultImage");
     
+    playSongPatternButton           = document.getElementById("playSongPatternButton");
     playUserPatternButton           = document.getElementById("playUserPatternButton");
-    stopCanvasPlaybackButton        = document.getElementById("stopCanvasPlaybackButton");
+    userPatternArray                = JSON.parse(document.getElementById("userTaps").getAttribute('data-user-taps'));
     
-    //Make the first clickable-row active and format lyrics
+    //Make the first clickable-row active and set the variables
     $(".clickable-row").first().addClass('active');
 
     currentRow = $(".clickable-row").first();
     currentRowDetails = currentRow.children();
     currentSongPattern = JSON.parse(currentRow.attr('data-song-pattern'));
-    console.log("Initial Song Pattern:")
-    console.log(currentSongPattern)
 
+    //Format the initial Lyrics
     var lyrics = selectedResultLyrics.innerHTML;
     lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
-    selectedResultLyrics.innerHTML  = lyrics
+    selectedResultLyrics.innerHTML  = lyrics;
 
+    //Update the initial Progress Bar Match %
+    setTimeout(() => {
+        document.getElementById("progressBar").style.width = parseInt(currentRowDetails[2].innerHTML) + "%"
+    }, 700);
+
+    //Update the timestamp [[TODO Update the Spotify URI, Album Photo, iframeEmbed]]
     var timestamp = getTimeStampAndFormat(currentSongPattern);
     selectedResultSpotifyTimeStamp.innerHTML = timestamp;
+    selectedResultSpotifyTrackURI =  document.getElementById("spotifyURI").getAttribute('data-spotify-URI') + '#' + timestamp;
 
     
     //Listening for Table Row Selection
     $('#resultsSecondaryTableBody').on('click', '.clickable-row', function(event) {
         //1. Hightlight selected Row
         currentRow = $(this);
-        console.log(currentRow)
         $(this).addClass('active').siblings().removeClass('active');
 
         //2. Retrieve the Song, Title, Match Percentage
@@ -88,6 +97,8 @@ $( document ).ready(function() {
 
         //4. Call Spotify API and get Embed Url/TrackURI/Album Photo
         getSpotifyMetadata(currentRowDetails[0].innerHTML , currentRowDetails[1].innerHTML )
+
+        document.getElementById("progressBar").style.width = "0%"
 
     });
 
@@ -108,6 +119,7 @@ $( document ).ready(function() {
             selectedResultTitle.innerHTML           = currentRowDetails[0].innerHTML;
             selectedResultArtist.innerHTML          = currentRowDetails[1].innerHTML + '<span style="float:right;">' + currentRowDetails[2].innerHTML + '</span>';
             document.getElementById("progressBar").style.width = parseInt(currentRowDetails[2].innerHTML) + "%"
+            selectedResultTapCount.innerHTML        = currentSongPattern.length;
 
             //Set the spotify uri with timestamp link
             currentTimeStamp = getTimeStampAndFormat(currentSongPattern)
@@ -122,9 +134,17 @@ $( document ).ready(function() {
             //Set the TrackURI, Lyrics, Album Image Src
             selectedResultSpotifyTrackURI = result.data[1] + "#" + currentTimeStamp
             var lyrics = result.data[2];
-            lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            if (lyrics.length > 4) {
+                lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            }
+            else {
+                lyrics = "Problem loading lyrics";
+            }
             selectedResultLyrics.innerHTML  = lyrics
-            selectedResultImage.src         = result.data[3]["url"]
+            if (result.data[3]["url"].length > 1)
+                selectedResultImage.src         = result.data[3]["url"];
+            else 
+                selectedResultImage.src         = "https://www.dia.org/sites/default/files/No_Img_Avail.jpg";
 
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log("fail: ", textStatus, errorThrown);
@@ -189,14 +209,14 @@ $( document ).ready(function() {
         if (seconds < 10) {seconds = "0"+seconds;}
         return minutes + ":" + seconds
     }
-    function adjustArray(){
+    function adjustArray(pattern){
         //adjust array times so that the first item does not count and all following items are subtracted from the first timestamp
 
         var newArray = new Array();
-        var dif = currentSongPattern[0];
+        var dif = pattern[0];
         console.log("dif =  "+ dif)
-        for(var i = 0; i < currentSongPattern.length; i++){
-            var num = currentSongPattern[i] - dif + 2; //add 2 seconds for start playback
+        for(var i = 0; i < pattern.length; i++){
+            var num = pattern[i] - dif + 1; //add 1 second for start playback
             newArray[i] = parseFloat(num.toFixed(3));
         }//end of for
         console.log("ADJUSTED ARRAY : " + newArray)
@@ -208,8 +228,8 @@ $( document ).ready(function() {
     //METHODS FOR VISUALIZER
     //----------------------------
     // Start recording
-    const startRecording = () => {
-        var times = adjustArray();
+    const startRecording = (pattern) => {
+        var times = adjustArray(pattern);
         playSound(times);
     }  
 
@@ -307,23 +327,8 @@ $( document ).ready(function() {
     setupWaveform();
     
     // Add event listeners to the buttons
-    playUserPatternButton       .addEventListener('mouseup', startRecording);
-
-    $('#toggle-event').change(function() {
-        if ($(this).prop('checked')) {
-            //Change CSS to dark mode
-            console.log("darkmode")
-            canvas.className = "js-canvas waveform-canvas-dark";
-            barColorMute = "#302f2d";
-            barColor = "#242423";
-        }
-        else {
-            //Change CSS to light mode
-            canvas.className = "js-canvas waveform-canvas";
-            barColorMute = "#878787";
-            barColor = "#3b3a3a";
-        }
-    })
+    playSongPatternButton.onclick = function () {startRecording(currentSongPattern);}
+    playUserPatternButton.onclick = function () {startRecording(userPatternArray);  }
 
     var coll = document.getElementById("collapsible");
     coll.addEventListener("click", function() {
