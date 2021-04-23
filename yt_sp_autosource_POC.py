@@ -1,7 +1,7 @@
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import numpy as np
-from pytube import YouTube
+from youtubesearchpython import search
 
 def levenshtein_ratio_and_distance(s, t, ratio_calc = False):
     """ levenshtein_ratio_and_distance:
@@ -67,14 +67,12 @@ def sp_search_convert(title, artist):
 
     for track in sp_res['tracks']['items']:
         for sp_artist in track['artists']:
-            print(artist)
-            print(sp_artist['name'])
             sim = levenshtein_ratio_and_distance(artist, sp_artist['name'], ratio_calc=True)
             print(sim)
 
             if (sim > .5):
                 sp_duration = track['duration_ms']
-                sp_duration = sp_duration // 100
+                sp_duration = sp_duration // 1000
                 retObj['duration'] = sp_duration
                 return retObj
             else:
@@ -93,7 +91,12 @@ def yt_search_convert(title, artist):
         'duration': None,
         'url': None
     }
-    
+    yt_res = search.VideosSearch(query=(artist+" "+title+" Audio"), limit = 1).result()
+
+    yt_duration = yt_res['result'][0]['duration']
+    yt_duration = yt_duration.split(':')
+    retObj['duration'] = int(yt_duration[0])*60 + int(yt_duration[1])
+    retObj['url'] = yt_res['result'][0]['link']
     return retObj
 
 
@@ -106,4 +109,4 @@ def test(title, artist):
     print(yt_val)
 
 if __name__ == "__main__":
-    print("Hello World")
+    test("watermelon sugar", "harry styles")
