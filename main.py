@@ -10,6 +10,7 @@ import json
 import time
 import csv
 import requests
+import random
 from FingerprintRequest import FingerprintRequest, foundsong
 import speech_recognition
 
@@ -211,11 +212,13 @@ def melody_result_page():
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
+    phrases = ["Hey There,", "Hello,", "What's Up?", "Good To See You,", "Greetings,", "Salutations,", "Howdy,", "Hey,", "Nice To See You,"]
+    rand = random.randint(0,8)
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
     r = make_response(render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
-                           user_song_log=user_song_log))
+                           user_song_log=user_song_log, phrases=phrases, rand=rand))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
     #return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
