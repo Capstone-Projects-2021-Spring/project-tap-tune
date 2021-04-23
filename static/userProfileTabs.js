@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    spotifySuggest();
+    //spotifySuggest();
     $(document).on("click", "a", function() {
         var currentId = $(this).attr('id')
 

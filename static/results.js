@@ -5,7 +5,9 @@
 
 //Instantiate all the variables
 var currentRow                      = null;
+var currentRowDetails               = null;
 var currentSongPattern              = null;
+var currentTimeStamp                = null;
 
 var selectedResultTitle             = null;
 var selectedResultArtist            = null;
@@ -13,10 +15,10 @@ var selectedResultMatchPercent      = null;
 var selectedResultLyrics            = null; 
 var selectedResultSpotifyEmbed      = null;
 var selectedResultSpotifyTrackURI   = null;
+var selectedResultSpotifyTimeStamp  = null;
 var selectedResultImage             = null;
 
 var playUserPatternButton           = null;
-var playSongPatternButton           = null;
 var stopCanvasPlaybackButton        = null;
 
 //Canvas Variables
@@ -27,6 +29,7 @@ const barGutter = 7;
 var barColorMute = "#878787";
 var barColor = "#3b3a3a";
 const barColorStart = "#f70000";
+const barColorLatest = "#E06666";
 const barColorEnd = "#00c92c";
 let bars = [];
 let width = 0;
@@ -34,45 +37,57 @@ let height = 0;
 let halfHeight = 0;
 let drawing = false;
 let isRecording = false;
+var beatCount = 0;
 
 
 $( document ).ready(function() {
-    //Make the first clickable-row active
-    $(".clickable-row").first().addClass('active');
-
     //Grab all the document elements
     canvas                          = document.getElementById("js-canvas");
-
+    
     selectedResultTitle             = document.getElementById("selectedResultTitle");
     selectedResultArtist            = document.getElementById("selectedResultArtist");
     selectedResultSpotifyEmbed      = document.getElementById("selectedResultSpotifyEmbed");
-    selectedResultSpotifyTrackURI   = document.getElementById("selectedResultSpotifyTrackURI");
-    //selectedResultLyrics            = document.getElementById("selectedResultLyrics"); 
+    selectedResultSpotifyTimeStamp  = document.getElementById("songPatternTimestamp");
+    selectedResultLyrics            = document.getElementById("selectedResultLyrics"); 
     selectedResultImage             = document.getElementById("selectedResultImage");
-
+    
     playUserPatternButton           = document.getElementById("playUserPatternButton");
-    playSongPatternButton           = document.getElementById("playSongPatternButton");
     stopCanvasPlaybackButton        = document.getElementById("stopCanvasPlaybackButton");
+    
+    //Make the first clickable-row active and format lyrics
+    $(".clickable-row").first().addClass('active');
 
+    currentRow = $(".clickable-row").first();
+    currentRowDetails = currentRow.children();
+    currentSongPattern = JSON.parse(currentRow.attr('data-song-pattern'));
+    console.log("Initial Song Pattern:")
+    console.log(currentSongPattern)
+
+    var lyrics = selectedResultLyrics.innerHTML;
+    lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    selectedResultLyrics.innerHTML  = lyrics
+
+    var timestamp = getTimeStampAndFormat(currentSongPattern);
+    selectedResultSpotifyTimeStamp.innerHTML = timestamp;
+
+    
     //Listening for Table Row Selection
     $('#resultsSecondaryTableBody').on('click', '.clickable-row', function(event) {
         //1. Hightlight selected Row
         currentRow = $(this);
         $(this).addClass('active').siblings().removeClass('active');
 
-        //2. Populate the Song, Title, Match Percentage
-        var currentRowDetails = currentRow.children();
-        selectedResultTitle.innerHTML           = currentRowDetails[0].innerHTML;
-        selectedResultArtist.innerHTML          = currentRowDetails[1].innerHTML + '<span style="float:right;">' + currentRowDetails[2].innerHTML + '</span>';
-     
-        //3. Call Spotify API and get Embed Url/TrackURI/Album Photo
-        //getSpotifyMetadata(selectedResultTitle.innerHTML , selectedResultArtist.innerHTML )
+        //2. Retrieve the Song, Title, Match Percentage
+        currentRowDetails = currentRow.children();
 
-        //4. Retrieve the Song Pattern and store it to array
-        currentSongPattern = currentRow.attr('data-song-pattern');
+        //3. Retrieve the Song Pattern and store it to array
+        currentSongPattern = JSON.parse(currentRow.attr('data-song-pattern'));
+        console.log("Initial Song Pattern:")
+        console.log(currentSongPattern)
 
-        //Using the Song Pattern, preview the Canvas Element with the beginning Array
-        //[TODO]  Do this after the playback visualizer feature 
+        //4. Call Spotify API and get Embed Url/TrackURI/Album Photo
+        getSpotifyMetadata(currentRowDetails[0].innerHTML , currentRowDetails[1].innerHTML )
+
     });
 
 
@@ -87,12 +102,24 @@ $( document ).ready(function() {
         }).done(function (result) {
             console.log("success: " + JSON.stringify(result));
             console.log(result.data);
-            //0 trackLink, 1 trackURI,  2lyrics,  3trackAlbumImage
+
+            //Set the selected title, artist, matchpercentage to the row after success
+            selectedResultTitle.innerHTML           = currentRowDetails[0].innerHTML;
+            selectedResultArtist.innerHTML          = currentRowDetails[1].innerHTML + '<span style="float:right;">' + currentRowDetails[2].innerHTML + '</span>';
+            document.getElementById("progressBar").style.width = parseInt(currentRowDetails[2].innerHTML) + "%"
+
+            //Set the spotify uri with timestamp link
+            currentTimeStamp = getTimeStampAndFormat(currentSongPattern)
+            selectedResultSpotifyTimeStamp.innerHTML = currentTimeStamp;
+         
+            //Set the Embed Link for iframe
             var spotifyUrlHead = "https://open.spotify.com";
             var spotifyUrlTail =  result.data[0].substring(spotifyUrlHead.length)
             console.log(spotifyUrlHead + "/embed" + spotifyUrlTail);
             selectedResultSpotifyEmbed.src  = spotifyUrlHead + "/embed" + spotifyUrlTail;
-            //selectedResultSpotifyTrackURI   = result.data[1]
+
+            //Set the TrackURI, Lyrics, Album Image Src
+            selectedResultSpotifyTrackURI = result.data[1] + "#" + currentTimeStamp
             var lyrics = result.data[2];
             lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
             selectedResultLyrics.innerHTML  = lyrics
@@ -104,93 +131,97 @@ $( document ).ready(function() {
     }
 
     //Play the Song Pattern of the current row selected
-    function playSound(times) {
+    function playSound(currentSongPattern) {
         var sound = document.getElementById("percussion");
-
-        for (var i = 0; i < times.length; i++) {
-            var millisecondsTime = (times[i]/(multiplierValue)) * 1000;
+        isPlayback = true;
+        isRecording = true; //start the Canvas Recording
+        beatCount = 0;
+        bars.push(30);
+        bars.push(30);
+        for (var i = 0; (i < currentSongPattern.length) && isPlayback; i++) {
+            var millisecondsTime = (currentSongPattern[i]) * 1000;
             setTimeout(() => {
                 var audio = document.createElement('audio');
                 audio.src = sound.src;
                 audio.volume = 0.3;
                 document.body.appendChild(audio);
+                
+                bars.pop()
+                bars.pop()
+                bars.pop()
+                bars.push(10)
+                bars.push(20)
+                bars.push(10)
+                beatCount++;
                 audio.play();
                 audio.onended = function () {
                     this.parentNode.removeChild(this);
                 }
             }, millisecondsTime);
         }
+        
+        //Stop the recording after the last beat taps
+        var millisecondsTime = (currentSongPattern[currentSongPattern.length-1]) * 1000 + 700;
+        setTimeout(() => {
+            console.log("ending");
+            bars.push(29);
+            bars.push(29);
+            if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+                renderBars(bars);
+            } else {
+                renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+            }
+            isPlayback = false;
+            isRecording = false;
+        }, millisecondsTime);
+            
+        
     }
+
+    /************************************************************************/
+    function getTimeStampAndFormat(pattern){
+        //Return the first timestamp and format it in mm:ss
+        var timestamp = parseInt(pattern[0])
+        var minutes = Math.floor(timestamp / 60);
+        var seconds = parseInt(timestamp % 60);
+        if (minutes < 10) {minutes = "0"+minutes;}
+        if (seconds < 10) {seconds = "0"+seconds;}
+        return minutes + ":" + seconds
+    }
+    function adjustArray(){
+        //adjust array times so that the first item does not count and all following items are subtracted from the first timestamp
+
+        var newArray = new Array();
+        var dif = currentSongPattern[0];
+        console.log("dif =  "+ dif)
+        for(var i = 0; i < currentSongPattern.length; i++){
+            var num = currentSongPattern[i] - dif + 2; //add 2 seconds for start playback
+            newArray[i] = parseFloat(num.toFixed(3));
+        }//end of for
+        console.log("ADJUSTED ARRAY : " + newArray)
+        return newArray;
+    }//end of returnTimes
 
 
     //----------------------------
     //METHODS FOR VISUALIZER
     //----------------------------
     // Start recording
-    const startUserRecording = () => {
-        playSound(times)
-        //change the visualizer color
-        switch (recordingType.innerHTML) {
-            case "Percussion":
-                barColorMute = "#5cb6ff";
-                barColor = "#249dff";
-                break;
-            case "Harmonic":
-                barColorMute = "#e0a35c";
-                barColor = "#e67b00";
-                break;
-            default:
-                if (darkModeSwitch.checked) {
-                    barColorMute = "#302f2d";
-                    barColor = "#242423";
-                }
-                else {
-                    barColorMute = "#878787";
-                    barColor = "#3b3a3a";
-                }
-                break;
-            }
-        isRecording = true;
-    } 
-    
-    const startSongRecording = () => {
-        //change the visualizer color
-        switch (recordingType.innerHTML) {
-            case "Percussion":
-                barColorMute = "#5cb6ff";
-                barColor = "#249dff";
-                break;
-            case "Harmonic":
-                barColorMute = "#e0a35c";
-                barColor = "#e67b00";
-                break;
-            default:
-                if (darkModeSwitch.checked) {
-                    barColorMute = "#302f2d";
-                    barColor = "#242423";
-                }
-                else {
-                    barColorMute = "#878787";
-                    barColor = "#3b3a3a";
-                }
-                break;
-            }
-        isRecording = true;
-    } 
+    const startRecording = () => {
+        var times = adjustArray();
+        playSound(times);
+    }  
 
     // Stop recording
     const stopRecording = () => {
-        if (finishButton.innerHTML != "Submit"){
-
-            isRecording = false;
-            bars.push(29);
-            bars.push(29);
-            
-            if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
-                renderBars(bars);
-            } else {
-                renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
-            }
+        isRecording = false;
+        isPlayback = false;
+        bars.push(29);
+        bars.push(29);
+        if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+            renderBars(bars);
+        } else {
+            renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
         }
     }
 
@@ -209,6 +240,8 @@ $( document ).ready(function() {
     }
 
     // Process the bars, push 1.5 to represent no input
+    //[TODO] Might make it more responsive, right now popping 3 last elements if a tap has bee made
+    //could make it so that it renders one at a time so there is no choppy animations
     const processInput = canvasProcessingEvent => {
         if (isRecording) {
             bars.push(1.5);
@@ -221,10 +254,11 @@ $( document ).ready(function() {
 
         } else {
             bars = [];
+            beatCount = 0;
         }
     }
 
-        // Render the bars
+    // Render the bars
     const renderBars = bars => {
         if (!drawing) {
             drawing = true;
@@ -234,6 +268,9 @@ $( document ).ready(function() {
 
             bars.forEach((bar, index) => {
                 if (bar <= 5) {
+                    if ((bars.length - index) == 1 ) {
+                        bar = 0;
+                    }
                     canvasContext.fillStyle = barColorMute;
                 }
                 else if (bar >= 30) {
@@ -243,11 +280,19 @@ $( document ).ready(function() {
                     canvasContext.fillStyle = barColorEnd;
                 }
                 else {
-                    canvasContext.fillStyle = barColor;
                     let counter = "BEAT COUNT - " + beatCount;
                     canvasContext.font = "bold 24px Arial";
+                    canvasContext.fillStyle = barColor;
                     canvasContext.fillText(counter, canvas.width/20, canvas.height/10);
                 }
+
+                if (isPlayback) {
+                    var latestBars = (bars.length - index) <= 5 && (bars.length - index) >= 3;
+                    if (latestBars) {
+                        canvasContext.fillStyle = barColorLatest;
+                    }
+                }
+
                 canvasContext.fillRect((index * (barWidth + barGutter)), halfHeight, barWidth, (halfHeight * (bar / 100)));
                 canvasContext.fillRect((index * (barWidth + barGutter)), (halfHeight - (halfHeight * (bar / 100))), barWidth, (halfHeight * (bar / 100)));
             });
@@ -256,33 +301,26 @@ $( document ).ready(function() {
             });
         }
     }
-        
+    
     // Start the application
     setupWaveform();
     
     // Add event listeners to the buttons
-    playUserPatternButton       .addEventListener('mouseup', startUserRecording);
-    stopCanvasPlaybackButton    .addEventListener('mouseup', stopRecording);
+    playUserPatternButton       .addEventListener('mouseup', startRecording);
 
     $('#toggle-event').change(function() {
-        var currentType = recordingType.innerHTML;
-        console.log(currentType)
         if ($(this).prop('checked')) {
             //Change CSS to dark mode
             console.log("darkmode")
             canvas.className = "js-canvas waveform-canvas-dark";
-            if (currentType != "Percussion" && currentType != "Harmonic") {
-                barColorMute = "#302f2d";
-                barColor = "#242423";
-            }
+            barColorMute = "#302f2d";
+            barColor = "#242423";
         }
         else {
             //Change CSS to light mode
             canvas.className = "js-canvas waveform-canvas";
-            if (currentType != "Percussion" && currentType != "Harmonic") {
-                barColorMute = "#878787";
-                barColor = "#3b3a3a";
-            }
+            barColorMute = "#878787";
+            barColor = "#3b3a3a";
         }
     })
 
@@ -296,5 +334,14 @@ $( document ).ready(function() {
         content.style.maxHeight = content.scrollHeight + "px";
         } 
     });
+
+    document.getElementById("selectedResultSpotifyTrackURI").onclick = function() {
+        window.open(
+            selectedResultSpotifyTrackURI
+        );
+        return false;
+    };
+
+    
       
 });

@@ -16,8 +16,6 @@
 <div class="container emp-profile pr-0">
     <form method="post">
         <div class="row">
-<<<<<<< HEAD
-=======
             <div class="col-md-4">
                 <div class="profile-head">
                     <h1 style="color: #1abc9c;">
@@ -28,22 +26,17 @@
                     </h2>
                 </div>
             </div>
->>>>>>> 71ff8cf2abac343bf5f25eb849c1ba4ab6bc5430
             <div class="col-md-6">
                 <div class="profile-head">
                     <h5>
                         {{user.username}}
                     </h5>
                     <h6>
-                        Music lover
+                        {{user.email}}
                     </h6>
-{#                    <p class="proile-rating">RANKINGS : <span>8/10</span></p>#}
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
+                            <a class="nav-link active" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorites</a>
@@ -55,49 +48,8 @@
             <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
                     <!-- User Profile Tab -->
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <div class="row">
-<<<<<<< HEAD
-                            <div class="col-md-2">
-                                <label>User Id</label>
-=======
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">User Id:</h3>
->>>>>>> 71ff8cf2abac343bf5f25eb849c1ba4ab6bc5430
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.username }}</h4>
-                            </div>
-                        </div>
-                        <div class="row">
-<<<<<<< HEAD
-                            <div class="col-md-2">
-                                <label>Name</label>
-=======
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">Name:</h3>
->>>>>>> 71ff8cf2abac343bf5f25eb849c1ba4ab6bc5430
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.name }}</h4>
-                            </div>
-                        </div>
-                        <div class="row">
-<<<<<<< HEAD
-                            <div class="col-md-2">
-                                <label>Email</label>
-=======
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">Email:</h3>
->>>>>>> 71ff8cf2abac343bf5f25eb849c1ba4ab6bc5430
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.email }}</h4>
-                            </div>
-                        </div>
-                    </div>
                     <!-- User History Tab -->
-                    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    <div class="tab-pane fade show active" id="history" role="tabpanel" aria-labelledby="history-tab">
                             <div class="row">
                                 <div class="col">
                                     <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>

@@ -120,7 +120,7 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
-        userRecordingType = "General Rhythm"
+        userRecordingType = "General"
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
     if objR.input_type == 1 :
         userRecordingType = "Percussion"
@@ -131,17 +131,20 @@ def result_page():
 
     lyrics = ''
     photo = ''
+    spotifyTimestamp = ''
+    
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
+        spotifyTimestamp = final_res[0]['matched_pattern'][0]
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
 
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType))
+    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType, spotifyTimestamp=spotifyTimestamp))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
 

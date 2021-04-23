@@ -7,6 +7,7 @@ var dif;
 var beatCount = 0;
 
 let isRecording = false;
+let isPlayback = false;
 let isPlaying = false;
 
 // Canvas variables
@@ -17,6 +18,7 @@ const barGutter = 7;
 var barColorMute = "#878787";
 var barColor = "#3b3a3a";
 const barColorStart = "#f70000";
+const barColorLatest = "#E06666";
 const barColorEnd = "#00c92c";
 //const barColor2;
 let bars = [];
@@ -100,7 +102,7 @@ $( document ).ready(function() {
         if (startTime){
             console.log("Time Stop");
             console.log("Stop: "+dif);
-            console.log("END ARRAY: "+JSON.stringify(returnTimes()));
+            console.log("END ARRAY: "+JSON.stringify(times));
             beatCountElement.disabled = true;
             playButton.disabled = false;
             startTime = null;
@@ -111,11 +113,6 @@ $( document ).ready(function() {
 
 
         if (finishButton.innerHTML == "Submit"){
-            // if (recordingType.innerHTML == dynamicRecordType) { 
-            //     var js_data = returnTimes();
-            //     var flask_url = '/multiplerhythm';
-            // } 
-            // else {} commented out since we made a recent change on how to pass the arrays
             var js_data = JSON.stringify(returnTimes());
             var flask_url = '/rhythm';
             
@@ -433,7 +430,7 @@ $( document ).ready(function() {
             case "B":
                 var sound = document.getElementById("harmony7");
                 break;    
-            case "Disable Sound":
+            case "Disable":
                 var sound = document.getElementById("percussion");
                 enableTapSound = false;
                 break;
@@ -453,6 +450,11 @@ $( document ).ready(function() {
         }
         else if (!single) {
             var multiplierValue = document.getElementById("speedMultipler").innerHTML;
+            isPlayback = true;
+            startRecording();
+            beatCount = 0;
+            bars.push(30);
+            bars.push(30);
             for (var i = 0; i < times.length; i++) {
                 var millisecondsTime = (times[i]/(multiplierValue)) * 1000;
                 setTimeout(() => {
@@ -460,12 +462,36 @@ $( document ).ready(function() {
                     audio.src = sound.src;
                     audio.volume = 0.3;
                     document.body.appendChild(audio);
+                    
+                    bars.pop()
+                    bars.pop()
+                    bars.pop()
+                    bars.push(10)
+                    bars.push(20)
+                    bars.push(10)
+                    beatCount++;
                     audio.play();
                     audio.onended = function () {
                         this.parentNode.removeChild(this);
                     }
                 }, millisecondsTime);
             }
+            
+            //Stop the recording after the last beat taps
+            var millisecondsTime = (times[times.length-1]/(multiplierValue)) * 1000 + 700;
+            setTimeout(() => {
+                console.log("ending");
+                bars.push(29);
+                bars.push(29);
+                if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
+                    renderBars(bars);
+                } else {
+                    renderBars(bars.slice(bars.length - Math.floor(width / (barWidth + barGutter))), bars.length);
+                }
+                isPlayback = false;
+                isRecording = false;
+            }, millisecondsTime);
+            
         }
     }
         
@@ -511,11 +537,9 @@ $( document ).ready(function() {
     // Stop recording
     const stopRecording = () => {
         if (finishButton.innerHTML != "Submit"){
-
             isRecording = false;
             bars.push(29);
             bars.push(29);
-            
             if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
                 renderBars(bars);
             } else {
@@ -577,7 +601,11 @@ $( document ).ready(function() {
           canvasContext.clearRect(0, 0, width, height);
   
           bars.forEach((bar, index) => {
+              
             if (bar <= 5) {
+                if ((bars.length - index) == 1 ) {
+                    bar = 0;
+                }
                 canvasContext.fillStyle = barColorMute;
             }
             else if (bar >= 30) {
@@ -587,11 +615,19 @@ $( document ).ready(function() {
                 canvasContext.fillStyle = barColorEnd;
             }
             else {
-                canvasContext.fillStyle = barColor;
                 let counter = "BEAT COUNT - " + beatCount;
                 canvasContext.font = "bold 24px Arial";
+                canvasContext.fillStyle = barColor;
                 canvasContext.fillText(counter, canvas.width/20, canvas.height/10);
             }
+
+            if (isPlayback) {
+                var latestBars = (bars.length - index) <= 5 && (bars.length - index) >= 3;
+                if (latestBars) {
+                    canvasContext.fillStyle = barColorLatest;
+                }
+            }
+
             canvasContext.fillRect((index * (barWidth + barGutter)), halfHeight, barWidth, (halfHeight * (bar / 100)));
             canvasContext.fillRect((index * (barWidth + barGutter)), (halfHeight - (halfHeight * (bar / 100))), barWidth, (halfHeight * (bar / 100)));
           });

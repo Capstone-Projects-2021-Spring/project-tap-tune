@@ -10511,10 +10511,11 @@ form .row:first-child .floating-label-form-group {
 }
 
 .waveform {
+  overflow: visible;
   position: relative;
   
   padding: 1rem 0;
-  height: 45rem;
+  height: 42rem;
   
 }
 .waveform-canvas {
