@@ -100,7 +100,7 @@ def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
     song = genius.search_song(title=songtitle, artist=songartist)
-    lyrics = ''
+    lyrics = 'Not Found'
     if song:
         lyrics = song.lyrics
     return lyrics
@@ -145,6 +145,7 @@ def result_page():
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
+        spotify_data = spotify_embeds(final_res[0]['song'].title, final_res[0]['song'].artist)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
         spotifyTimestamp = final_res[0]['matched_pattern'][0]
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
@@ -153,7 +154,9 @@ def result_page():
 
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType, spotifyTimestamp=spotifyTimestamp))
+    r = make_response(render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res, 
+                                                    userTapCount=userTapCount, userRecordingType=userRecordingType, spotifyTimestamp=spotifyTimestamp,
+                                                    spotify_data=spotify_data))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
 
@@ -547,10 +550,10 @@ def spotify_track_metadata():
         #Parse Tracks in data to find track id
         lyrics = ''
         searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+        lyrics = get_lyrics(title, artist)
         if searchResults and searchResults["tracks"]["total"] > 0:
             trackLink = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
             trackURI = searchResults["tracks"]['items'][0]["uri"]
-            lyrics = get_lyrics(title, artist)
             trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
 
             resp_data = [trackLink, trackURI, lyrics, trackAlbumImage]
@@ -558,11 +561,30 @@ def spotify_track_metadata():
             category = "success"
         else:
             msg = "Song could not be found in spotify API"
-            resp_data = "None"
+            resp_data = ['', '', lyrics, '']
             category = "danger"
 
         resp = {'feedback': msg, 'category': category, 'data': resp_data}
         return make_response(jsonify(resp), 200) 
+
+def spotify_embeds(title, artist): 
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                        client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+
+    #Parse Tracks in data to find track id
+    lyrics = ''
+    searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+    resp_data = ['','','https://www.dia.org/sites/default/files/No_Img_Avail.jpg']
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        spotifyHead = "https://open.spotify.com/"
+        spotify = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
+        spotifyTail = spotify[len(spotifyHead):len(spotify)]
+        
+        trackLink = spotifyHead + "embed/" + spotifyTail
+        trackURI = searchResults["tracks"]['items'][0]["uri"]
+        trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
+        resp_data = [trackLink, trackURI, trackAlbumImage]
+    return resp_data
 
 
 @app.route('/register', methods=['GET', 'POST'])

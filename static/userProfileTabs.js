@@ -140,5 +140,5 @@ $( document ).ready(function() {
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log("fail: ", textStatus, errorThrown);
         });
-    });
+    }); 
 });
