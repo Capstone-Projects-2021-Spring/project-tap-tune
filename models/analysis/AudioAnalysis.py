@@ -447,7 +447,7 @@ def process_recording2(userInput, onsetFrames):
     decision, matching_rate,  header, tail = match_temposync(songTimestampSync, userInput)
     if decision == 1:
         print("we have a match!")
-        return 1, matching_rate, songTimestamp[header:tail]
+        return 1, matching_rate, songTimestampSync[header:tail]
     else:
         return 0, matching_rate, [0]
 
