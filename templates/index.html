@@ -31,13 +31,16 @@
         <div class="divider-custom">
             <div class="divider-custom-line"></div>
         </div>
+        <div class="container d-flex align-items-center flex-column">
+            <small id="emailHelp" class="form-text text-muted mb-3">Need help?  Go to the <a href="/about">about page</a> for information and instructions on our features. </small>
+        </div>
         <!-- Portfolio Grid Items-->
         <div class="row justify-content-center">
             <!-- Portfolio Item 1-->
             <div class="col-xl-2 col-xl-4 mb-5e3"> <!-- go to rhythm page-->
-                <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1" >
+                <div class="portfolio-item mx-auto" >
                     <div class="portfolio-item-caption-rhythm d-flex align-items-center justify-content-center h-100 w-100" >
-                        <div class="portfolio-item-caption-rhythm-content text-center text-white text-uppercase mb-0"  >
+                        <div onclick="goToRhythm()" class="portfolio-item-caption-rhythm-content text-center text-white text-uppercase mb-0"  >
                           <div class="row">Rhythm Recording</div> 
                           <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">
                             <path d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
@@ -49,9 +52,9 @@
               </div>
             <!-- Portfolio Item 2-->
             <div class="col-xl-2 col-xl-4 mb-5">
-                <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
+                <div class="portfolio-item mx-auto">
                     <div class="portfolio-item-caption-melody d-flex align-items-center justify-content-center h-100 w-100"> 
-                        <div class="portfolio-item-caption-melody-content text-center text-white text-uppercase mb-0">
+                        <div onclick="goToMelody()" class="portfolio-item-caption-melody-content text-center text-white text-uppercase mb-0">
                           <div class="row">Melody Recording</div>
                           <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">
                             <path d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
