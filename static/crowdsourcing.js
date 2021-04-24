@@ -20,16 +20,24 @@ $('#sendSourceButton').on('click', function(e){
     var title = document.getElementById("song_title").value;
     var artist = document.getElementById("song_artist").value;
     var url = document.getElementById("song_link").value;
+
+    var outFile = document.getElementById("song_file").value;
+
     var outFile = document.getElementById("song_file").files[0];
     var button = document.getElementById("sendSourceButton").value;
+
 
     var titleError = document.getElementById("song_title_help");
     var artistError = document.getElementById("song_artist_help");
     var urlError = document.getElementById("song_link_help");
     $('#sourcingModalSongResponse').hide();
+
+
+
     console.log("SUBMIT BUTTON PRESSED")
     //console.log(outFile);
     //console.log(typeof(outFile));
+
 
     //Verify the required fields
     if (!title) {
