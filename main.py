@@ -6,6 +6,7 @@ from models.Source import Source
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
+from yt_sp_autosource_POC import AutoSource
 import lyricsgenius
 import json
 import time
@@ -524,6 +525,11 @@ def spotify_suggest():
                 msg = "Song suggested by related tracks."
                 data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
+
+                # auto source section
+                obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
+                obj.process_info()
+
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
                 data = "None"

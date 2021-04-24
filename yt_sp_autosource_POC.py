@@ -2,6 +2,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import numpy as np
 from youtubesearchpython import search
+from models.Source import Source
 
 def levenshtein_ratio_and_distance(s, t, ratio_calc = False):
     """ levenshtein_ratio_and_distance:
@@ -99,14 +100,31 @@ def yt_search_convert(title, artist):
     retObj['url'] = yt_res['result'][0]['link']
     return retObj
 
+class AutoSource:
+    def __init__(self, title, artist):
+        self.title = title
+        self.artist = artist
 
-def test(title, artist):
-    sp_val = sp_search_convert(title, artist)
-    yt_val = yt_search_convert(title, artist)
+    def process_info(self):
+        sp_val = sp_search_convert(self.title, self.artist)
+        yt_val = yt_search_convert(self.title, self.artist)
 
-    print(sp_val)
-    print("++++++++++++++++++++++++++++++++++")
-    print(yt_val)
+        print(sp_val)
+        print("++++++++++++++++++++++++++++++++++")
+        print(yt_val)
+
+        if( abs(sp_val['duration'] - yt_val['duration']) < 15):
+            obj = Source(artist=self.artist, url=yt_val['url'], title=self.title)
+            success = obj.process_input()
+
+            if(success):
+                print("SUCCESS")
+
+            else:
+                print("FAILURE")
+
+        else:
+            pass
 
 if __name__ == "__main__":
-    test("watermelon sugar", "harry styles")
+    AutoSource.process_info("another one bitess the dust", "queen")
