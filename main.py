@@ -161,6 +161,18 @@ def result_page():
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
 
+def getMelPreview(title, artist):
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                                    client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+    trackURI =''
+    # Parse Tracks in data to find track id
+    searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        trackURI = searchResults["tracks"]['items'][0]["uri"]
+
+        splitURI = trackURI.split(':')
+        print(splitURI)
+        return splitURI[2]
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -171,6 +183,7 @@ def melody_result_page():
     melArtist = ''
     melScore = ''
     photo = ''
+    melURL=''
 
     try:
         recording_filename = session.get('recording')
@@ -209,7 +222,7 @@ def melody_result_page():
             lyrics = get_lyrics(result.title, result.artists)
             #photo  = get_photo(result.title, result.artists)
             # print(lyrics)
-
+            melURL= "https://open.spotify.com/embed/track/"+getMelPreview(result.title, result.artists)
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
@@ -221,7 +234,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList)
+                           score=melScore, melResults=melList, melPreview=melURL)
 
 
 @app.route('/user', methods=['GET', 'POST'])
