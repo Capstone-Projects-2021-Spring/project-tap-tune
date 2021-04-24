@@ -9,7 +9,30 @@
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
-   {%if title %}
+    {% if title == "There was an Error with the Service" %}
+  <div class="container d-flex align-items-center flex-column">
+    <!-- Masthead Heading-->
+    <h1 class="masthead-heading text-uppercase mb-0 mt-4">Melody Service Error</h1>
+    <!-- Icon Divider-->
+    <div class="divider-custom divider-dark">
+      <div class="divider-custom-line"></div>
+    </div>
+
+  </div>
+  <div class="container d-flex align-items-center flex-column">
+    <p class="text-muted">There was an error with the melody service <span style="color: #1f93ff; font-weight: bold;">AudD</span> in our search. Please try again at another time.   </p>
+    <h3 class="mb-1 text-secondary text-uppercase text-left">Tips </h3>
+    <ol class="mb-2 mt-2" type="1">
+      <li>This kind of error may take a while. </li>
+      <li>Please be patient with us as we try to keep things running!</li>
+    </ol>
+    <div class = "row">
+      <button class="btn btn-primary mt-4 ml-3" data-dismiss="modal" onclick="goToMelody()">
+        Try Again
+      </button>
+    </div>
+  </div>
+     {%elif title %}
   <div class="container d-flex align-items-center flex-column">
     <!-- Masthead Heading-->
     <h1 class="masthead-heading text-uppercase mb-0 mt-4">Results</h1>
@@ -101,7 +124,7 @@
       </div>
     </div>
   </div>
-  {% else %}
+    {% else %}
   <div class="container d-flex align-items-center flex-column">
     <!-- Masthead Heading-->
     <h1 class="masthead-heading text-uppercase mb-0 mt-4">No Results</h1>
@@ -109,7 +132,6 @@
     <div class="divider-custom divider-dark">
       <div class="divider-custom-line"></div>
     </div>
-
   </div>
   <div class="container d-flex align-items-center flex-column">
     <p class="text-muted">We couldn't find any matches to your <span style="color: #1f93ff; font-weight: bold;">Melody Recording</span> in our search!  Here are some tips to recording the melody for a better result.  </p>
