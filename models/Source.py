@@ -290,6 +290,54 @@ def split_hash(filepath):
         return None
 
 
+def frames_to_bin(frames):
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    return bin_array
+
+# get tempo from timestamp
+def get_tempo(timestamp):
+    ans = len(timestamp) * 60 / timestamp[-1]
+    return ans
+
+# chenge timestamp to fit specific tempo k, ex change the song to 60 bpm, k=60
+def change_tempo(timestamp, k):
+    original_tempo = get_tempo(timestamp)
+    rate = original_tempo / k
+    adjusted = [i * rate for i in timestamp]
+    return adjusted# get tempo from timestamp
+
+
+def get_synced_hashes(filepath):
+    '''timestamp>frame>bin>hash'''
+    y, sr = librosa.load(filepath)
+
+    '''onset hash'''
+    '''timestamp > synced timestamp > frame > bin > hash'''
+    onset_hash_synced = hash_array(frames_to_bin(librosa.time_to_frames(change_tempo(librosa.onset.onset_detect(y=y, sr=sr, units='time'), 60))))
+
+    '''peak hash'''
+    '''frame > timestamp > synced timestamp > frame > bin > hash'''
+    onset_env = librosa.onset.onset_strength(y=y, sr=22050)
+    peak_hash_synced = hash_array(frames_to_bin(librosa.time_to_frames(change_tempo(librosa.frames_to_time(librosa.util.peak_pick(onset_env, 3, 3, 3, 5, .5, 10)), 60))))
+
+    '''harm hash and perc'''
+    y_harm, y_perc = librosa.effects.hpss(y, margin=(1.0, 5.0))
+    '''timestamp > synced timestamp > frame > bin > hash'''
+    harm_hash_synced = hash_array(frames_to_bin(librosa.time_to_frames(change_tempo(librosa.onset.onset_detect(y=y_harm, sr=sr, units='time'),60))))
+
+    perc_hash_synced = hash_array(frames_to_bin(
+        librosa.time_to_frames(change_tempo(librosa.onset.onset_detect(y=y_perc, sr=sr, units='time'), 60))))
+
+    return onset_hash_synced,peak_hash_synced,harm_hash_synced, perc_hash_synced
+
 class Source:
     # constructor for the source class
     # @param url - youtube url if provided by the user
@@ -395,7 +443,11 @@ class Source:
             "onset_hash": None,
             "peak_hash": None,
             "harm_hash": None,
-            "perc_hash": None
+            "perc_hash": None,
+            "onset_hash_synced": None,
+            "peak_hash_synced": None,
+            "perc_hash_synced": None,
+            "harm_hash_synced": None
         }
         if(self.artist and self.title):
             track_artists = self.artist
@@ -461,12 +513,21 @@ class Source:
             # obtain hrm and perc hash values
             print("PROCESS HARMONIC AND PERCUSSIVE HASHES")
             harm, perc = split_hash(filepath)
+            #obtain synced hashes
+            onset_hash_synced, peak_hash_synced, harm_hash_synced, perc_hash_synced = get_synced_hashes(filepath=filepath)
+
+            song_dict["onset_hash_synced"] = onset_hash_synced
+            song_dict["peak_hash_synced"] = peak_hash_synced
+            song_dict["harm_hash_synced"] = harm_hash_synced
+            song_dict["perc_hash_synced"] = perc_hash_synced
+
             # set the harm and perc hashes
             print("ADD HASHES TO SONG DICT")
             print(perc)
+
             song_dict["perc_hash"] = perc
-            print(song_dict["perc_hash"])
             song_dict["harm_hash"] = harm
+
             print("=============================")
             print(song_dict)
             print("=============================")
@@ -515,7 +576,7 @@ class Source:
 
         # check that new song exists
         if(check == 1):
-            # self.process_wav(filepath, song_dict)
+            self.process_wav(filepath, song_dict)
             return filepath
         else:
             print("SPOTIFY DATA NOT FOUND SUBMISSION FAILED")

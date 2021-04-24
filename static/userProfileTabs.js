@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    spotifySuggest();
+    //spotifySuggest();
     $(document).on("click", "a", function() {
         var currentId = $(this).attr('id')
 
@@ -140,5 +140,5 @@ $( document ).ready(function() {
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log("fail: ", textStatus, errorThrown);
         });
-    });
+    }); 
 });
