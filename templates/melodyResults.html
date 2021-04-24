@@ -53,8 +53,11 @@
 
 
           <div class="videoWrapper">
+
             {%if melPreview%}
               <iframe src="{{melPreview}}" style="border-radius: 10px;" width="100%" height="150px" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            {%else%}
+            <img class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
             {%endif%}
             </div>
 
@@ -88,7 +91,7 @@
 <!--          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>-->
         </div>
       </div>
-      <div class="col mb-3">
+      <div class="col mb">
         <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
         <div class="divider-custom2 divider-dark">
           <div class="divider-custom2-line"></div>

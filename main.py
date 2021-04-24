@@ -183,6 +183,7 @@ def melody_result_page():
     melArtist = ''
     melScore = ''
     photo = ''
+    melURL=''
 
     try:
         recording_filename = session.get('recording')
