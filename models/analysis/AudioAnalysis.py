@@ -21,6 +21,7 @@ import math
 from models.Database import db, get_cursor
 from models.Song import Song
 import numpy as np
+
 """COMPARISON FUNCTIONS"""
 
 
@@ -279,8 +280,8 @@ def countToVal(count):
         return dict[count]
 
     else:
-        dict.update({count : str(count)})
-        ret = "."+dict[count]+"."
+        dict.update({count: str(count)})
+        ret = "." + dict[count] + "."
         return ret
 
 
@@ -299,12 +300,11 @@ def hash_array(bin_array):
         """
         # Bandaid fixed. Can be cleaned up/refactored/optimized
 
-
-        if(frame == 1) or (check == len(bin_array)-1):
+        if (frame == 1) or (check == len(bin_array) - 1):
 
             # Extra Checks to correctly deal with last element in the bin_array
             # Doesn't look pretty, but it functions at the very least
-            if (check == len(bin_array)-1):
+            if (check == len(bin_array) - 1):
                 if (frame == 1):
                     char_val = countToVal(run_count)
                     res_string = res_string + char_val + '*'
@@ -314,17 +314,17 @@ def hash_array(bin_array):
             ########################################################################
             else:
                 char_val = countToVal(run_count)
-                if(run_count > 0):
+                if (run_count > 0):
                     run_count = 0
-                    res_string = res_string+char_val+'*'
+                    res_string = res_string + char_val + '*'
                 else:
-                    res_string = res_string+char_val
+                    res_string = res_string + char_val
 
         # if the current frame is a 0
         else:
             run_count = run_count + 1
 
-        check = check+1
+        check = check + 1
     # print_test(check, "FRAME ITERATION CHECK")
     return res_string
 
@@ -363,6 +363,8 @@ def unhash_array(db_string):
 """
 converts frames array to binary array
 """
+
+
 def frames_to_bin(frames):
     # frames to binary
     bin_array = []
@@ -400,7 +402,6 @@ def bin_to_frame(bin_array):
 
 # process the recording based on peaks
 def process_recording_peaks(userInput, peakFrames):
-
     # User input prep
     new_input = merge_beats(userInput)
     new_input_pattern = process_timestamp_ratio(new_input)
@@ -437,19 +438,19 @@ def process_recording(userInput, onsetFrames):
 
 
 # process the recording in full, userInput = user's timestamp sync then get pattern
-def process_recording2(userInput, onsetFrames):
+def process_recording2(userInput, songTimestamp):
     # DB song prep
-    songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
-    songTimestampSync = change_tempo(songTimestamp, 60)
+    # songTimestamp = librosa.frames_to_time(onsetFrames, sr=22050)
+    # songTimestampSync = change_tempo(songTimestamp, 60)
 
     # compare user input and DB info
     # ---Decision making---
-    decision, matching_rate,  header, tail = match_temposync(songTimestampSync, userInput)
+    decision, matching_rate, header, tail = match_temposync(songTimestamp, userInput)
     if decision == 1:
         print("we have a match!")
-        return 1, matching_rate, songTimestampSync[header:tail]
+        return 1, matching_rate, header, tail
     else:
-        return 0, matching_rate, [0]
+        return 0, matching_rate, 0, 0
 
 
 # chenge timestamp to fit specific tempo k, ex change the song to 60 bpm, k=60
@@ -506,8 +507,8 @@ def match_temposync(song_timestamp, user_pattern):
     index_song_pattern = 0
     for i in range(len(song_timestamp)):
         hit, tail = compare_sync(song_timestamp[i:], user_pattern)
-        if  hit >= mark:
-            return 1, ((hit/tail)+hit/len(user_pattern))/2, i, i+tail
+        if hit >= mark:
+            return 1, ((hit / tail) + hit / len(user_pattern)) / 2, i, i + tail
     return 0, 0, 0, 0
 
 
@@ -530,6 +531,7 @@ class rhythmAnalysis:
     """
     FUNCTION TO COMPARE THE PEAKS OF THE USER INPUT TO THE DB VALUE
     """
+
     def onset_peak_func(self):
         # print('array dimension:', self.numOfAry)
         song_results = []
@@ -546,14 +548,18 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
-        user_pattern = get_pattern(change_tempo(self.user_input, 60))
+        try:
+            user_pattern = get_pattern(change_tempo(self.user_input, 60))
+        except ZeroDivisionError as error:
+            print(error)
+
         for db_track in db_results:
             """
             convert onset_hash to binary array
             """
             print('song is:', db_track.id)
-            peak_array = unhash_array(db_track.peak_hash)
-            onset_array = unhash_array(db_track.onset_hash)
+            peak_array = unhash_array(db_track.peak_hash_synced)
+            onset_array = unhash_array(db_track.onset_hash_synced)
             # percussive_array = unhash_array(db_track.perc_hash)
             # harmonic_array = unhash_array(db_track.harm_hash)
 
@@ -566,10 +572,15 @@ class rhythmAnalysis:
             # harmonic_frames = bin_to_frame(harmonic_array)
 
             """
+            frames to timeastamp array
+            """
+            peak_timestamp = librosa.frames_to_time(peak_frames, sr=22050)
+            onset_timetamp = librosa.frames_to_time(onset_frames, sr=22050)
+            """
             compare with the user input
             """
-            match_peak, matching_rate_peak, matched_pattern_peak = process_recording2(user_pattern, peak_frames)
-            match_onset, matching_rate_onset, matched_pattern_onset = process_recording2(user_pattern, onset_frames)
+            match_peak, matching_rate_peak, header, tail = process_recording2(user_pattern, peak_timestamp)
+            match_onset, matching_rate_onset, header, tail = process_recording2(user_pattern, onset_timetamp)
             # match_percussive, matching_rate_percussive = process_recording(self.user_input_percussive, percussive_frames)
             # match_harmonic, matching_rate_harmonic = process_recording(self.user_input_harmonic, harmonic_frames)
 
@@ -578,10 +589,13 @@ class rhythmAnalysis:
             print(matching_rate)
             if (match_peak or match_onset):
                 if (matching_rate > .7):
+                    original_timestamp = librosa.frames_to_time(bin_to_frame(unhash_array(db_track.onset_hash)),
+                                                                sr=22050)
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate,
-                                         "matched_pattern": matched_pattern_onset,
-                                         "sync_user_input":user_pattern})
+                                         "sync_matched_pattern": onset_timetamp[header:tail],
+                                         "sync_user_input": user_pattern,
+                                         "start_time": original_timestamp[header]})
                     max += 1
             index += 1
 
@@ -606,23 +620,31 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
-        user_pattern_harm = change_tempo(self.user_input, 60)
+
+        try:
+            user_pattern_harm = change_tempo(self.user_input, 60)
+        except ZeroDivisionError as error:
+            print(error)
+
         for db_track in db_results:
             """
             convert onset_hash to binary array
             """
             print('song id: ', db_track.id)
-            harmonic_array = unhash_array(db_track.harm_hash)
+            harmonic_array = unhash_array(db_track.harm_hash_synced)
             harmonic_frames = bin_to_frame(harmonic_array)
-            match_harmonic, matching_rate_harmonic, matched_pattern = process_recording2(user_pattern_harm, harmonic_frames)
+            harm_timestamp = librosa.frames_to_time(harmonic_frames, sr=22050)
+            match_harmonic, matching_rate_harmonic, header, tail = process_recording2(user_pattern_harm, harm_timestamp)
 
             max = 0
 
             if matching_rate_harmonic > .7:
+                original_timestamp = librosa.frames_to_time(bin_to_frame(unhash_array(db_track.harm_hash)), sr=22050)
                 song_results.append({"song": db_track,
                                      "percent_match": matching_rate_harmonic,
-                                     "matched_pattern":matched_pattern,
-                                     "sync_user_pattern": user_pattern_harm})
+                                     "matched_pattern": harm_timestamp[header:tail],
+                                     "sync_user_pattern": user_pattern_harm,
+                                     "start_time": original_timestamp[header]})
 
                 max += 1
 
@@ -649,26 +671,35 @@ class rhythmAnalysis:
         # for loop to go through the song_data
         # for track in db_results:
         index = 0
-        user_pattern_perc = change_tempo(self.user_input,60)
+        try:
+            user_pattern_perc = change_tempo(self.user_input, 60)
+        except ZeroDivisionError as error:
+            print(error)
+
         for db_track in db_results:
             """
             convert onset_hash to binary array
             """
             print('song id: ', db_track.id)
 
-            percussive_array = unhash_array(db_track.perc_hash)
+            percussive_array = unhash_array(db_track.perc_hash_synced)
             percussive_frames = bin_to_frame(percussive_array)
-            match_percussive, matching_rate_percussive, matched_pattern = process_recording2(user_pattern_perc, percussive_frames)
+            perc_timestamp = librosa.frames_to_time(percussive_frames, sr=22050)
+            match_percussive, matching_rate_percussive, matched_pattern = process_recording2(user_pattern_perc,
+                                                                                             perc_timestamp)
 
-            #decide matching rate
-            #if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
+            # decide matching rate
+            # if user only tap to harm or perc, don't let 0 matching rate effect final matching rate
             max = 0
-            if match_percussive :
+            if match_percussive:
                 if matching_rate_percussive > .7:
+                    original_timestamp = librosa.frames_to_time(bin_to_frame(unhash_array(db_track.perc_hash)),
+                                                                sr=22050)
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate_percussive,
                                          "matched_pattern": matched_pattern,
-                                         "sync_user_pattern":user_pattern_perc})
+                                         "sync_user_pattern": user_pattern_perc,
+                                         "start_time": original_timestamp[header]})
                     max += 1
             index += 1
 
