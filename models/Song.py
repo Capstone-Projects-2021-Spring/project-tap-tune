@@ -172,7 +172,7 @@ class Song:
         title_f = '%' + title + '%'
 
         # setup query
-        query = Song.BASE_SELECT_QUERY + ' WHERE song.title SOUNDS LIKE %s'
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.title LIKE %s OR song.title SOUNDS LIKE %s'
 
         # get songs from database
         return Song.__get_songs(query, [title_f])
