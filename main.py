@@ -941,6 +941,7 @@ def source():
                 csv_writer = csv.writer(write_obj)
                 csv_writer.writerow(row)
 
+
             """EXAMPLE ON READING AND PARSING"""
             # with open('user_uploads.csv') as csv_file:
             #     csv_reader = csv.reader(csv_file, delimiter=',')
