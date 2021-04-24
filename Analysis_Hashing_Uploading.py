@@ -196,6 +196,23 @@ def binToFrames(bin_array):
     return frame_array
 
 
+"""
+converts frames array to binary array
+"""
+def frames_to_bin(frames):
+    # frames to binary
+    bin_array = []
+    increment = 0
+    for x in range(0, frames[len(frames) - 1]):
+        if (frames[increment] == x):
+            bin_array.append(1)
+            increment += 1
+        else:
+            bin_array.append(0)
+    bin_array.append(1)
+    return bin_array
+
+
 # for file in os.listdir("music"):
 #     print("=================================")
 #     file_parse = file.split("_")
