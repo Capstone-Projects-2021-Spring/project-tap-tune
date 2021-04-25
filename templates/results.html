@@ -156,7 +156,7 @@
                     </thead>
                     <tbody id = "resultsSecondaryTableBody">
                         {% for song_result in filterResults %}
-                        <tr onclick="window.location='#';" class='clickable-row' data-song-pattern="{{song_result.matched_pattern}}">
+                        <tr onclick="window.location='#';" class='clickable-row' data-song-timestamp="{{song_result.start_time}}" data-song-pattern="{{song_result.matched_pattern}}">
                           <td>{{ song_result.song.title }}</td>
                           <td>{{ song_result.song.artist }}</td>
                           <td>{{ (song_result.percent_match*100)|round(2) }}%</td>
