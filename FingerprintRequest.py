@@ -374,6 +374,7 @@ class FingerprintRequest:
 
                     lyricSong = self.lyricSearch(songCompare, userInput, threshold)
 
+
         result = foundsong()
         if audDfoundSong.title:
             result.set_title(audDfoundSong.title)
@@ -393,7 +394,7 @@ class FingerprintRequest:
                         result.set_artist(songFromLyrics.artists)
                         result.set_genre(songFromLyrics.genres)
                         result.set_score(songFromLyrics.score)
-                    elif lyricSong.title != '' and songFromLyrics.title == '':
+                    elif lyricSong.title != '' and (songFromLyrics.title == '' or songFromLyrics.title != ''):
                         result.set_title(lyricSong.title)
                         result.set_artist(lyricSong.artists)
                         result.set_genre(lyricSong.genres)
