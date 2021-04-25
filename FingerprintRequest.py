@@ -12,12 +12,7 @@ def cleanString(string):
     newString = re.sub('[^A-Za-z0-9,-_& ]+', '', string)
     newerString = re.sub(r'[\[\]]', '', newString)
 
-    if "name: " in newString:
-        returnString = newerString.replace("name: ", '')
-    else:
-        returnString = newerString
-
-    return returnString
+    return newerString
 
 # Song object for returning the song found from ACRCloud
 # Can Add attributes if extra metadata extraction is needed
@@ -82,8 +77,11 @@ class FingerprintRequest:
             songlist = (fingerprintJson['metadata']['music'][0])
 
             returnsong.set_title(cleanString(str(songlist['title'])))
-            returnsong.set_artist((str(songlist['artists'])))
-            returnsong.set_genre(cleanString(str(songlist['genres'])))
+            returnsong.set_artist((str(songlist['artists'][0]['name'])))
+            try:
+                returnsong.set_genre(cleanString(str(songlist['genres'])))
+            except:
+                pass
             returnsong.set_score(cleanString(str(songlist['score'])))
         return returnsong
 
@@ -354,26 +352,28 @@ class FingerprintRequest:
         ACRfoundSong = self.getACRSongFingerprint(userfile)
         hummingFingerprint = self.getHummingFingerprint(userfile)
 
-        if hummingFingerprint[0].title != "There was an Error with the Service":
-            lyricSong = self.lyricSearch(hummingFingerprint, userInput, .6)
-            songFromLyrics = self.lyricSearch(self.getSongFromLyrics(userInput), userInput, .6)
-        else:
-            lyricSong = hummingFingerprint[0]
+        if len(hummingFingerprint) > 0:
+            if hummingFingerprint[0].title != "There was an Error with the Service":
+                lyricSong = self.lyricSearch(hummingFingerprint, userInput, .6)
+                songFromLyrics = self.lyricSearch(self.getSongFromLyrics(userInput), userInput, .6)
+            else:
+                lyricSong = hummingFingerprint[0]
+                songFromLyrics = foundsong()
 
-
-        if lyricSong.title != '' and songFromLyrics.title != '':
-            songCompare = []
-            songCompare.append(lyricSong)
-            songCompare.append(songFromLyrics)
-            threshold = .9
-
-            lyricSong = self.lyricSearch(songCompare, userInput, threshold)
-            while lyricSong.title == '':
-                threshold -= .05
-                if threshold < .5: #Theoretically it shouldn't reach this point at all but it's a failsafe
-                    break;
+            if lyricSong.title != '' and songFromLyrics.title != '':
+                songCompare = []
+                songCompare.append(lyricSong)
+                songCompare.append(songFromLyrics)
+                threshold = .9
 
                 lyricSong = self.lyricSearch(songCompare, userInput, threshold)
+                while lyricSong.title == '':
+                    threshold -= .05
+                    if threshold < .5: #Theoretically it shouldn't reach this point at all but it's a failsafe
+                        break;
+
+                    lyricSong = self.lyricSearch(songCompare, userInput, threshold)
+
 
         result = foundsong()
         if audDfoundSong.title:
@@ -389,16 +389,21 @@ class FingerprintRequest:
                 result.set_score(ACRfoundSong.score)
             else:
                 try:
-                    if (lyricSong.title == ''):
-                        result.set_title(hummingFingerprint[0].title)
-                        result.set_artist(hummingFingerprint[0].artists)
-                        result.set_genre(hummingFingerprint[0].genres)
-                        result.set_score(hummingFingerprint[0].score)
-                    else:
+                    if lyricSong.title == '' and songFromLyrics.title != '':
+                        result.set_title(songFromLyrics.title)
+                        result.set_artist(songFromLyrics.artists)
+                        result.set_genre(songFromLyrics.genres)
+                        result.set_score(songFromLyrics.score)
+                    elif lyricSong.title != '' and (songFromLyrics.title == '' or songFromLyrics.title != ''):
                         result.set_title(lyricSong.title)
                         result.set_artist(lyricSong.artists)
                         result.set_genre(lyricSong.genres)
                         result.set_score(lyricSong.score)
+                    else:
+                        result.set_title(hummingFingerprint[0].title)
+                        result.set_artist(hummingFingerprint[0].artists)
+                        result.set_genre(hummingFingerprint[0].genres)
+                        result.set_score(hummingFingerprint[0].score)
                 except:
                     result.set_title('None')
                     result.set_artist('None')

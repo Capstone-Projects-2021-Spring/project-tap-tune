@@ -2,6 +2,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import numpy as np
 from youtubesearchpython import search
+from models.Source import Source
 
 def levenshtein_ratio_and_distance(s, t, ratio_calc = False):
     """ levenshtein_ratio_and_distance:
@@ -75,10 +76,8 @@ def sp_search_convert(title, artist):
                 sp_duration = sp_duration // 1000
                 retObj['duration'] = sp_duration
                 return retObj
-            else:
-                pass
 
-    return retObj
+    return None
 
 """
 FUNCTION TO SEARCH FOR YOUTUBE VIDEO, GET DURATION AND URL
@@ -93,20 +92,45 @@ def yt_search_convert(title, artist):
     }
     yt_res = search.VideosSearch(query=(artist+" "+title+" Audio"), limit = 1).result()
 
-    yt_duration = yt_res['result'][0]['duration']
-    yt_duration = yt_duration.split(':')
-    retObj['duration'] = int(yt_duration[0])*60 + int(yt_duration[1])
-    retObj['url'] = yt_res['result'][0]['link']
-    return retObj
+    if(yt_res):
+        yt_duration = yt_res['result'][0]['duration']
+        yt_duration = yt_duration.split(':')
+        retObj['duration'] = int(yt_duration[0])*60 + int(yt_duration[1])
+        retObj['url'] = yt_res['result'][0]['link']
 
+        return retObj
 
-def test(title, artist):
-    sp_val = sp_search_convert(title, artist)
-    yt_val = yt_search_convert(title, artist)
+    else:
+        return None
 
-    print(sp_val)
-    print("++++++++++++++++++++++++++++++++++")
-    print(yt_val)
+class AutoSource:
+    def __init__(self, title, artist):
+        self.title = title
+        self.artist = artist
+
+    def process_info(self):
+        sp_val = sp_search_convert(self.title, self.artist)
+        yt_val = yt_search_convert(self.title, self.artist)
+
+        print(sp_val)
+        print("++++++++++++++++++++++++++++++++++")
+        print(yt_val)
+        if(sp_val and yt_val):
+            if( abs(sp_val['duration'] - yt_val['duration']) < 15):
+                obj = Source(artist=self.artist, url=yt_val['url'], title=self.title)
+                success = obj.process_input()
+
+                if(success):
+                    return 1
+
+                else:
+                    return 0
+
+            else:
+                return 0
+
+        else:
+            return 0
 
 if __name__ == "__main__":
-    test("watermelon sugar", "harry styles")
+    AutoSource.process_info("another one bitess the dust", "queen")
