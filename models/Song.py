@@ -174,7 +174,7 @@ class Song:
         query = Song.BASE_SELECT_QUERY + ' WHERE song.title LIKE %s OR song.title SOUNDS LIKE %s'
 
         # get songs from database
-        return Song.__get_songs(query, [title_f, title])
+        return Song.__get_songs(query, [title_f, title_f])
 
     """
     get all songs by artist
