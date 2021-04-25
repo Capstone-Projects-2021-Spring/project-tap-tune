@@ -1084,11 +1084,9 @@ def source2():
 def search():
     if request.method == 'POST':
         data = json.loads(request.data)
-        artist = data[1]
         title = data[0]
-        print(title)
+        artist = data[1]
         songs = Song.get_by_title_artist(title=title, artist=artist)
-        print(songs)
 
         if(songs != None):
             data = []

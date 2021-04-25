@@ -1,4 +1,64 @@
 $( document ).ready(function() { 
+    //setup before functions
+    var typingTimer;                //timer identifier
+    var updateInterval;
+    var doneTypingInterval = 3000;  //time in ms (3 seconds)
+    var typingSearchMessageResult = document.getElementById("typingSearchMessageResult");
+
+    //on keyup, start the countdown
+    $('#song_artist').keyup(function(){
+        clearTimeout(typingTimer);
+        if ($('#song_title').val() && $('#song_artist').val()) {
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            typingSearchMessageResult.innerText = "Looking for song ";
+            if (!updateInterval)
+                updateInterval = setInterval(change, 400);
+        }
+    });
+
+    $('#song_title').keyup(function(){
+        clearTimeout(typingTimer);
+        if ($('#song_title').val() && $('#song_artist').val()) {
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            typingSearchMessageResult.innerText = "Looking for song ";
+            if (!updateInterval)
+                updateInterval = setInterval(change, 400);
+        }
+    });
+
+    function change() {
+        if (!typingSearchMessageResult.innerText.includes(" . . ."))
+            typingSearchMessageResult.innerText += " ."
+        else 
+            typingSearchMessageResult.innerText = "Looking for song"
+    }
+
+    //user is "finished typing," do something
+    function doneTyping () {
+
+        clearInterval(updateInterval)
+        updateInterval = null;
+        var js_data = [$('#song_title').val(), $('#song_artist').val()]
+        $.ajax({
+            url: '/search',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(js_data)
+        }).done(function (result) {            
+            //Show in Results Section Top Two Results
+            if (result.data.length > 0) 
+                typingSearchMessageResult.innerHTML = '<i class="fas fa-times" style="color: #ff1a1a"></i>' + " Song already exists in database.";
+            else 
+                typingSearchMessageResult.innerHTML = `<i class="fas fa-check" style="color: #00b300"></i>` + " Song not found in database.";
+            
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("fail: ", textStatus, errorThrown);
+            typingSearchMessageResult.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: orange"></i>' + " Error looking into database.";
+        });
+    }
+
+
     /**
     class to store the artist, title, and file extension of the audio file
     used to pass a JSON string as filename for audio file
@@ -68,25 +128,6 @@ $( document ).ready(function() {
         } 
         
         //[TODO?] Insert Code here to verify that the song title and song artist is able to be found through Spotify API?
-
-
-        //AJAX call to /source to add user's song to database
-        // var js_data = [title, artist, url];
-        // console.log(js_data)
-        // //[TODO] Add Ajax Loading Icon Animation next to button here
-        // $.ajax({
-        //     url: '/source',
-        //     type : 'post',
-        //     contentType: 'application/json',
-        //     dataType : 'json',
-        //     data : JSON.stringify(js_data)
-        // }).done(function(result) {
-        //     console.log("success: " + JSON.stringify(result));
-        //     $('#sourcingModalSongResponse').modal();
-        //
-        // }).fail(function(jqXHR, textStatus, errorThrown) {
-        //     console.log("fail: ",textStatus, errorThrown);
-        // });
 
         //AJAX call to /source to add user's song to database
         var js_data = [title, artist, url];
@@ -191,7 +232,7 @@ $( document ).ready(function() {
                 else {
                     console.log("Cant find showing on results no found")
                     resultsLabel.innerHTML = "Result " + '<i class="fas fa-times" style="color: red"></i>'; 
-                    resultParagraph.innerHTML = "No songs by that title and/or artist."
+                    resultParagraph.innerHTML = " No songs by that title and/or artist."
                 } 
                 
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -201,11 +242,13 @@ $( document ).ready(function() {
     });
 
     function resultRowHtml(title, artist, releaseDate) {
-        var releaseDateStripped = releaseDate.replace('00:00:00 GMT','');
+        if (releaseDate) {
+            releaseDate = releaseDate.replace('00:00:00 GMT','');
+        }
         var resultSongBase = `<span>
                                 <span style="font-weight: bold;"> Title - </span>${title}<br>
                                 <span style="font-weight: bold;"> Artist - </span>${artist}<br>
-                                <span style="font-weight: bold;"> Release - </span>${releaseDateStripped}<br>
+                                <span style="font-weight: bold;"> Release - </span>${releaseDate}<br>
                             </span> <br>`;
         
         return resultSongBase
