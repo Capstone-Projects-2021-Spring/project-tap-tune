@@ -43,23 +43,47 @@ def process_recording2(userInput, songTimestamp):
 
 # chenge timestamp to fit specific tempo k, ex change the song to 60 bpm, k=60
 def change_tempo(timestamp, k):
-    original_tempo = get_tempo(timestamp)
-    rate = original_tempo / k
-    adjusted = [i * rate for i in timestamp]
-    return adjusted
+    if k <= 0:
+        print('tempo cant be equal or smaller than 0')
+        return []
+    else:
+        original_tempo = get_tempo(timestamp)
+        try:
+            rate = original_tempo / k
+            adjusted = [i * rate for i in timestamp]
+            return adjusted
+        except TypeError:
+            print('NoneType values')
+            return []
 
 
 # get tempo from timestamp
 def get_tempo(timestamp):
-    ans = len(timestamp) * 60 / timestamp[-1]
-    return ans
+    try:
+        ans = len(timestamp) * 60 / timestamp[-1]
+        return ans
+    except ZeroDivisionError:
+
+        print('0s in the timestamp list')
+        return 0
+    except IndexError:
+        print('list is empty!')
+        return 0
+    except TypeError:
+        print('data type of input error')
+        return 0
+
 
 
 def get_pattern(timestamp):
     beat_diff = []
-    for i in range(len(timestamp) - 1):
-        temp = timestamp[i + 1] - timestamp[i]
-        beat_diff.append(temp)
+    try:
+        for i in range(len(timestamp) - 1):
+            temp = timestamp[i + 1] - timestamp[i]
+            if temp>0:
+                beat_diff.append(temp)
+    except TypeError:
+        print('input data type error')
     return beat_diff
 
 
@@ -267,7 +291,10 @@ def unhash_array(db_string):
         elif (frame_val[0] == "."):
             custom_flag = frame_val[1:len(frame_val) - 1]
             print('customer flag:', custom_flag, "frame val:", frame_val, 'No.:', val)
-            add_blank(bin_array, int(custom_flag))
+            try:
+                add_blank(bin_array, int(custom_flag))
+            except ValueError:
+                print('hashes ended with *X')
             if val != len(db_tok) - 1:
                 bin_array.append(1)
 
