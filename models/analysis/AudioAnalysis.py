@@ -290,7 +290,7 @@ def unhash_array(db_string):
         # if a custom flag
         elif (frame_val[0] == "."):
             custom_flag = frame_val[1:len(frame_val) - 1]
-            print('customer flag:', custom_flag, "frame val:", frame_val, 'No.:', val)
+            # print('customer flag:', custom_flag, "frame val:", frame_val, 'No.:', val)
             try:
                 add_blank(bin_array, int(custom_flag))
             except ValueError:
@@ -372,7 +372,6 @@ class rhythmAnalysis:
     def onset_peak_func(self):
         # print('array dimension:', self.numOfAry)
         song_results = []
-        db_results = []
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -430,13 +429,14 @@ class rhythmAnalysis:
                                                                 sr=22050)
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate,
-                                         "matched_pattern": onset_timetamp[header:tail],
+                                         "matched_pattern": list(onset_timetamp[header:tail]),
                                          "sync_user_input": user_pattern,
                                          "start_time": original_timestamp[header]})
                     max += 1
             index += 1
 
         if len(song_results) < 1:
+            """CHECK FILTER RESULTS AND GET BACK TO YOU"""
             return None
         else:
             return song_results

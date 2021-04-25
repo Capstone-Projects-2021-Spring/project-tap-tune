@@ -54,6 +54,97 @@ $( document ).ready(function() {
             });
         }
 
+        else if (currentId === "songDeleteLink")
+        {
+            let container = $(this).parent().parent();
+            console.log ("I'm here in the else")
+            var currentSongID = $(this).attr('data-song-id')
+            console.log(currentSongID)
+
+            let js_data = [currentSongID];
+
+            console.log(js_data)
+            $.ajax({
+                url: '/remove-user-song-history',
+                type: 'post',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(js_data),
+                success: function ( data ){
+                    if ( !$.trim( data.feedback )) { // response from Flask is empty
+                        toast_error_msg = "An empty response was returned.";
+                        toast_category = "danger";
+                    }
+                    else { // response from Flask contains elements
+                        toast_error_msg = data.feedback;
+                        toast_category = data.category;
+                        if( toast_category == 'success' ){
+                            $(container).remove();
+                        }
+                    }
+                },
+                error: function(xhr) {console.log("error. see details below.");
+                    console.log(xhr.status + ": " + xhr.responseText);
+                    toast_error_msg = "An error occured";
+                    toast_category = "danger";
+                },
+            }).done(function(result) {
+                console.log("success: " + JSON.stringify(result));
+
+                M.toast({html: toast_error_msg, classes: 'bg-' + toast_category + ' text-white'});
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("fail: ", textStatus, errorThrown);
+            });
+        }
+
+        else if (currentId === "songDeleteFav")
+        {
+            let container = $(this).parent().parent();
+            console.log ("I'm here in the else else")
+            console.log(container)
+            var currentSongID = $(this).attr('data-song-id')
+            var songTitle = $(this).attr('data-title')
+            var songArtist = $(this).attr('data-artist')
+
+
+            console.log(currentSongID)
+
+            let js_data = [songTitle, songArtist, currentSongID];
+
+            console.log(js_data)
+            $.ajax({
+                url: '/remove-user-fav-spotify',
+                type: 'post',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(js_data),
+                success: function ( data ){
+                    if ( !$.trim( data.feedback )) { // response from Flask is empty
+                        toast_error_msg = "An empty response was returned.";
+                        toast_category = "danger";
+                    }
+                    else { // response from Flask contains elements
+                        toast_error_msg = data.feedback;
+                        toast_category = data.category;
+                        if( toast_category == 'success' ){
+                            $(container).remove();
+                        }
+                    }
+                },
+                error: function(xhr) {console.log("error. see details below.");
+                    console.log(xhr.status + ": " + xhr.responseText);
+                    toast_error_msg = "An error occured";
+                    toast_category = "danger";
+                },
+            }).done(function(result) {
+                console.log("success: " + JSON.stringify(result));
+
+                M.toast({html: toast_error_msg, classes: 'bg-' + toast_category + ' text-white'});
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("fail: ", textStatus, errorThrown);
+            });
+        }
+
     });
 
     $('#suggestSpotifySongBtn').on('click', function(e){
@@ -112,33 +203,5 @@ $( document ).ready(function() {
         });
     }
 
-    $('#removeSelectedSongs').on('click', function(e){
-        var checkboxes = document.querySelectorAll('[data-track]');
 
-        console.log("suggest Button")
-        var js_data = new Array();
-        for (var i = 0; i < checkboxes.length; i++) {
-            var item = checkboxes[i];
-            if (item.checked) {
-                if (js_data.length < 5) {
-                    js_data.push(item.getAttribute('data-track'));
-                    console.log(item.getAttribute('data-track'));
-                }
-            }
-        }
-
-        console.log(js_data)
-        $.ajax({
-            url: '/remove-user-fav-spotify',
-            type: 'post',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(js_data)
-        }).done(function (result) {
-            console.log("success: " + JSON.stringify(result));
-            //INSERT Toast code here for confirmation
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log("fail: ", textStatus, errorThrown);
-        });
-    }); 
 });
