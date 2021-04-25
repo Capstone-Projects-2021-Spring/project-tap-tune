@@ -1050,20 +1050,17 @@ def search():
     if request.method == 'POST':
         data = json.loads(request.data)
         title = data[0]
-
+        print(title)
         songs = Song.get_by_title(title=title)
+        print(songs)
 
         if(songs != None):
-            """
-            RETURN RESULT TO FRONT END FOR DISPLAY
-            """
-            pass
+            resp = {"category": "success", "data" : songs}
+            return make_response(jsonify(resp), 200)
 
         else:
-            """
-            RETURN THAT THERE WAS NO SONG FOUND
-            """
-            pass
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 @app.context_processor
 def get_current_user():
