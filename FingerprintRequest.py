@@ -388,16 +388,21 @@ class FingerprintRequest:
                 result.set_score(ACRfoundSong.score)
             else:
                 try:
-                    if (lyricSong.title == ''):
-                        result.set_title(hummingFingerprint[0].title)
-                        result.set_artist(hummingFingerprint[0].artists)
-                        result.set_genre(hummingFingerprint[0].genres)
-                        result.set_score(hummingFingerprint[0].score)
-                    else:
+                    if lyricSong.title == '' and songFromLyrics.title != '':
+                        result.set_title(songFromLyrics.title)
+                        result.set_artist(songFromLyrics.artists)
+                        result.set_genre(songFromLyrics.genres)
+                        result.set_score(songFromLyrics.score)
+                    elif lyricSong.title != '' and songFromLyrics.title == '':
                         result.set_title(lyricSong.title)
                         result.set_artist(lyricSong.artists)
                         result.set_genre(lyricSong.genres)
                         result.set_score(lyricSong.score)
+                    else:
+                        result.set_title(hummingFingerprint[0].title)
+                        result.set_artist(hummingFingerprint[0].artists)
+                        result.set_genre(hummingFingerprint[0].genres)
+                        result.set_score(hummingFingerprint[0].score)
                 except:
                     result.set_title('None')
                     result.set_artist('None')
@@ -408,11 +413,10 @@ class FingerprintRequest:
 
 #   TESTING   ##################################################################################################################
 
-
+'''
 obj = FingerprintRequest()
 
-file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\SpinningMonkeys.wav"
-
+file = r"C:\\Users\\2015d\\OneDrive\\Desktop\\.wav files\\untitled.wav"
 
 with sr.AudioFile(file) as source:    # Load the file
     r = sr.Recognizer()
@@ -433,7 +437,7 @@ with sr.AudioFile(file) as source:    # Load the file
     print(lastTest.timeCode)
 
     pass
-
+'''
 '''
 testSong = foundsong()
 testSong.set_artist('Foo Fighters')
