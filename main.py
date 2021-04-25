@@ -48,7 +48,7 @@ def home_page():
     # get logged in user or None
     user = User.current_user()
     # print(request.headers['Host'])
-    # print(session)
+    #print(session)
     return render_template('index.html', user=user)
 
 

@@ -430,7 +430,7 @@ class rhythmAnalysis:
                                                                 sr=22050)
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate,
-                                         "sync_matched_pattern": onset_timetamp[header:tail],
+                                         "matched_pattern": onset_timetamp[header:tail],
                                          "sync_user_input": user_pattern,
                                          "start_time": original_timestamp[header]})
                     max += 1
