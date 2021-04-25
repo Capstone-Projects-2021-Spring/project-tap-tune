@@ -154,7 +154,7 @@ def result_page():
         final_res = final_res[:10]  # truncate array to top 10 results
         spotify_data = spotify_embeds(final_res[0]['song'].title, final_res[0]['song'].artist)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
-        spotifyTimestamp = final_res[0]['matched_pattern'][0]
+        spotifyTimestamp = final_res[0]['start_time']
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
