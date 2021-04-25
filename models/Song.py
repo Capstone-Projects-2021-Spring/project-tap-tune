@@ -1,5 +1,5 @@
 from models.Database import db, get_cursor
-# from database_sep import db, get_cursor
+#from database_sep import db, get_cursor
 """
 Song class models and contains information about a song.
 """
@@ -141,7 +141,6 @@ class Song:
         for id in ids:
             placeholder.append('%s')
         query += '(' + ','.join(placeholder) + ')'
-
         # get songs from database
         return Song.__get_songs(query, ids)
 

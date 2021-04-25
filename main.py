@@ -6,6 +6,7 @@ from models.Source import Source
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
+from yt_sp_autosource_POC import AutoSource
 import lyricsgenius
 import json
 import time
@@ -48,7 +49,7 @@ def home_page():
     # get logged in user or None
     user = User.current_user()
     # print(request.headers['Host'])
-    print(session)
+    #print(session)
     return render_template('index.html', user=user)
 
 
@@ -126,7 +127,7 @@ def result_page():
     objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
-
+    print(filterResults)
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
@@ -142,8 +143,12 @@ def result_page():
     lyrics = ''
     photo = ''
     spotifyTimestamp = ''
-    #spotify_data = ['','','']
-    
+    spotify_data = None
+    print("----------------")
+    # final_res[0]['matched_pattern'] = list(final_res[0]['matched_pattern'])
+    # print(type(final_res[0]))
+    # print(final_res[0]['matched_pattern'])
+    print("----------------")
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
@@ -153,7 +158,6 @@ def result_page():
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
-
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
     r = make_response(render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res, 
@@ -162,6 +166,18 @@ def result_page():
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
 
+def getMelPreview(title, artist):
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                                    client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+    trackURI =''
+    # Parse Tracks in data to find track id
+    searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        trackURI = searchResults["tracks"]['items'][0]["uri"]
+
+        splitURI = trackURI.split(':')
+        print(splitURI)
+        return splitURI[2]
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -172,6 +188,7 @@ def melody_result_page():
     melArtist = ''
     melScore = ''
     photo = ''
+    melURL=''
 
     try:
         recording_filename = session.get('recording')
@@ -210,7 +227,7 @@ def melody_result_page():
             lyrics = get_lyrics(result.title, result.artists)
             #photo  = get_photo(result.title, result.artists)
             # print(lyrics)
-
+            melURL= "https://open.spotify.com/embed/track/"+getMelPreview(result.title, result.artists)
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
@@ -222,7 +239,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList)
+                           score=melScore, melResults=melList, melPreview=melURL)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -525,6 +542,11 @@ def spotify_suggest():
                 msg = "Song suggested by related tracks."
                 data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
+
+                # auto source section
+                obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
+                obj.process_info()
+
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
                 data = "None"
