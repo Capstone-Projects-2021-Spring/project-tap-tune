@@ -360,6 +360,9 @@ class FingerprintRequest:
         else:
             lyricSong = hummingFingerprint[0]
 
+        print("Lyric Song Title: " + lyricSong.title)
+        print("Song from Lyrics Title: " + songFromLyrics.title)
+
 
         if lyricSong.title != '' and songFromLyrics.title != '':
             songCompare = []
@@ -389,16 +392,21 @@ class FingerprintRequest:
                 result.set_score(ACRfoundSong.score)
             else:
                 try:
-                    if (lyricSong.title == ''):
-                        result.set_title(hummingFingerprint[0].title)
-                        result.set_artist(hummingFingerprint[0].artists)
-                        result.set_genre(hummingFingerprint[0].genres)
-                        result.set_score(hummingFingerprint[0].score)
-                    else:
+                    if lyricSong.title == '' and songFromLyrics.title != '':
+                        result.set_title(songFromLyrics.title)
+                        result.set_artist(songFromLyrics.artists)
+                        result.set_genre(songFromLyrics.genres)
+                        result.set_score(songFromLyrics.score)
+                    elif lyricSong.title != '' and songFromLyrics.title == '':
                         result.set_title(lyricSong.title)
                         result.set_artist(lyricSong.artists)
                         result.set_genre(lyricSong.genres)
                         result.set_score(lyricSong.score)
+                    else:
+                        result.set_title(hummingFingerprint[0].title)
+                        result.set_artist(hummingFingerprint[0].artists)
+                        result.set_genre(hummingFingerprint[0].genres)
+                        result.set_score(hummingFingerprint[0].score)
                 except:
                     result.set_title('None')
                     result.set_artist('None')
