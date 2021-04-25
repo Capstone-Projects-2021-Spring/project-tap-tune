@@ -156,24 +156,55 @@ $( document ).ready(function() {
     $('#searchDatabaseButton').on('click', function(e){ 
         var title = document.getElementById("searchTitle").value;
         var artist = document.getElementById("searchArtist").value;
-        var result = document.getElementById("searchResult");
+        var resultParagraph = document.getElementById("searchResult");
+        var resultsLabel = document.getElementById("searchResultLabel");
 
         //AJAX call to /search
         var js_data = [title, artist];
         console.log(js_data)
-        $.ajax({
-            url: '/search',
-            type: 'post',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(js_data)
-        }).done(function (result) {
-            console.log("success: " + result);
-
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log("fail: ", textStatus, errorThrown);
-        });
-
+        if (title || artist) {
+            $.ajax({
+                url: '/search',
+                type: 'post',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(js_data)
+            }).done(function (result) {
+                console.log("success: " +  JSON.stringify(result));
+                console.log(result.data)
+                
+                //Show in Results Section Top Two Results
+                if (result.data.length > 0) {
+                    resultsLabel.innerHTML = "Result " + '<i class="far fa-check-circle" style="color: green"></i>'; 
+                    resultParagraph.innerHTML = '';
+                    
+                    for (var i = 0; i < result.data.length; i ++) {
+                        let song = result.data[i];
+                        //add the song title and release Date
+                        resultParagraph.innerHTML += resultRowHtml(song[0], song[1], song[2]);
+                    }
+                }
+                else {
+                    console.log("Cant find showing on results no found")
+                    resultsLabel.innerHTML = "Result " + '<i class="fas fa-times" style="color: red"></i>'; 
+                    resultParagraph.innerHTML = "No songs by that title and/or artist."
+                } 
+                
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("fail: ", textStatus, errorThrown);
+            });
+        }
     });
+
+    function resultRowHtml(title, artist, releaseDate) {
+        var releaseDateStripped = releaseDate.replace('00:00:00 GMT','');
+        var resultSongBase = `<span>
+                                <span style="font-weight: bold;"> Title - </span>${title}<br>
+                                <span style="font-weight: bold;"> Artist - </span>${artist}<br>
+                                <span style="font-weight: bold;"> Release - </span>${releaseDateStripped}<br>
+                            </span> <br>`;
+        
+        return resultSongBase
+    }
 
 });

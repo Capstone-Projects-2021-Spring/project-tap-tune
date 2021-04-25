@@ -1055,7 +1055,16 @@ def search():
         print(songs)
 
         if(songs != None):
-            resp = {"category": "success", "data" : songs}
+            data = []
+            for song in songs:
+                songItem = []
+                songItem.append(song.title)
+                songItem.append(song.artist)
+                songItem.append(song.release_date)
+
+                data.append(songItem)
+
+            resp = {"category": "success", "data" : data}
             return make_response(jsonify(resp), 200)
 
         else:
