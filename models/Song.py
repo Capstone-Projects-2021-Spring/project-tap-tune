@@ -1,5 +1,5 @@
 from models.Database import db, get_cursor
-# from database_sep import db, get_cursor
+#from database_sep import db, get_cursor
 """
 Song class models and contains information about a song.
 """
@@ -141,7 +141,6 @@ class Song:
         for id in ids:
             placeholder.append('%s')
         query += '(' + ','.join(placeholder) + ')'
-
         # get songs from database
         return Song.__get_songs(query, ids)
 
@@ -160,6 +159,22 @@ class Song:
 
         # get songs from database
         return Song.__get_songs(query, [genre_f])
+
+    """
+    get all songs by title
+    returns None on failure
+    returns array of songs on success (array can be empty)
+    """
+    @staticmethod
+    def get_by_title(title):
+        # format genre for like query
+        title_f = '%' + title + '%'
+
+        # setup query
+        query = Song.BASE_SELECT_QUERY + ' WHERE song.title LIKE %s OR song.title SOUNDS LIKE %s'
+
+        # get songs from database
+        return Song.__get_songs(query, [title_f])
 
     """
     get all songs by artist

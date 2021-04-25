@@ -3,6 +3,7 @@ from models.Database import db
 from models.Mail import mail
 from models.User import User
 from models.Source import Source
+from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
 import lyricsgenius
@@ -47,7 +48,7 @@ def home_page():
     # get logged in user or None
     user = User.current_user()
     # print(request.headers['Host'])
-    print(session)
+    #print(session)
     return render_template('index.html', user=user)
 
 
@@ -100,7 +101,7 @@ def get_lyrics(songtitle, songartist):
     client_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
     genius = lyricsgenius.Genius(client_access_token)
     song = genius.search_song(title=songtitle, artist=songartist)
-    lyrics = ''
+    lyrics = 'Not Found'
     if song:
         lyrics = song.lyrics
     return lyrics
@@ -129,7 +130,7 @@ def result_page():
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
-        userRecordingType = "General Rhythm"
+        userRecordingType = "General"
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
     if objR.input_type == 1 :
         userRecordingType = "Percussion"
@@ -140,20 +141,38 @@ def result_page():
 
     lyrics = ''
     photo = ''
+    spotifyTimestamp = ''
+    
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
+        spotify_data = spotify_embeds(final_res[0]['song'].title, final_res[0]['song'].artist)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
+        spotifyTimestamp = final_res[0]['matched_pattern'][0]
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
 
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    r = make_response(render_template('results.html', user=user, lyrics=lyrics, filterResults=final_res, userTapCount=userTapCount, userRecordingType=userRecordingType))
+    r = make_response(render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res, 
+                                                    userTapCount=userTapCount, userRecordingType=userRecordingType, spotifyTimestamp=spotifyTimestamp,
+                                                    spotify_data=spotify_data))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
 
+def getMelPreview(title, artist):
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                                    client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+    trackURI =''
+    # Parse Tracks in data to find track id
+    searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        trackURI = searchResults["tracks"]['items'][0]["uri"]
+
+        splitURI = trackURI.split(':')
+        print(splitURI)
+        return splitURI[2]
 
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
@@ -164,6 +183,7 @@ def melody_result_page():
     melArtist = ''
     melScore = ''
     photo = ''
+    melURL=''
 
     try:
         recording_filename = session.get('recording')
@@ -202,7 +222,7 @@ def melody_result_page():
             lyrics = get_lyrics(result.title, result.artists)
             #photo  = get_photo(result.title, result.artists)
             # print(lyrics)
-
+            melURL= "https://open.spotify.com/embed/track/"+getMelPreview(result.title, result.artists)
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
@@ -214,7 +234,7 @@ def melody_result_page():
         lyrics = ''
 
     return render_template('melodyResults.html', user=user, artist=melArtist, title=melTitle, lyrics=lyrics,
-                           score=melScore, melResults=melList)
+                           score=melScore, melResults=melList, melPreview=melURL)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -544,10 +564,10 @@ def spotify_track_metadata():
         #Parse Tracks in data to find track id
         lyrics = ''
         searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+        lyrics = get_lyrics(title, artist)
         if searchResults and searchResults["tracks"]["total"] > 0:
             trackLink = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
             trackURI = searchResults["tracks"]['items'][0]["uri"]
-            lyrics = get_lyrics(title, artist)
             trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
 
             resp_data = [trackLink, trackURI, lyrics, trackAlbumImage]
@@ -555,11 +575,30 @@ def spotify_track_metadata():
             category = "success"
         else:
             msg = "Song could not be found in spotify API"
-            resp_data = "None"
+            resp_data = ['', '', lyrics, '']
             category = "danger"
 
         resp = {'feedback': msg, 'category': category, 'data': resp_data}
         return make_response(jsonify(resp), 200) 
+
+def spotify_embeds(title, artist): 
+    spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
+                                                        client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+
+    #Parse Tracks in data to find track id
+    lyrics = ''
+    searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+    resp_data = ['','','https://www.dia.org/sites/default/files/No_Img_Avail.jpg']
+    if searchResults and searchResults["tracks"]["total"] > 0:
+        spotifyHead = "https://open.spotify.com/"
+        spotify = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
+        spotifyTail = spotify[len(spotifyHead):len(spotify)]
+        
+        trackLink = spotifyHead + "embed/" + spotifyTail
+        trackURI = searchResults["tracks"]['items'][0]["uri"]
+        trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
+        resp_data = [trackLink, trackURI, trackAlbumImage]
+    return resp_data
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -916,6 +955,7 @@ def source():
                 csv_writer = csv.writer(write_obj)
                 csv_writer.writerow(row)
 
+
             """EXAMPLE ON READING AND PARSING"""
             # with open('user_uploads.csv') as csv_file:
             #     csv_reader = csv.reader(csv_file, delimiter=',')
@@ -995,6 +1035,25 @@ def source2():
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        title = data[0]
+
+        songs = Song.get_by_title(title=title)
+
+        if(songs != None):
+            """
+            RETURN RESULT TO FRONT END FOR DISPLAY
+            """
+            pass
+
+        else:
+            """
+            RETURN THAT THERE WAS NO SONG FOUND
+            """
+            pass
 
 @app.context_processor
 def get_current_user():
