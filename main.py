@@ -1049,9 +1049,10 @@ def source2():
 def search():
     if request.method == 'POST':
         data = json.loads(request.data)
+        artist = data[1]
         title = data[0]
         print(title)
-        songs = Song.get_by_title(title=title)
+        songs = Song.get_by_title_artist(title=title, artist=artist)
         print(songs)
 
         if(songs != None):
@@ -1063,7 +1064,7 @@ def search():
                 songItem.append(song.release_date)
 
                 data.append(songItem)
-
+            print(data)
             resp = {"category": "success", "data" : data}
             return make_response(jsonify(resp), 200)
 
