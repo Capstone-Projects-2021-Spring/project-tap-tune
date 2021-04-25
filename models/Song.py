@@ -166,15 +166,25 @@ class Song:
     returns array of songs on success (array can be empty)
     """
     @staticmethod
-    def get_by_title(title):
-        # format genre for like query
+    def get_by_title_artist(title, artist):
         title_f = '%' + title + '%'
+        artist_f = '%' + artist + '%'
+        # check if title and artist provided
+        if (title and artist):
+            query = Song.BASE_SELECT_QUERY + ' WHERE (song.title LIKE %s OR song.title SOUNDS LIKE %s) AND (song.artist LIKE %s OR song.artist SOUNDS LIKE %s)'
+            return Song.__get_songs(query, [title_f, title, artist_f, artist])
+        # check if only title i provided
+        elif(title and artist==""):
+            query = Song.BASE_SELECT_QUERY + ' WHERE (song.title LIKE %s OR song.title SOUNDS LIKE %s)'
+            return Song.__get_songs(query, [title_f, title])
+        # check if only artist is provided
+        elif(title=="" and artist):
+            return Song.get_by_artist(artist)
 
-        # setup query
-        query = Song.BASE_SELECT_QUERY + ' WHERE song.title LIKE %s OR song.title SOUNDS LIKE %s'
+        # empty parameters
+        else:
+            return None
 
-        # get songs from database
-        return Song.__get_songs(query, [title_f])
 
     """
     get all songs by artist

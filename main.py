@@ -6,6 +6,7 @@ from models.Source import Source
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
+from yt_sp_autosource_POC import AutoSource
 import lyricsgenius
 import json
 import time
@@ -130,7 +131,7 @@ def result_page():
     objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
-
+    print(filterResults)
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
@@ -146,17 +147,21 @@ def result_page():
     lyrics = ''
     photo = ''
     spotifyTimestamp = ''
-
+    spotify_data = None
+    print("----------------")
+    # final_res[0]['matched_pattern'] = list(final_res[0]['matched_pattern'])
+    # print(type(final_res[0]))
+    # print(final_res[0]['matched_pattern'])
+    print("----------------")
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
         spotify_data = spotify_embeds(final_res[0]['song'].title, final_res[0]['song'].artist)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
-        spotifyTimestamp = final_res[0]['matched_pattern'][0]
-        # photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
+        spotifyTimestamp = final_res[0]['start_time']
+        #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
-
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
     r = make_response(
@@ -568,6 +573,11 @@ def spotify_suggest():
                 msg = "Song suggested by related tracks."
                 data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
+
+                # auto source section
+                obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
+                obj.process_info()
+
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
                 data = "None"
@@ -1074,21 +1084,27 @@ def source2():
 def search():
     if request.method == 'POST':
         data = json.loads(request.data)
+        artist = data[1]
         title = data[0]
+        print(title)
+        songs = Song.get_by_title_artist(title=title, artist=artist)
+        print(songs)
 
-        songs = Song.get_by_title(title=title)
+        if(songs != None):
+            data = []
+            for song in songs:
+                songItem = []
+                songItem.append(song.title)
+                songItem.append(song.artist)
+                songItem.append(song.release_date)
 
-        if (songs != None):
-            """
-            RETURN RESULT TO FRONT END FOR DISPLAY
-            """
-            pass
-
+                data.append(songItem)
+            print(data)
+            resp = {"category": "success", "data" : data}
+            return make_response(jsonify(resp), 200)
         else:
-            """
-            RETURN THAT THERE WAS NO SONG FOUND
-            """
-            pass
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
 
 
 @app.context_processor

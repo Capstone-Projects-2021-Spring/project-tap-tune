@@ -76,9 +76,10 @@ $( document ).ready(function() {
     }, 700);
 
     //Update the timestamp [[TODO Update the Spotify URI, Album Photo, iframeEmbed]]
-    var timestamp = getTimeStampAndFormat(currentSongPattern);
-    selectedResultSpotifyTimeStamp.innerHTML = timestamp;
-    selectedResultSpotifyTrackURI =  document.getElementById("spotifyURI").getAttribute('data-spotify-URI') + '#' + timestamp;
+    console.log("Timestamp" + currentRow.attr('data-song-timestamp'));
+    currentTimeStamp = getTimeStampAndFormat(currentRow.attr('data-song-timestamp'));
+    selectedResultSpotifyTimeStamp.innerHTML = currentTimeStamp;
+    selectedResultSpotifyTrackURI =  document.getElementById("spotifyURI").getAttribute('data-spotify-URI') + '#' + currentTimeStamp;
 
     
     //Listening for Table Row Selection
@@ -122,17 +123,17 @@ $( document ).ready(function() {
             selectedResultTapCount.innerHTML        = currentSongPattern.length;
 
             //Set the spotify uri with timestamp link
-            currentTimeStamp = getTimeStampAndFormat(currentSongPattern)
+            console.log("Timestamp" + currentRow.attr('data-song-timestamp'));
+            currentTimeStamp = getTimeStampAndFormat(currentRow.attr('data-song-timestamp'));
             selectedResultSpotifyTimeStamp.innerHTML = currentTimeStamp;
          
             //Set the Embed Link for iframe
             var spotifyUrlHead = "https://open.spotify.com";
             var spotifyUrlTail =  result.data[0].substring(spotifyUrlHead.length)
-            console.log(spotifyUrlHead + "/embed" + spotifyUrlTail);
             selectedResultSpotifyEmbed.src  = spotifyUrlHead + "/embed" + spotifyUrlTail;
 
             //Set the TrackURI, Lyrics, Album Image Src
-            selectedResultSpotifyTrackURI = result.data[1] + "#" + currentTimeStamp
+            selectedResultSpotifyTrackURI = result.data[1] + "#" + currentTimeStamp;
 
             var lyrics = result.data[2];
             lyrics = lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
@@ -181,7 +182,6 @@ $( document ).ready(function() {
         //Stop the recording after the last beat taps
         var millisecondsTime = (currentSongPattern[currentSongPattern.length-1]) * 1000 + 700;
         setTimeout(() => {
-            console.log("ending");
             bars.push(29);
             bars.push(29);
             if (bars.length <= Math.floor(width / (barWidth + barGutter))) {
@@ -199,7 +199,7 @@ $( document ).ready(function() {
     /************************************************************************/
     function getTimeStampAndFormat(pattern){
         //Return the first timestamp and format it in mm:ss
-        var timestamp = parseInt(pattern[0])
+        var timestamp = parseInt(pattern)
         var minutes = Math.floor(timestamp / 60);
         var seconds = parseInt(timestamp % 60);
         if (minutes < 10) {minutes = "0"+minutes;}
@@ -211,12 +211,10 @@ $( document ).ready(function() {
 
         var newArray = new Array();
         var dif = pattern[0];
-        console.log("dif =  "+ dif)
         for(var i = 0; i < pattern.length; i++){
             var num = pattern[i] - dif + 1; //add 1 second for start playback
             newArray[i] = parseFloat(num.toFixed(3));
         }//end of for
-        console.log("ADJUSTED ARRAY : " + newArray)
         return newArray;
     }//end of returnTimes
 
