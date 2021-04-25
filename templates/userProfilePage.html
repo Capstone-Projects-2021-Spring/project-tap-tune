@@ -7,49 +7,48 @@
     </style>
 {% endblock %}
 
-<link rel="stylesheet" id="static/styles/historyPagination.css">
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="static/styles/userProfilePageStyle.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 {% block content %}
-<div class="container emp-profile pr-0">
-    <form method="post">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="profile-head">
-                    <h1 style="color: #1abc9c;">
-                        {{phrases[rand]}}
-                    </h1>
-                    <h2>
-                         {{user.username}}
-                    </h2>
+    <div class="container emp-profile pr-0">
+        <form method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="profile-head">
+                        <h1 style="color: #1abc9c;">
+                            {{phrases[rand]}}
+                        </h1>
+                        <h2>
+                            {{user.username}}
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="profile-head">
+                        <h5>
+                            {{user.username}}
+                        </h5>
+                        <h6>
+                            Music lover
+                        </h6>
+                        {#                    <p class="proile-rating">RANKINGS : <span>8/10</span></p>#}
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorites</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="profile-head">
-                    <h5>
-                        {{user.username}}
-                    </h5>
-                    <h6>
-                        Music lover
-                    </h6>
-{#                    <p class="proile-rating">RANKINGS : <span>8/10</span></p>#}
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorites</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
             <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
                     <!-- User Profile Tab -->
@@ -82,42 +81,47 @@
                     </div>
                     <!-- User History Tab -->
                     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                            <div class="row">
-                                <div class="col">
-                                    <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>
+                        <div class="row">
+                            <div class="col">
+                                <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>
+                                <div class="col border-left">
+                                    <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
+                                    <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
+                                    <br>
+                                    <br>
+                                    {#                                    <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>#}
+                                </div>
+                                <div id="pageContainer">
                                     <ul class="timeline">
-                                        {%for song_result in user_song_log%}
-                                        <li>
-                                            <a id="songLogTitle{{loop.index}}" href="#">{{song_result['song'].title}}</a>
-                                            <a href="#" class="float-right">{{(song_result['percent_match']*100)|round(2)}}% | {{song_result['result_date'].strftime('%x')}}</a>
-                                            <p>
-                                                <span id="songLogArtist{{loop.index}}">
-                                                    Artist: {{song_result['song'].artist}}
+                                        {% for song_result in user_song_log %}
+                                            <div class="row" data-track="{{ song_result['song'].title }}" id="songRow">
+                                                <li>
+                                                    <a id="songLogTitle{{ loop.index }}" href="#">{{ song_result['song'].title }}</a>
+                                                    <a href="#"
+                                                       class="float-right">{{ (song_result['percent_match']*100)|round(2) }}% | {{ song_result['result_date'].strftime('%x') }}</a>
+                                                    <p>
+                                                <span id="songLogArtist{{ loop.index }}">
+                                                    Artist: {{ song_result['song'].artist }}
                                                 </span>
-                                                <br>
-                                                Genre: {{song_result['song'].genre}}
-                                            </p>
-                                            <p>
-                                                {%if not song_result['song'].is_favorite() %}
-                                                    {%if user.is_spotify_login() %}
-                                                        Add to Spotify
-                                                    {%endif%}
-                                                    <a id="songLogLink" data-index="{{loop.index}}" data-song-id="{{song_result['song'].id}}" href="#"> <i id="songLogIcon{{loop.index}}" class="far fa-heart fa-lg"></i> </a>
-                                                {%endif%}
-                                            </p>
-                                        </li>
-                                        {%endfor%}
-                                        <div class="center">
-                                            <div class="pagination">
-                                                <div id="listingTable"></div>
-                                                <a href="javascript:prevPage()" id="btn_prev">Prev</a>
-                                                <a href="javascript:nextPage()" id="btn_next">Next</a>
-                                                page: <span id="page"></span>
+                                                        <br>
+                                                        Genre: {{ song_result['song'].genre }}
+                                                    </p>
+                                                    <p>
+                                                        {% if not song_result['song'].is_favorite() %}
+                                                            {% if user.is_spotify_login() %}
+                                                                Add to Spotify
+                                                            {% endif %}
+                                                            <a id="songLogLink" data-index="{{ loop.index }}" data-song-id="{{ song_result['song'].id }}" href="#">
+                                                                <i id="songLogIcon{{ loop.index }}" class="far fa-heart fa-lg"></i> </a>
+                                                        {% endif %}
+                                                    </p>
+                                                </li>
                                             </div>
-                                        </div>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                             </div>
+                        </div>
                     </div>
                     <!-- Favorites/SongSuggestion Tab-->
                     <div class="tab-pane fade" id="favorites" role="tabpanel" aria-labelledby="favorites-tab">
@@ -146,9 +150,9 @@
                                                 <!--Attributes Header-->
                                                 <div class="container d-flex align-items-center flex-column">
                                                     <h5 class="masthead-subheading text-uppercase font-weight-heavy pt-4 pb-0">Spotify Attributes %</h4>
-                                                    <div class="divider-custom3 pt-1 pb-1">
-                                                        <div class="divider-custom3-line"></div>
-                                                    </div>
+                                                        <div class="divider-custom3 pt-1 pb-1">
+                                                            <div class="divider-custom3-line"></div>
+                                                        </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-sm-6 text-center pt-1 pl-1 pr-0">
@@ -219,48 +223,52 @@
                                     <div class="divider-custom2-line"></div>
                                 </div>
                                 <div class="col border-left">
-                                        <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
-                                        <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
-                                        <br>
-                                        <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
+                                    <button id="prevPageListTwo" type="button" class="btn btn-secondary">Prev Page</button>
+                                    <button id="nextPageListTwo" type="button" class="btn btn-secondary">Next Page</button>
+                                    <br>
+                                    <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
                                 </div>
-                                <ul class="timeline">
-                                    {%for song in user_fav_songs%}
-                                    <div class="row">
-                                        <div class="col-xs-1">
-                                            <br>
-                                            {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" data-song-id="song.id" name="scales" class="mt-2"
-                                            checked>
-                                            {%else%}
-                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2"
-                                            unchecked>
-                                            {%endif%}
-                                        </div>
-                                        <div class="col">
-                                            <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
-                                            <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
-                                            <p>
+                                <div id="pageContainerTwo">
+                                    <ul class="timeline">
+                                        {%for song in user_fav_songs%}
+                                            <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
+                                                <div class="col-xs-1">
+                                                    <br>
+                                                    {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
+                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" data-song-id="song.id" name="scales" class="mt-2"
+                                                               checked>
+                                                    {%else%}
+                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2"
+                                                               unchecked>
+                                                    {%endif%}
+                                                </div>
+                                                <div class="col">
+                                                    <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
+                                                    <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
+                                                    <p>
                                                 <span id="songFavoritedTitle{{loop.index}}">
                                                     Artist: {{song.artist}}
                                                 </span><br>
-                                                Genre: {{song.genre}}
-                                            </p>    
-                                        </div>
-                                    </div>
-                                    {%endfor%}
-                                </ul>
+                                                        Genre: {{song.genre}}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        {%endfor%}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
+
+
 {% endblock %}
 
 {% block js %}
     {{super()}}
     <script src="{{ url_for('static', filename='userProfileTabs.js') }}?t={{uuid}}"></script>
+    <script src="{{ url_for('static', filename='historyPagination.js') }}?t={{uuid}}"></script>
 {% endblock %}
