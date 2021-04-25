@@ -143,7 +143,11 @@ def result_page():
     lyrics = ''
     photo = ''
     spotifyTimestamp = ''
-    
+    print("----------------")
+    # final_res[0]['matched_pattern'] = list(final_res[0]['matched_pattern'])
+    print(type(final_res[0]))
+    # print(final_res[0]['matched_pattern'])
+    print("----------------")
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
