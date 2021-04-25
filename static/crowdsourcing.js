@@ -162,7 +162,11 @@ $( document ).ready(function() {
         //AJAX call to /search
         var js_data = [title, artist];
         console.log(js_data)
-        if (title || artist) {
+        if (title == '' && artist == '') {
+            resultsLabel.innerHTML = "Result " + `<i class="fas fa-exclamation-triangle" style="color: orange"></i>`;
+            resultParagraph.innerHTML = 'Provide title or artist before searching.';
+        }
+        else {
             $.ajax({
                 url: '/search',
                 type: 'post',
