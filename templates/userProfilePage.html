@@ -100,9 +100,9 @@
                                                     <a href="#"
                                                        class="float-right">{{ (song_result['percent_match']*100)|round(2) }}% | {{ song_result['result_date'].strftime('%x') }}</a>
                                                     <p>
-                                                <span id="songLogArtist{{ loop.index }}">
-                                                    Artist: {{ song_result['song'].artist }}
-                                                </span>
+                                                        <span id="songLogArtist{{ loop.index }}">
+                                                            Artist: {{ song_result['song'].artist }}
+                                                        </span>
                                                         <br>
                                                         Genre: {{ song_result['song'].genre }}
                                                     </p>
@@ -112,8 +112,12 @@
                                                                 Add to Spotify
                                                             {% endif %}
                                                             <a id="songLogLink" data-index="{{ loop.index }}" data-song-id="{{ song_result['song'].id }}" href="#">
-                                                                <i id="songLogIcon{{ loop.index }}" class="far fa-heart fa-lg"></i> </a>
+                                                                <i id="songLogIcon{{ loop.index }}" class="fa fa-heart fa-lg"></i>
+                                                            </a>
                                                         {% endif %}
+                                                        <a id="songDeleteLink" data-index="{{ loop.index }}" data-song-id="{{ song_result['song'].id }}" href="#" style="color: black">
+                                                            <i id="songDeleteIcon" class="fa fa-trash fa-lg"></i>
+                                                        </a>
                                                     </p>
                                                 </li>
                                             </div>
@@ -233,24 +237,21 @@
                                         {%for song in user_fav_songs%}
                                             <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
                                                 <div class="col-xs-1">
-                                                    <br>
-                                                    {%if loop.index == 1 or loop.index == 2 or loop.index == 3 or loop.index == 4 or loop.index == 5%}
-                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" data-song-id="song.id" name="scales" class="mt-2"
-                                                               checked>
-                                                    {%else%}
-                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2"
+                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
                                                                unchecked>
-                                                    {%endif%}
                                                 </div>
-                                                <div class="col">
+                                                <div class="col pt-0 mt-0">
                                                     <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
                                                     <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
                                                     <p>
-                                                <span id="songFavoritedTitle{{loop.index}}">
-                                                    Artist: {{song.artist}}
-                                                </span><br>
+                                                        <span id="songFavoritedTitle{{loop.index}}">
+                                                            Artist: {{song.artist}}
+                                                        </span><br>
                                                         Genre: {{song.genre}}
                                                     </p>
+                                                    <a id="songDeleteFav" data-title="{{song.title}}" data-artist="{{song.artist}}" data-song-id="{{ song.id }}" href="#" style="color: black">
+                                                        <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         {%endfor%}

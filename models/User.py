@@ -11,6 +11,8 @@ import secrets
 User class models and contains information about a user.
 Including their identifying information and their login information.
 """
+
+
 class User:
     UNKNOWN_ERROR = 'generic error'
 
@@ -50,6 +52,7 @@ class User:
         //check for user error code 
         user == User.DUPLICATE_EMAIL_ERROR
     """
+
     @staticmethod
     def signup(username, email, name, password):
         try:
@@ -81,6 +84,7 @@ class User:
     Returns a User instance with the user’s info if successful, 
     return null on failure.
     """
+
     @staticmethod
     def login(email, password, spotify=False):
         user = None
@@ -111,6 +115,7 @@ class User:
     """
     helper method for login through spotify
     """
+
     @staticmethod
     def spotify_login(email):
         return User.login(email, None, True)
@@ -118,6 +123,7 @@ class User:
     """
     check if user logged in
     """
+
     @staticmethod
     def is_logged_in():
         return session.get('user_id')
@@ -125,6 +131,7 @@ class User:
     """
     check if user has spotify authorization
     """
+
     @staticmethod
     def is_spotify_login():
         return SpotifyHandler.is_authorized()
@@ -132,6 +139,7 @@ class User:
     """
     get logged in user
     """
+
     @staticmethod
     def current_user():
         if User.is_logged_in():
@@ -151,6 +159,7 @@ class User:
     Destroys any session info and logs user out. 
     Returns void.
     """
+
     @staticmethod
     def logout():
         # remove user from session
@@ -168,6 +177,7 @@ class User:
     which can be used to reset the user’s password . 
     Returns true on success and false on email send failure.
     """
+
     @staticmethod
     def send_reset_password_email(email):
         # check if user is valid
@@ -204,6 +214,7 @@ class User:
     """
     generate secure token that is url safe
     """
+
     @staticmethod
     def __generate_reset_token():
         return secrets.token_urlsafe(32)
@@ -211,6 +222,7 @@ class User:
     """
     add reset token to database
     """
+
     @staticmethod
     def __set_reset_token(user_id, reset_token):
         try:
@@ -232,6 +244,7 @@ class User:
     Used to check that the given reset_token is valid. 
     Checks the database to see if there is a matching reset_token found.
     """
+
     @staticmethod
     def is_valid_reset_token(reset_token):
         try:
@@ -254,6 +267,7 @@ class User:
     This method also deletes the reset_token from the database. 
     Return true on success and false on failure.
     """
+
     @staticmethod
     def reset_password(password, reset_token):
         try:
@@ -280,6 +294,7 @@ class User:
     The array can be empty.
     Returns None on failure
     """
+
     def get_song_log(self):
         song_log = []
         try:
@@ -296,7 +311,7 @@ class User:
             for song_data in results:
                 song = Song.create(song_data)
                 song_log.append({"song": song, "percent_match": song_data['percent_match']
-                                , "result_date": song_data['result_date']})
+                                    , "result_date": song_data['result_date']})
         except Exception as e:
             print(e)
             return None
@@ -308,6 +323,7 @@ class User:
     db store: user_id, song_id, percent_match [Decimal(5,4) -> d.dddd]
     Returns True on success and False on failure
     """
+
     def add_song_log(self, song_results):
         try:
             cursor = get_cursor()
@@ -328,6 +344,7 @@ class User:
     The array can be empty.
     Returns None on failure
     """
+
     def get_favorite_songs(self):
         songs = []
         try:
@@ -350,6 +367,7 @@ class User:
     returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
     true on success
     """
+
     def add_favorite_song(self, song_id):
         try:
             cursor = get_cursor()
@@ -367,15 +385,16 @@ class User:
         return True
 
     """
-    adds song to user_favorite_song table
-    returns error on failure - DUPLICATE_FAVORITE_SONG_ERROR
+    deletes song to user_favorite_song table
+    returns error on failure
     true on success
     """
+
     def delete_favorite_song(self, song_id):
         try:
+            print("In delete section")
             cursor = get_cursor()
-            cursor.execute('DELETE FROM user_favorite_song (user_id, song_id) VALUES (%s,%s)',
-                           (self.id, song_id))
+            cursor.execute('DELETE FROM user_favorite_song WHERE (user_id, song_id) = (%s,%s)', (self.id, song_id))
 
             db.connection.commit()
         except Exception as e:
@@ -384,6 +403,29 @@ class User:
             # mysql error code for duplicate entry
             if e.args[0] == 1062:
                 if 'user_song' in e.args[1]:
-                    error = User.DUPLICATE_FAVORITE_SONG_ERROR
+                    error = "Song Not found"
+            return error
+        return True
+
+    """
+    deletes song to user_favorite_song table
+    returns error on failure
+    true on success
+    """
+
+    def delete_history_song(self, song_id):
+        try:
+            print("In delete history section")
+            cursor = get_cursor()
+            cursor.execute('DELETE FROM user_song_log WHERE (user_id, song_id) = (%s,%s)', (self.id, song_id))
+
+            db.connection.commit()
+        except Exception as e:
+            print(e)
+            error = User.UNKNOWN_ERROR
+            # mysql error code for duplicate entry
+            if e.args[0] == 1062:
+                if 'user_song' in e.args[1]:
+                    error = "Song Not found"
             return error
         return True
