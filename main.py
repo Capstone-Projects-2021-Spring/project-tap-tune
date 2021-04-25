@@ -127,7 +127,7 @@ def result_page():
     objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
-
+    print(filterResults)
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
@@ -143,9 +143,10 @@ def result_page():
     lyrics = ''
     photo = ''
     spotifyTimestamp = ''
+    spotify_data = None
     print("----------------")
     # final_res[0]['matched_pattern'] = list(final_res[0]['matched_pattern'])
-    print(type(final_res[0]))
+    # print(type(final_res[0]))
     # print(final_res[0]['matched_pattern'])
     print("----------------")
     if final_res and len(final_res) > 0:
@@ -157,7 +158,6 @@ def result_page():
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
-
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
     r = make_response(render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res, 

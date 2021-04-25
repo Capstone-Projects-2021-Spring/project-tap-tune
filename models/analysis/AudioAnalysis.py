@@ -372,7 +372,6 @@ class rhythmAnalysis:
     def onset_peak_func(self):
         # print('array dimension:', self.numOfAry)
         song_results = []
-        db_results = []
         if self.filter_results != None and len(self.filter_results) > 0:
             filter_ids = []
             for track in self.filter_results:
@@ -437,6 +436,7 @@ class rhythmAnalysis:
             index += 1
 
         if len(song_results) < 1:
+            """CHECK FILTER RESULTS AND GET BACK TO YOU"""
             return None
         else:
             return song_results
