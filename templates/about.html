@@ -8,9 +8,9 @@
       </div>
     </div>
 </section>
-<div class="modal-body text-center">
+<div class="modal-body text-center pb-2">
     <div class="container">
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pb-2 pt-2 border border-info">
             <div class="col-lg-8">
                 <!-- Portfolio Modal - Title-->
                 <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal1Label">Rhythm Recording</h2>
@@ -19,7 +19,14 @@
                 <div class="divider-custom-line"></div>
                 </div>
                 <!-- Portfolio Modal - Description-->
-                <p class="text-muted text-left"> TapTune's <span style="color: #65baff; font-weight: bold;">Rhythm Recording </span>feature takes your input of beats to a song's rhythm and any filters that you can remember to describe the song.  It will then use a search algorithm after analyzing your input values to find the song that you are thinking of and display what we found.</p>
+                <h3 class="mb-1 text-secondary text-uppercase text-left">How It Works</h3>
+                <p class="text-left">
+                    Tap Tune’s <span style="color: #65baff; font-weight: bold;">Rhythm Recording </span> takes the User’s input and synchronizes it to a standard tempo of 60bpm. 
+                    <br>
+                    This rhythm pattern is compared to a song’s rhythm analysis, also synchronized to 60bpm, to find a set of beats in the song that match the users input based on timing.
+                    A song has four different kinds of analysis data stored for it: onset, peak, percussion, and harmonics. 
+                    Based on how many matched beats are found and the error range of each match, the program makes a decision if the song contains a matching rhythmic pattern.
+                </p>
                 <!-- Portfolio Modal - Text-->
                 <h3 class="mb-1 text-secondary text-uppercase text-left">Instructions</h3>
                 <ol class="text-left" type="1">
@@ -27,13 +34,15 @@
                 <li>When you are ready, start tapping anywhere on the screen to record the rhythm of the song you are thinking of.</li>
                 <li>If you feel as if you messed up on the input, feel free to reset the recording with the reset button.</li>
                 <li>Once you tapped around 8-20 beats, click "Stop" </li>
-                <li>[TODO] Listen back to the rhythm that you recorded and if you think it's accurate, "Submit" your recording.</li>
+                <li>Listen back to the rhythm that you recorded and if you think it's accurate, "Submit" your recording.</li>
                 <li>Input any filters that you think would help with our search.</li>
                 <li>Wait for the website to find your song and you should find our top main result based on your input recording and filters.</li>
                 </ol> 
-                <button class="btn btn-third" data-dismiss="modal" onclick="goToRhythm()">
-                    Start Recording
-                </button>
+                <div class = "pt-3 pb-3">
+                    <button class="btn btn-third" data-dismiss="modal" onclick="goToRhythm()">
+                        Start Recording
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -41,7 +50,7 @@
 <!-- Instruction Modal 2-->
 <div class="modal-body text-center">
     <div class="container">
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pb-2 pt-2 border border-primary">
             <div class="col-lg-8">
                 <!-- Portfolio Modal - Title-->
                 <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0" id="portfolioModal2Label">Melody Recording</h2>
@@ -50,7 +59,14 @@
                     <div class="divider-custom-line"></div>
                 </div>
                 <!-- Portfolio Modal - Description-->
-                <p class="text-muted text-left"> TapTune's <span style="color: #ff9292; font-weight: bold;">Melody Recording </span>feature takes your singing/humming of a song you can remember.  It will then use a search algorithm after analyzing your input values to find the song that you are thinking of and display what we found.</p>
+                <h3 class="mb-1 text-secondary text-uppercase text-left">How It Works</h3>
+                <p class="text-left">
+                    TapTune's <span style="color: #ff9292; font-weight: bold;">Melody Recording </span>feature uses multiple audio/song fingerprinting services
+                    to find the Users song based on a recording of them humming, singing, or recording a live source. 
+                    <br>
+                    To ensure further accuracy , Tap Tune uses Speech Recognition to record the lyrics sung by a user, a search is then made to find songs using the recognized lyrics. 
+                    The resulting songs found by the lyric recognition are then compared to the resulting song list from the fingerprinting services for more accurate results.
+                </p>                
                 <!-- Portfolio Modal - Text-->
                 <h3 class="mb-1 text-secondary text-uppercase text-left">Instructions</h3>
                 <ol class="text-left" type="1">
@@ -58,16 +74,19 @@
                     <li>When you are ready, start singing and humming to the song you're thinking of</li>
                     <li>If you feel as if you messed up on the input, feel free to reset the recording with the reset button.</li>
                     <li>Once you sing or hum at least 10 seconds, click "Stop" </li>
-                    <li>[TODO] Listen back to your singing/humming that you recorded and if you think it's accurate, "Submit" your recording.</li>
+                    <li>Listen back to your singing/humming that you recorded and if you think it's accurate, "Submit" your recording.</li>
                     <li>Wait for the website to find your song and you should find our top main result based on your input recording.</li>
                 </ol> 
-                <button class="btn btn-primary" data-dismiss="modal" onclick="goToMelody()">
-                    Start Recording
-                </button>
+                <div class="pt-3 pb-3">
+                    <button class="btn btn-primary" data-dismiss="modal" onclick="goToMelody()">
+                        Start Recording
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 {% endblock %}
 

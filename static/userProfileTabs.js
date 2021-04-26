@@ -100,14 +100,9 @@ $( document ).ready(function() {
         else if (currentId === "songDeleteFav")
         {
             let container = $(this).parent().parent();
-            console.log ("I'm here in the else else")
-            console.log(container)
             var currentSongID = $(this).attr('data-song-id')
             var songTitle = $(this).attr('data-title')
             var songArtist = $(this).attr('data-artist')
-
-
-            console.log(currentSongID)
 
             let js_data = [songTitle, songArtist, currentSongID];
 
