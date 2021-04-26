@@ -575,10 +575,6 @@ def spotify_suggest():
                 data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
 
-                # auto source section
-                obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
-                obj.process_info()
-
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
                 data = "None"
@@ -592,6 +588,22 @@ def spotify_suggest():
         resp = {'feedback': msg, 'category': category, 'data': data}
         return make_response(jsonify(resp), 200)
 
+@app.route('/spotify-source', methods=['GET', 'POST'])
+def spotify_source():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        recommendedTitle = data[0]
+        recommendedArtist = data[1]
+        obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
+        obj.process_info()
+
+        if obj :
+            resp = {'feedback': "Success"}
+            print("failed to AutoSource from spotify recommendedTitle and artist")
+            return make_response(jsonify(resp), 200)
+        else :
+            resp = {'feedback': "failure"}
+            return make_response(jsonify(resp), 200)
 
 @app.route('/spotify-track-metadata', methods=['GET', 'POST'])
 def spotify_track_metadata():

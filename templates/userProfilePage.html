@@ -201,9 +201,27 @@
                                     <br>
                                 </div>
                                 <div id="pageContainerTwo">
-                                    <ul class="timeline">
                                         {%for song in user_fav_songs%}
                                             <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
+<<<<<<< HEAD
+                                                <div class="col-xs-1">
+                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-4 pt-3"
+                                                               unchecked>
+                                                </div>
+                                                <div class="col pt-0 mt-0">
+                                                    <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
+                                                    <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
+                                                    <p>
+                                                        <span id="songFavoritedTitle{{loop.index}}">
+                                                            Artist: {{song.artist}}
+                                                        </span><br>
+                                                        Genre: {{song.genre}}
+                                                    </p>
+                                                    <a id="songDeleteFav" data-title="{{song.title}}" data-artist="{{song.artist}}" data-song-id="{{ song.id }}" href="#" style="color: black">
+                                                        <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
+                                                    </a>
+                                                </div>
+=======
                                                 <li>
                                                     <div class="col-xs-1">
                                                             <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
@@ -223,9 +241,9 @@
                                                         </a>
                                                     </div>
                                                 </li>
+>>>>>>> b994b1571497a6b9f629b8511ec208945106c2c8
                                             </div>
                                         {%endfor%}
-                                    </ul>
                                 </div>
                             </div>
                         </div>

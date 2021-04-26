@@ -190,13 +190,35 @@ $( document ).ready(function() {
         }).done(function (result) {
             console.log("success: " + JSON.stringify(result));
             console.log(result.data);
-            //suggestedTitle.innerText = result.data[0];
-            //suggestedArtist.innerText = result.data[1];
-            //suggestedImage.src = result.data[2]['url'];
-            var spotifyUrlHead = "https://open.spotify.com";
-            var spotifyUrlTail =  result.data[3].substring(spotifyUrlHead.length)
-            console.log(spotifyUrlHead + "/embed" + spotifyUrlTail);
-            suggestedImageLink.src = spotifyUrlHead + "/embed" + spotifyUrlTail;
+            if (result.category == "success") {
+                //Update the Embed Src
+                var spotifyUrlHead = "https://open.spotify.com";
+                var spotifyUrlTail =  result.data[3].substring(spotifyUrlHead.length)
+                console.log(spotifyUrlHead + "/embed" + spotifyUrlTail);
+                suggestedImageLink.src = spotifyUrlHead + "/embed" + spotifyUrlTail;
+
+                //Upon success of the spotify embed suggestion, use recommended title and artist to auto-source to database
+                console.log("Now sourcing... ")
+                var source_js_data = new Array();
+                source_js_data.push(result.data[0]);
+                source_js_data.push(result.data[1]);
+                $.ajax({
+                    url: '/spotify-source',
+                    type: 'post',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(source_js_data)
+                }).done(function (response) {
+                    console.log("success: " + JSON.stringify(response));
+                    console.log("Finished sourcing.")
+                    //suggestedImageLink.contentWindow.location.reload(true);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log("fail: ", textStatus, errorThrown);
+                });
+            }
+            else {
+                console.log("Failed to get spotify Embed suggestion");
+            }
             //suggestedImageLink.contentWindow.location.reload(true);
         }).fail(function (jqXHR, textStatus, errorThrown) {
             console.log("fail: ", textStatus, errorThrown);
