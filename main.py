@@ -995,10 +995,10 @@ def source():
             #     for row in csv_reader:
             #         print(row)
 
-            resp = {"category": "success"}
+            resp = {"category": "success", "feedback": "Song analyzed and added to DB"}
             return make_response(jsonify(resp), 200)
         else:
-            resp = {"category": "failure"}
+            resp = {"category": "danger", "feedback": "Failed to analyze song"}
             return make_response(jsonify(resp), 200)
 
 
