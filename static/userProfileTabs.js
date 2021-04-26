@@ -13,7 +13,7 @@ $( document ).ready(function() {
             let currentArtist = document.getElementById("songLogArtist" + idIndex).innerText;
             let currentIcon = document.getElementById("songLogIcon" + idIndex)
             let songId = $(this).attr('data-song-id')
-            let container = $(this).parent();
+            let container = $(this);
 
             currentArtist = currentArtist.replace("Artist: ", "");
 

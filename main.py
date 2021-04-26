@@ -840,7 +840,7 @@ def rhythmPost():
         out = receiveRhythm()
         # return time interval with first element dropped
         session['user_result'] = json.loads(request.data)
-        print(session['user_result'])
+        #print(session['user_result'])
         return out
 
 @app.route('/multiplier', methods=['GET', 'POST'])

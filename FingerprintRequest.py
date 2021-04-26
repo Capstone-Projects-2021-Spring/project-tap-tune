@@ -55,7 +55,7 @@ class FingerprintRequest:
 
         self.data = {
             'return': 'apple_music,spotify',
-            'api_token': '5e3d89525fdf63a5f5ef79f3ae87db68'
+            'api_token': '123d100f5598abb8d3106febe50590c1'
         }
         self.lyric_access_token = "d7CUcPuyu-j9vUriI8yeTmp4PojoZqTp2iudYTf1jUtPHGLW352rDAKAjDmGUvEN"
 
