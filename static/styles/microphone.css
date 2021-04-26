@@ -76,12 +76,16 @@ canvas {
 
 .audio-controls button {
   position: relative;
+  left: 100px;
 }
 .audio-controls audio {
 
-    position: absolute;
-    top: 390px;
-    transform: scale(1, 1);
+    position: relative;
+    /*top: 390px; */
+    top: 90px;
+    right: 250px;
+    margin-right: -150px;
+    /*transform: scale(1, 1);*/
 
 }
 

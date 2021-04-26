@@ -22,6 +22,7 @@
         <label for="inputArtist">Artist</label>
         <input type="text" class="form-control" id="inputArtist" name="input_artist" placeholder="Enter Artist...">
       </div>
+      <div id="rLoader"></div>
       <div class="form-group">
         <label for="inputSelectGenre">Main Genre</label>
         <select class="form-control" id="inputGenre" name="input_genre">
@@ -50,7 +51,7 @@
         <label for="inputLyrics">Lyrics</label>
         <textarea class="form-control" id="inputLyrics" name="input_lyrics" rows="6"></textarea>
       </div>
-      <button type="submit" class="btn btn-lg btn-primary">Submit</button>
+      <button type="submit" class="btn btn-lg btn-primary" onclick="document.querySelector('#rLoader').style.visibility = 'visible';">Submit</button>
     </form>
   </div>
 </div>
