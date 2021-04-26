@@ -235,8 +235,16 @@ def melody_result_page():
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
             # photo  = get_photo(result.title, result.artists)
-            # print(lyrics)
-            melURL = "https://open.spotify.com/embed/track/" + getMelPreview(result.title, result.artists)
+            #print(lyrics)
+
+            getPreview = str(getMelPreview(result.title, result.artists))
+            if(getPreview == 'None'):
+                melURL = ''
+                print(getPreview)
+            else:
+                melURL = "https://open.spotify.com/embed/track/" + getMelPreview(result.title, result.artists)
+                print(melURL)
+
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
