@@ -386,11 +386,21 @@ def add_user_log_spotify():
 def remove_user_fav_spotify():
     user = User.current_user()
 
-    try:
-        data = json.loads(request.data)
-        print(data)
+    data = json.loads(request.data)
+    print(data)
 
-        msg = ""
+    #Delete the favorite from user
+    songid = data[2]
+    r = user.delete_favorite_song(songid)
+    if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+        msg = r
+        category = "danger"
+    else:
+        msg = "Song deleted from favorites."
+        category = "success"
+
+    try:
+        #Remove from Spotify Playlist if Spotify User
         if User.is_spotify_login():
             # Integration for Adding to Spotify User Playlist based on track title and artist
             am = SpotifyHandler.get_oauth_manager()
@@ -400,22 +410,20 @@ def remove_user_fav_spotify():
 
             # Using title and artist, find all track ids to a list
             track_id = "not found"
-            track_ids = []
-            for items in data:
-                split = items.split(',')
-                title = split[0]
-                artist = split[1]
-                search_results = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
-                if search_results and search_results["tracks"]["total"] > 0:
-                    track_id = search_results['tracks']['items'][0]["id"]
-                    track_ids.append(track_id)
+            track_ids= []
+            title = data[0]
+            artist = data[1]
+            search_results = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
+            print(search_results)
+            if search_results and search_results["tracks"]["total"] > 0:
+                track_id = search_results['tracks']['items'][0]["uri"]
+                track_ids.append(track_id)
+                print(track_id)
 
             # Find Playlist and Remove track
             if track_id != "not found":
                 # get playlists from spotify
                 playlists = spotify.current_user_playlists()
-                print(playlists)
-
                 tt_playlist = None
 
                 # find TapTune playlist
@@ -426,38 +434,27 @@ def remove_user_fav_spotify():
 
                 if not tt_playlist:
                     # add spotify playlist
-                    resp = {'feedback': "spotify playlist doesn't exist", 'category': "warning"}
+                    msg += "<br>Spotify playlist doesn't exist"
+                    resp = {'feedback': msg, 'category': "danger"}
                     return make_response(jsonify(resp), 200)
 
                 print(tt_playlist)
                 if tt_playlist:
                     # remove track from spotify playlist
                     spotify.playlist_remove_all_occurrences_of_items(tt_playlist.get('id'), track_ids)
-                    msg = "Song removed from Spotify playlist - [TapTune]."
+                    msg += "<br>Song removed from Spotify playlist - [TapTune]."
                     category = "success"
                 else:
-                    resp = {'feedback': "spotify playlist doesn't exist", 'category': "warning"}
+                    msg += "<br>Spotify playlist doesn't exist"
+                    resp = {'feedback': msg, 'category': "danger"}
                     return make_response(jsonify(resp), 200)
             else:
-                msg = "Song could not be found on Spotify based on title and artist"
-                category = "danger"
-
-        category = "success"
-
-        songid = data[2]
-
-        # song_id = request.form['song_id']
-        r = user.delete_favorite_song(songid)
-        if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
-            msg = r
-            category = "danger"
-        else:
-            msg = "Song deleted from favorites."
-            category = "success"
+                msg += "<br>Song could not be found on Spotify"
+                category = "danger"  
 
     except Exception as e:
         print(e)
-        msg = "Could not remove song from Spotify playlist"
+        msg += "<br>Could not remove song from Spotify playlist"
         category = "danger"
 
     resp = {'feedback': msg, 'category': category}

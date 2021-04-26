@@ -6127,12 +6127,11 @@ button.bg-primary:focus {
 }
 
 .bg-third {
-  background: url(https://i.pinimg.com/originals/7f/04/83/7f0483ac8a61f88d51d6bbd562a350cf.jpg);
+  background: url(https://cdn.hipwallpaper.com/i/13/93/qJKcV8.jpg);
   width: 100%;
   height: 100%;
   object-fit: cover;
   color: white;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 a.bg-secondary:hover, a.bg-secondary:focus,
@@ -6250,7 +6249,7 @@ button.bg-dark:focus {
 }
 
 .border-primary {
-  border-color: #1abc9c !important;
+  border-color: #e94a4a !important;
 }
 
 .border-secondary {
@@ -6274,7 +6273,7 @@ button.bg-dark:focus {
 }
 
 .border-light {
-  border-color: #f8f9fa !important;
+  border-color: #19d141 !important;
 }
 
 .border-dark {
@@ -10616,5 +10615,25 @@ p::-webkit-scrollbar {
   
   /* Handle on hover */
   p::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  }
+
+  /* width */
+div::-webkit-scrollbar {
+  width: 10px;
+  }
+  
+  /* Track */
+  div::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  }
+  
+  /* Handle */
+  div::-webkit-scrollbar-thumb {
+  background: #888;
+  }
+  
+  /* Handle on hover */
+  div::-webkit-scrollbar-thumb:hover {
   background: #555;
   }

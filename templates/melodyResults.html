@@ -5,7 +5,7 @@
   <style type="text/css">
     .important { color: #336699; }
   </style>
-  <style type="styles/melody.css"></style>
+  <link rel="stylesheet" href="{{url_for('static', filename='styles/result.css')}}">
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
@@ -164,4 +164,9 @@
   </div>
   {%endif%}
 </div>
+{% endblock %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='melodyResults.js') }}"></script>
 {% endblock %}
