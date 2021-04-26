@@ -459,7 +459,7 @@ class rhythmAnalysis:
         index = 0
 
         try:
-            user_pattern_harm = change_tempo(self.user_input, 60)
+            user_pattern_harm = get_pattern(change_tempo(self.user_input, 60))
         except ZeroDivisionError as error:
             print(error)
 
@@ -479,7 +479,7 @@ class rhythmAnalysis:
                 original_timestamp = librosa.frames_to_time(bin_to_frame(unhash_array(db_track.harm_hash)), sr=22050)
                 song_results.append({"song": db_track,
                                      "percent_match": matching_rate_harmonic,
-                                     "matched_pattern": harm_timestamp[header:tail],
+                                     "matched_pattern": list(harm_timestamp[header:tail]),
                                      "sync_user_pattern": user_pattern_harm,
                                      "start_time": original_timestamp[header]})
 
@@ -509,7 +509,7 @@ class rhythmAnalysis:
         # for track in db_results:
         index = 0
         try:
-            user_pattern_perc = change_tempo(self.user_input, 60)
+            user_pattern_perc = get_pattern(change_tempo(self.user_input, 60))
         except ZeroDivisionError as error:
             print(error)
 
@@ -534,7 +534,7 @@ class rhythmAnalysis:
                                                                 sr=22050)
                     song_results.append({"song": db_track,
                                          "percent_match": matching_rate_percussive,
-                                         "matched_pattern": perc_timestamp[header:tail],
+                                         "matched_pattern": list(perc_timestamp[header:tail]),
                                          "sync_user_pattern": user_pattern_perc,
                                          "start_time": original_timestamp[header]})
                     max += 1

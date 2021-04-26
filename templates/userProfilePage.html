@@ -32,15 +32,12 @@
                             {{user.username}}
                         </h5>
                         <h6>
-                            Music lover
+                            {{ user.email }}
                         </h6>
                         {#                    <p class="proile-rating">RANKINGS : <span>8/10</span></p>#}
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">About</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
+                                <a class="nav-link active" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">History</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="favorites-tab" data-toggle="tab" href="#favorites" role="tab" aria-controls="favorites" aria-selected="false">Favorites</a>
@@ -51,36 +48,8 @@
             </div>
             <div class="col-md">
                 <div class="tab-content profile-tab" id="myTabContent">
-                    <!-- User Profile Tab -->
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">User Id:</h3>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.username }}</h4>
-                            </div>
-                        </div>
-                        <div class="row">
-
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">Name:</h3>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.name }}</h4>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h3 style="color: #1abc9c;">Email:</h3>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>{{ user.email }}</h4>
-                            </div>
-                        </div>
-                    </div>
                     <!-- User History Tab -->
-                    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    <div class="tab-pane fade show active" id="history" role="tabpanel" aria-labelledby="history-tab">
                         <div class="row">
                             <div class="col">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>
@@ -230,29 +199,30 @@
                                     <button id="prevPageListTwo" type="button" class="btn btn-secondary">Prev Page</button>
                                     <button id="nextPageListTwo" type="button" class="btn btn-secondary">Next Page</button>
                                     <br>
-                                    <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
                                 </div>
                                 <div id="pageContainerTwo">
                                     <ul class="timeline">
                                         {%for song in user_fav_songs%}
                                             <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
-                                                <div class="col-xs-1">
-                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
-                                                               unchecked>
-                                                </div>
-                                                <div class="col pt-0 mt-0">
-                                                    <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
-                                                    <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
-                                                    <p>
-                                                        <span id="songFavoritedTitle{{loop.index}}">
-                                                            Artist: {{song.artist}}
-                                                        </span><br>
-                                                        Genre: {{song.genre}}
-                                                    </p>
-                                                    <a id="songDeleteFav" data-title="{{song.title}}" data-artist="{{song.artist}}" data-song-id="{{ song.id }}" href="#" style="color: black">
-                                                        <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
-                                                    </a>
-                                                </div>
+                                                <li>
+                                                    <div class="col-xs-1">
+                                                            <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
+                                                                   unchecked>
+                                                    </div>
+                                                    <div class="col pt-0 mt-0">
+                                                        <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
+                                                        <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
+                                                        <p>
+                                                            <span id="songFavoritedTitle{{loop.index}}">
+                                                                Artist: {{song.artist}}
+                                                            </span><br>
+                                                            Genre: {{song.genre}}
+                                                        </p>
+                                                        <a id="songDeleteFav" data-title="{{song.title}}" data-artist="{{song.artist}}" data-song-id="{{ song.id }}" href="#" style="color: black">
+                                                            <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
+                                                        </a>
+                                                    </div>
+                                                </li>
                                             </div>
                                         {%endfor%}
                                     </ul>

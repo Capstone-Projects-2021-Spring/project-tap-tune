@@ -6126,6 +6126,15 @@ button.bg-primary:focus {
   background-color: #4fbcee !important;
 }
 
+.bg-third {
+  background: url(https://i.pinimg.com/originals/7f/04/83/7f0483ac8a61f88d51d6bbd562a350cf.jpg);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
 a.bg-secondary:hover, a.bg-secondary:focus,
 button.bg-secondary:hover,
 button.bg-secondary:focus {
