@@ -141,8 +141,13 @@
             </div>
         </div>
         <h2 class="masthead-heading text-uppercase mb-0 mt-4">Related Searches</h2>
-        <div class="divider-custom2 divider-dark">
+        <div class="divider-custom2 divider-dark mb-1">
             <div class="divider-custom2-line"></div>
+        </div>
+        <div class = "mt-0 pt-0 pb-2">
+            <small >
+                Don't see your result?  Try <a href="/recordingMelody"><span style="color: #ff9292; font-weight: bold;">Melody Recording </span></a>instead!
+            </small>
         </div>
         <div class="row pt-2">
             <div class="col-md pl-2 bg-light shadow-sm">
@@ -156,7 +161,7 @@
                     </thead>
                     <tbody id = "resultsSecondaryTableBody">
                         {% for song_result in filterResults %}
-                        <tr onclick="window.location='#';" class='clickable-row' data-song-pattern="{{song_result.matched_pattern|tojson}}">
+                        <tr onclick="window.location='#';" class='clickable-row' data-song-timestamp="{{song_result.start_time}}" data-song-pattern="{{song_result.matched_pattern}}">
                           <td>{{ song_result.song.title }}</td>
                           <td>{{ song_result.song.artist }}</td>
                           <td>{{ (song_result.percent_match*100)|round(2) }}%</td>

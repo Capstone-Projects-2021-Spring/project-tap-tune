@@ -6,6 +6,7 @@ from models.Source import Source
 from models.Song import Song
 from models.analysis.Filtering import Filtering
 from models.analysis.AudioAnalysis import rhythmAnalysis
+from yt_sp_autosource_POC import AutoSource
 import lyricsgenius
 import json
 import time
@@ -48,7 +49,7 @@ def home_page():
     # get logged in user or None
     user = User.current_user()
     # print(request.headers['Host'])
-    print(session)
+    # print(session)
     return render_template('index.html', user=user)
 
 
@@ -63,12 +64,14 @@ def rhythm_page():
     user = User.current_user()
     return render_template('recordingRhythm.html', user=user)
 
+
 @app.route('/about', methods=['GET', 'POST'])
 def about_page():
     user = User.current_user()
     r = make_response(render_template('about.html', user=user))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
+
 
 @app.route('/recordingMelody', methods=['GET', 'POST'])
 def melody_page():
@@ -83,7 +86,7 @@ def filter_page():
     userinput = [0.001,0.712,1.458,2.168,2.876,3.529,4.29,5.007]
     custobj = test.rhythmAnalysis(userinput)
     print(custobj.onset_peak_func())
-    ''' 
+    '''
     user = User.current_user()
     return render_template('filtering.html', user=user)
 
@@ -106,18 +109,20 @@ def get_lyrics(songtitle, songartist):
         lyrics = song.lyrics
     return lyrics
 
+
 def get_photo(songtitle, songartist):
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
-                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+                                                                    client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
     photo = ''
-    #For each title and artist, find track id
+    # For each title and artist, find track id
     searchResults = spotify.search(q="artist:" + songartist + " track:" + songtitle, type="track", limit=1)
     print(searchResults)
     if searchResults and searchResults["tracks"]["total"] > 0:
         photo = searchResults["tracks"]["items"][0]["album"]["images"][1]
 
     return photo
+
 
 @app.route('/results', methods=['GET', 'POST'])
 def result_page():
@@ -126,13 +131,14 @@ def result_page():
     objF = Filtering(Artist=request.form['input_artist'], Genre=request.form['input_genre'],
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
-
+    print(filterResults)
+    user_result = session['user_result']
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
         userRecordingType = "General"
         final_res = objR.onset_peak_func()  # returns list of tuples, final_results = [{<Song>, percent_match, matched_pattern}, ... ]
-    if objR.input_type == 1 :
+    if objR.input_type == 1:
         userRecordingType = "Percussion"
         final_res = objR.onset_peak_fun_percussive()
     if objR.input_type == 2:
@@ -142,29 +148,36 @@ def result_page():
     lyrics = ''
     photo = ''
     spotifyTimestamp = ''
-    
+    spotify_data = None
+    print("----------------")
+    # final_res[0]['matched_pattern'] = list(final_res[0]['matched_pattern'])
+    # print(type(final_res[0]))
+    # print(final_res[0]['matched_pattern'])
+    print("----------------")
     if final_res and len(final_res) > 0:
         final_res.sort(reverse=True, key=sort_results)  # sort results by % match
         final_res = final_res[:10]  # truncate array to top 10 results
         spotify_data = spotify_embeds(final_res[0]['song'].title, final_res[0]['song'].artist)
         lyrics = get_lyrics(final_res[0]['song'].title, final_res[0]['song'].artist)
-        spotifyTimestamp = final_res[0]['matched_pattern'][0]
+        spotifyTimestamp = final_res[0]['start_time']
         #photo = get_photo(final_res[0]['song'].title, final_res[0]['song'].artist)
         if user:
             user.add_song_log(final_res)
-
     userTapCount = len(user_result[1])
     # Todo: After getting results, store in user_log
-    r = make_response(render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res, 
-                                                    userTapCount=userTapCount, userRecordingType=userRecordingType, spotifyTimestamp=spotifyTimestamp,
-                                                    spotify_data=spotify_data))
+    r = make_response(
+        render_template('results.html', userTaps=user_result[1], user=user, lyrics=lyrics, filterResults=final_res,
+                        userTapCount=userTapCount, userRecordingType=userRecordingType,
+                        spotifyTimestamp=spotifyTimestamp,
+                        spotify_data=spotify_data))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
+
 
 def getMelPreview(title, artist):
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
                                                                     client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
-    trackURI =''
+    trackURI = ''
     # Parse Tracks in data to find track id
     searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
     if searchResults and searchResults["tracks"]["total"] > 0:
@@ -174,16 +187,17 @@ def getMelPreview(title, artist):
         print(splitURI)
         return splitURI[2]
 
+
 @app.route('/melodyResults', methods=['GET', 'POST'])
 def melody_result_page():
     user = User.current_user()
 
-    melList=''
+    melList = ''
     melTitle = ''
     melArtist = ''
     melScore = ''
     photo = ''
-    melURL=''
+    melURL = ''
 
     try:
         recording_filename = session.get('recording')
@@ -199,7 +213,7 @@ def melody_result_page():
                 r.energy_threshold = 4000
                 r.dynamic_energy_threshold = True
                 data = r.record(source)
-                #Google Speech API Key
+                # Google Speech API Key
                 try:
                     lyricsFromFile = r.recognize_google(data, key='AIzaSyAEi5c2CU_gf3RsJGv6UVt1EqnylEn6mvc')
                 except:
@@ -220,9 +234,9 @@ def melody_result_page():
             print(result.artists)
             print(result.score)
             lyrics = get_lyrics(result.title, result.artists)
-            #photo  = get_photo(result.title, result.artists)
+            # photo  = get_photo(result.title, result.artists)
             # print(lyrics)
-            melURL= "https://open.spotify.com/embed/track/"+getMelPreview(result.title, result.artists)
+            melURL = "https://open.spotify.com/embed/track/" + getMelPreview(result.title, result.artists)
             print("STUFFY NOODLES")
             melList = FingerprintRequest().getHummingFingerprint(session.get('recording'))
         else:
@@ -239,16 +253,17 @@ def melody_result_page():
 
 @app.route('/user', methods=['GET', 'POST'])
 def user_page():
-    phrases = ["Hey There,", "Hello,", "What's Up?", "Good To See You,", "Greetings,", "Salutations,", "Howdy,", "Hey,", "Nice To See You,"]
-    rand = random.randint(0,8)
+    phrases = ["Hey There,", "Hello,", "What's Up?", "Good To See You,", "Greetings,", "Salutations,", "Howdy,", "Hey,",
+               "Nice To See You,"]
+    rand = random.randint(0, 8)
     user = User.current_user()
     user_song_log = user.get_song_log()
     user_fav_songs = user.get_favorite_songs()
     r = make_response(render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs,
-                           user_song_log=user_song_log, phrases=phrases, rand=rand))
+                                      user_song_log=user_song_log, phrases=phrases, rand=rand))
     r.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://open.spotify.com")
     return r
-    #return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
+    # return render_template('userProfilePage.html', user=user, user_fav_songs=user_fav_songs, user_song_log=user_song_log)
 
 
 @app.route('/add-user-fav-song', methods=['GET', 'POST'])
@@ -358,6 +373,7 @@ def add_user_log_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+
 @app.route('/remove-user-fav-spotify', methods=['GET', 'POST'])
 def remove_user_fav_spotify():
     user = User.current_user()
@@ -377,7 +393,7 @@ def remove_user_fav_spotify():
             # Using title and artist, find all track ids to a list
             track_id = "not found"
             track_ids = []
-            for items in data :
+            for items in data:
                 split = items.split(',')
                 title = split[0]
                 artist = split[1]
@@ -417,30 +433,19 @@ def remove_user_fav_spotify():
             else:
                 msg = "Song could not be found on Spotify based on title and artist"
                 category = "danger"
+
+        category = "success"
+
+        songid = data[2]
+
+        # song_id = request.form['song_id']
+        r = user.delete_favorite_song(songid)
+        if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
+            msg = r
+            category = "danger"
         else:
+            msg = "Song deleted from favorites."
             category = "success"
-
-        # add to favorites in TapTune database
-        # [TODO With Wayne here]
-        # 
-        # if category != "danger":
-            # if msg != "":
-            #     msg += "<br>"
-
-            for items in data :
-                split = items.split(',')
-                title = split[0]
-                artist = split[1]
-                songid = split[2]
-
-            # song_id = request.form['song_id']
-            r = user.delete_favorite_song(song_id)
-            if r == User.DUPLICATE_FAVORITE_SONG_ERROR or r == User.UNKNOWN_ERROR:
-                msg = r
-                category = "danger"
-            else:
-                msg = "Song deleted from favorites."
-                category = "success"
 
     except Exception as e:
         print(e)
@@ -450,43 +455,75 @@ def remove_user_fav_spotify():
     resp = {'feedback': msg, 'category': category}
     return make_response(jsonify(resp), 200)
 
+
+@app.route('/remove-user-song-history', methods=['GET', 'POST'])
+def remove_user_song_history():
+    user = User.current_user()
+
+    try:
+        data = json.loads(request.data)
+        print(data)
+
+        msg = ""
+        category = "success"
+
+        songID = data[0]
+
+            # song_id = request.form['song_id']
+        r = user.delete_history_song(songID)
+        if r == User.UNKNOWN_ERROR:
+            msg = r
+            category = "danger"
+        else:
+            msg = "Song deleted from history."
+            category = "success"
+
+    except Exception as e:
+        print(e)
+        msg = "Could not remove song from User History"
+        category = "danger"
+
+    resp = {'feedback': msg, 'category': category}
+    return make_response(jsonify(resp), 200)
+
+
 @app.route('/spotify-suggest', methods=['GET', 'POST'])
 def spotify_suggest():
-    if request.method == 'POST': 
-        #Getting song suggestion based on spotify API
+    if request.method == 'POST':
+        # Getting song suggestion based on spotify API
         data = json.loads(request.data)
         input_tracks = data[0]
-        attributes = data[1] 
+        attributes = data[1]
         print(attributes)
 
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
-                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+                                                                        client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
         CLIENT_ID = '57483e104132413189f41cd82836d8ef'
         CLIENT_SECRET = '2bcd745069bd4602ae77d1a348c0f2fe'
-        
+
         AUTH_URL = 'https://accounts.spotify.com/api/token'
-        
+
         # POST
         auth_response = requests.post(AUTH_URL, {
             'grant_type': 'client_credentials',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
         })
-        
+
         # convert the response to JSON
         auth_response_data = auth_response.json()
-        
+
         # save the access token
         access_token = auth_response_data['access_token']
-        
+
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token)
         }
-        
+
         # base URL of all Spotify API endpoints
         REC_ENDPOINT = 'https://api.spotify.com/v1/recommendations'
 
-        #Parse Slider information
+        # Parse Slider information
         # Define Initial Target_Values [Acousticness, Danceability, Energy Instrumentalness, Loudness]
         target_values = [None, None, None, None, None]
         for index, item in enumerate(attributes):
@@ -494,8 +531,8 @@ def spotify_suggest():
                 target_values[index] = item
         print(target_values)
 
-        #Parse Tracks in data to find track ids
-        #For each title and artist, find track id
+        # Parse Tracks in data to find track ids
+        # For each title and artist, find track id
         track_ids = []
         for items in input_tracks:
             """
@@ -506,26 +543,26 @@ def spotify_suggest():
             artist = split[1]
             print(title + artist)
             searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
-            #print(searchResults)
+            # print(searchResults)
             if searchResults and searchResults["tracks"]["total"] > 0:
                 track_id = searchResults['tracks']['items'][0]["id"]
                 track_ids.append(track_id)
-                #print(searchResults['tracks']['items'][0])
+                # print(searchResults['tracks']['items'][0])
 
-        #Using Track Ids, get a recommended song through Spotify API
+        # Using Track Ids, get a recommended song through Spotify API
         if (len(track_ids) > 0):
             # recommendations = spotify.recommendations(seed_artists=None, seed_genres=None, seed_tracks=track_ids, limit=1)
             # actual GET request with proper header
             r = requests.get(REC_ENDPOINT + '/', headers=headers,
-                             params={'seed_artist' : None,
-                                     'seed_genres' : None,
-                                     'seed_tracks' : track_ids,
-                                     'target_acousticness' : target_values[0],
-                                     'target_danceability' : target_values[1],
-                                     'target_energy' :  target_values[2],
-                                     'target_instrumentalness' : target_values[3],
-                                     'target_loudness' :  target_values[4]
-                             })
+                             params={'seed_artist': None,
+                                     'seed_genres': None,
+                                     'seed_tracks': track_ids,
+                                     'target_acousticness': target_values[0],
+                                     'target_danceability': target_values[1],
+                                     'target_energy': target_values[2],
+                                     'target_instrumentalness': target_values[3],
+                                     'target_loudness': target_values[4]
+                                     })
             print(target_values)
             recommendations = r.json()
             if recommendations:
@@ -537,11 +574,16 @@ def spotify_suggest():
                 msg = "Song suggested by related tracks."
                 data = [recommendedTitle, recommendedArtist, recommendedSongImage, recommendedSongLink]
                 category = "success"
+
+                # auto source section
+                obj = AutoSource(title=recommendedTitle, artist=recommendedArtist)
+                obj.process_info()
+
             else:
                 msg = "Song could not be suggested, no found tracks in input array."
                 data = "None"
                 category = "warning"
-                
+
         else:
             msg = "Song could not be suggested, no found tracks in input array."
             data = "None"
@@ -550,18 +592,18 @@ def spotify_suggest():
         resp = {'feedback': msg, 'category': category, 'data': data}
         return make_response(jsonify(resp), 200)
 
+
 @app.route('/spotify-track-metadata', methods=['GET', 'POST'])
 def spotify_track_metadata():
-    if request.method == 'POST': 
+    if request.method == 'POST':
         spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
-                                                           client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
-        #Getting song suggestion based on spotify API
+                                                                        client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+        # Getting song suggestion based on spotify API
         data = json.loads(request.data)
         title = data[0]
-        artist = data[1] 
+        artist = data[1]
 
-
-        #Parse Tracks in data to find track id
+        # Parse Tracks in data to find track id
         lyrics = ''
         searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
         lyrics = get_lyrics(title, artist)
@@ -579,21 +621,22 @@ def spotify_track_metadata():
             category = "danger"
 
         resp = {'feedback': msg, 'category': category, 'data': resp_data}
-        return make_response(jsonify(resp), 200) 
+        return make_response(jsonify(resp), 200)
 
-def spotify_embeds(title, artist): 
+
+def spotify_embeds(title, artist):
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="596f71278da94e8897cb131fb074e90c",
-                                                        client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
+                                                                    client_secret="a13cdd7f3a8c4f50a7fc2a8dba772386"))
 
-    #Parse Tracks in data to find track id
+    # Parse Tracks in data to find track id
     lyrics = ''
     searchResults = spotify.search(q="artist:" + artist + " track:" + title, type="track", limit=1)
-    resp_data = ['','','https://www.dia.org/sites/default/files/No_Img_Avail.jpg']
+    resp_data = ['', '', 'https://www.dia.org/sites/default/files/No_Img_Avail.jpg']
     if searchResults and searchResults["tracks"]["total"] > 0:
         spotifyHead = "https://open.spotify.com/"
         spotify = searchResults['tracks']['items'][0]["external_urls"]["spotify"]
         spotifyTail = spotify[len(spotifyHead):len(spotify)]
-        
+
         trackLink = spotifyHead + "embed/" + spotifyTail
         trackURI = searchResults["tracks"]['items'][0]["uri"]
         trackAlbumImage = searchResults["tracks"]['items'][0]["album"]["images"][0]
@@ -760,8 +803,9 @@ def adjustArray(array):
     array.pop(0)
     return array
 
+
 def arrayIntervals(array):
-    #retrive the array intervals of timestamps
+    # retrive the array intervals of timestamps
     newArray = []
     index = 1
     if len(array) <= 3:
@@ -770,60 +814,35 @@ def arrayIntervals(array):
 
     for timestamp in array:
         if (index < len(array)):
-            prev = array[index-1]
+            prev = array[index - 1]
             num = round((array[index] - prev), 3)
             newArray.append(num)
             index += 1
-    newArray.pop(0) #pop the first item in case user error
+    newArray.pop(0)  # pop the first item in case user error
     return newArray
+
 
 @app.route('/rhythm', methods=['GET', 'POST'])
 def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
-
-        global user_result
-
-        #return time interval with first element dropped
-        user_result = json.loads(request.data)
-        #user_result.pop(0)
-        #user_result = arrayIntervals(json.loads(request.data))
-        print(user_result)
+        # return time interval with first element dropped
+        session['user_result'] = json.loads(request.data)
+        #print(session['user_result'])
         return out
-
-
-@app.route('/multiplerhythm', methods=['GET', 'POST'])
-def multipleRhythmPost():
-    if request.method == 'POST':
-        out = receiveRhythm()
-        data = json.loads(request.data)
-        percussionArray = []
-        harmonicArray = []
-        for recordedBeats in data:
-            if recordedBeats['type'] == 0:
-                percussionArray.append(recordedBeats['timestamp'])
-            else:
-                harmonicArray.append(recordedBeats['timestamp'])
-
-        global user_result
-        #return timestamp or tme interval
-        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
-        print(user_result)
-        return out
-
 
 @app.route('/multiplier', methods=['GET', 'POST'])
 def multiplierPost():
     if request.method == 'POST':
         multiplier = request.json
-        #print(multiplier)
+        # print(multiplier)
 
         global multiply
         multiply = json.loads(request.data)
-        #print(multiply)
+        # print(multiply)
 
         return jsonify(multiplier)
+
 
 @app.route('/melody', methods=['GET', 'POST'])
 def melody():
@@ -844,8 +863,6 @@ def melody():
                 print("FILENAME = ", fileName)
                 session['recording'] = fileName
                 outFile.save(fileName)
-                global user_result
-                user_result = 0
                 category = 'success'
                 msg = 'melody recording saved, now going to results...'
             else:
@@ -934,7 +951,7 @@ def source():
         obj = Source(artist=artist, url=url, title=title)
         success = obj.process_input()
 
-        if(success):
+        if (success):
             """ADD SONG TO QUEUE"""
             # song = {
             #     "title": title,
@@ -951,10 +968,9 @@ def source():
 
             """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
             row = [artist, title, success]
-            with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
+            with open(os.path.dirname(os.path.realpath(__file__)) + '/user_uploads.csv', 'a+', newline='') as write_obj:
                 csv_writer = csv.writer(write_obj)
                 csv_writer.writerow(row)
-
 
             """EXAMPLE ON READING AND PARSING"""
             # with open('user_uploads.csv') as csv_file:
@@ -979,7 +995,7 @@ def source2():
         data = request.files["file"]
 
         # parses the filename to obtain artist, title, and file extension
-        track_meta = data.filename[1:len(data.filename)-1]
+        track_meta = data.filename[1:len(data.filename) - 1]
         track_meta = track_meta.replace("%22", "")
         meta_split = track_meta.split(',')
         meta_split[0] = meta_split[0][7:len(meta_split[0])]
@@ -988,12 +1004,12 @@ def source2():
         artist = meta_split[0]
         title = meta_split[1]
         print(meta_split)
-        filename_ext = meta_split[len(meta_split)-1]
+        filename_ext = meta_split[len(meta_split) - 1]
         print(data.filename)
         print(data)
 
         # put together a unique filename to save
-        filename_f = str(time.time()*1000).replace('.', '') + "." + filename_ext
+        filename_f = str(time.time() * 1000).replace('.', '') + "." + filename_ext
 
         if request.headers['Host'] == "127.0.0.1:5000":
             print("HELLO LOCAL SERVER")
@@ -1021,7 +1037,7 @@ def source2():
 
         """SAVED IN ORDER ARTIST, TITLE, FILENAME"""
         row = [artist, title, success]
-        with open(os.path.dirname(os.path.realpath(__file__))+'/user_uploads.csv', 'a+', newline='') as write_obj:
+        with open(os.path.dirname(os.path.realpath(__file__)) + '/user_uploads.csv', 'a+', newline='') as write_obj:
             csv_writer = csv.writer(write_obj)
             csv_writer.writerow(row)
 
@@ -1035,25 +1051,31 @@ def source2():
         resp = {"category": "success"}
         return make_response(jsonify(resp), 200)
 
+
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
         data = json.loads(request.data)
         title = data[0]
-
-        songs = Song.get_by_title(title=title)
+        artist = data[1]
+        songs = Song.get_by_title_artist(title=title, artist=artist)
 
         if(songs != None):
-            """
-            RETURN RESULT TO FRONT END FOR DISPLAY
-            """
-            pass
+            data = []
+            for song in songs:
+                songItem = []
+                songItem.append(song.title)
+                songItem.append(song.artist)
+                songItem.append(song.release_date)
 
+                data.append(songItem)
+            print(data)
+            resp = {"category": "success", "data" : data}
+            return make_response(jsonify(resp), 200)
         else:
-            """
-            RETURN THAT THERE WAS NO SONG FOUND
-            """
-            pass
+            resp = {"category": "failure"}
+            return make_response(jsonify(resp), 200)
+
 
 @app.context_processor
 def get_current_user():

@@ -1987,7 +1987,7 @@ pre code {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #ffffff;
+  color: #000000;
   background-color: #fff;
   background-clip: padding-box;
   border: 0.125rem solid #ced4da;
@@ -2008,26 +2008,26 @@ pre code {
   text-shadow: 0 0 0 #ffffff;
 }
 .form-control:focus {
-  color: #ffffff;
-  background-color: rgb(93, 193, 233);
-  border-color: #6bebd1;
+  color: #000000;
+  background-color: rgba(235, 235, 235, 0.178);
+  border-color: #d6d3d3;
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(219, 221, 221, 0.25);
 }
 .form-control::-moz-placeholder {
-  color: #ffffff;
+  color: #e9e9e9;
   opacity: 1;
 }
 .form-control:-ms-input-placeholder {
-  color: #ffffff;
+  color: #e9e9e9;
   opacity: 1;
 }
 .form-control::placeholder {
-  color: #ffffff;
+  color: #e9e9e9;
   opacity: 1;
 }
 .form-control:disabled, .form-control[readonly] {
-  background-color: rgb(93, 193, 233);
+  background-color: rgba(235, 235, 235, 0.178);
   opacity: 1;
 }
 
@@ -2041,8 +2041,8 @@ input[type=month].form-control {
 }
 
 select.form-control:focus::-ms-value {
-  color: #ffffff;
-  background-color: rgb(93, 193, 233);
+  color: #161515;
+  background-color: rgba(233, 233, 233, 0.562);
 }
 
 .form-control-file,
@@ -6124,6 +6124,15 @@ button.bg-primary:focus {
 
 .bg-secondary {
   background-color: #4fbcee !important;
+}
+
+.bg-third {
+  background: url(https://i.pinimg.com/originals/7f/04/83/7f0483ac8a61f88d51d6bbd562a350cf.jpg);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 a.bg-secondary:hover, a.bg-secondary:focus,
@@ -10588,3 +10597,24 @@ form .row:first-child .floating-label-form-group {
 tbody tr.active {
   background-color: rgba(164, 164, 164, 0.283);
 }
+
+
+/* width */
+p::-webkit-scrollbar {
+  width: 10px;
+  }
+  
+  /* Track */
+  p::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  }
+  
+  /* Handle */
+  p::-webkit-scrollbar-thumb {
+  background: #888;
+  }
+  
+  /* Handle on hover */
+  p::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  }
