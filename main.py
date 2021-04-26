@@ -132,6 +132,7 @@ def result_page():
                      Lyrics=request.form['input_lyrics'])
     filterResults = objF.filterRecording()  # returns list of Song objects
     print(filterResults)
+    user_result = session['user_result']
     # Running Rhythm analysis on userTaps, includes filterResults to cross check
     objR = rhythmAnalysis(userTaps=user_result, filterResults=filterResults)
     if objR.input_type == 0:
@@ -825,37 +826,10 @@ def arrayIntervals(array):
 def rhythmPost():
     if request.method == 'POST':
         out = receiveRhythm()
-
-        global user_result
-
         # return time interval with first element dropped
-        user_result = json.loads(request.data)
-        # user_result.pop(0)
-        # user_result = arrayIntervals(json.loads(request.data))
-        print(user_result)
+        session['user_result'] = json.loads(request.data)
+        print(session['user_result'])
         return out
-
-
-@app.route('/multiplerhythm', methods=['GET', 'POST'])
-def multipleRhythmPost():
-    if request.method == 'POST':
-        out = receiveRhythm()
-        data = json.loads(request.data)
-        percussionArray = []
-        harmonicArray = []
-        for recordedBeats in data:
-            if recordedBeats['type'] == 0:
-                percussionArray.append(recordedBeats['timestamp'])
-            else:
-                harmonicArray.append(recordedBeats['timestamp'])
-
-        global user_result
-        # return timestamp or tme interval
-        user_result = [adjustArray(percussionArray), adjustArray(harmonicArray)]
-        # user_result = [arrayIntervals(percussionArray), arrayIntervals(harmonicArray)]
-        print(user_result)
-        return out
-
 
 @app.route('/multiplier', methods=['GET', 'POST'])
 def multiplierPost():
@@ -889,8 +863,6 @@ def melody():
                 print("FILENAME = ", fileName)
                 session['recording'] = fileName
                 outFile.save(fileName)
-                global user_result
-                user_result = 0
                 category = 'success'
                 msg = 'melody recording saved, now going to results...'
             else:
