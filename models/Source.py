@@ -193,6 +193,7 @@ def artistMod(artist):
 
 def onset_hash(file_path):
     # Loads waveform of song into x
+    print(file_path)
     x, sr = librosa.load(file_path)
     # Use beat track function to save the beat timestamps or frames. Tempo is the same regardless
     frames = librosa.onset.onset_detect(y=x, sr=sr, units='frames')  # Librosa Frames
