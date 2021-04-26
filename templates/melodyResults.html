@@ -168,5 +168,5 @@
 
 {% block js %}
     {{super()}}
-    <script src="{{ url_for('static', filename='melodyResults.js') }}"></script>
+    <script src="{{url_for('static', filename='melodyResults.js')}}?t={{uuid}}"></script>
 {% endblock %}

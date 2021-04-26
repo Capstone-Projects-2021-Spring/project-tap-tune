@@ -135,6 +135,8 @@ $( document ).ready(function() {
         //[TODO] Add Ajax Loading Icon Animation next to button here
         if (url) {
             console.log(js_data)
+            $('#rLoader').css("visibility", "visible");
+            $('#sendSourceButton').prop('disabled',true);
             $.ajax({
                 url: '/source',
                 type: 'post',
@@ -143,14 +145,18 @@ $( document ).ready(function() {
                 data: JSON.stringify(js_data)
             }).done(function (result) {
                 console.log("success: " + JSON.stringify(result));
-                $('#sourcingModalSongResponse').modal();
-
+                $('#rLoader').css("visibility", "hidden");
+                //$('#sourcingModalSongResponse').modal();
+                M.toast({html: result.feedback, classes: 'bg-' + result.category + ' text-white'});
+                $('#sendSourceButton').prop('disabled',false);
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("fail: ", textStatus, errorThrown);
+                $('#rLoader').css("visibility", "hidden");
+                M.toast({html: result.feedback, classes: 'bg-' + result.category + ' text-white'});
+                $('#sendSourceButton').prop('disabled',false);
             });
         } else if (outFile) {
             console.log("FILE UPLOAD CONDITIONAL");
-
             // set fileData to pass back
             var fileData = new FormData();
             console.log(outFile["name"].split("."))
@@ -163,6 +169,8 @@ $( document ).ready(function() {
             console.log(typeof(fileData));
             console.log(outFile)
             console.log("AJAX CALL FOR FILE INITIATED");
+            $('#rLoader').css("visibility", "visible");
+            $('#sendSourceButton').prop('disabled',true);
             $.ajax({
                 url: '/fileSource',
                 type: 'post',
@@ -171,10 +179,16 @@ $( document ).ready(function() {
                 data: fileData
             }).done(function (result) {
                 console.log("success: " + fileData);
-                $('#sourcingModalSongResponse').modal();
+                $('#rLoader').css("visibility", "hidden");
+                //$('#sourcingModalSongResponse').modal();
+                M.toast({html: result.feedback, classes: 'bg-' + result.category + ' text-white'});
+                $('#sendSourceButton').prop('disabled',false);
 
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log("fail: ", textStatus, errorThrown);
+                $('#rLoader').css("visibility", "hidden");
+                M.toast({html: result.feedback, classes: 'bg-' + result.category + ' text-white'});
+                $('#sendSourceButton').prop('disabled',false);
             });
     //        });
         }
