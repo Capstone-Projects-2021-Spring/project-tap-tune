@@ -202,11 +202,10 @@
                                     <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>
                                 </div>
                                 <div id="pageContainerTwo">
-                                    <ul class="timeline">
                                         {%for song in user_fav_songs%}
                                             <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
                                                 <div class="col-xs-1">
-                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
+                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-4 pt-3"
                                                                unchecked>
                                                 </div>
                                                 <div class="col pt-0 mt-0">
@@ -224,7 +223,6 @@
                                                 </div>
                                             </div>
                                         {%endfor%}
-                                    </ul>
                                 </div>
                             </div>
                         </div>
