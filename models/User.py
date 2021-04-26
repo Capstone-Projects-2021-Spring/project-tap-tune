@@ -305,6 +305,7 @@ class User:
                 JOIN song ON usl.song_id = song.id 
                 LEFT JOIN user_favorite_song as ufs ON usl.song_id = ufs.song_id 
                 WHERE usl.user_id = %s
+                ORDER BY usl.result_date DESC
             """
             cursor.execute(select_query, (self.id,))
             results = cursor.fetchall()
