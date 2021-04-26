@@ -599,10 +599,10 @@ def spotify_source():
 
         if obj :
             resp = {'feedback': "Success"}
-            print("failed to AutoSource from spotify recommendedTitle and artist")
             return make_response(jsonify(resp), 200)
         else :
             resp = {'feedback': "failure"}
+            print("failed to AutoSource from spotify recommendedTitle and artist")
             return make_response(jsonify(resp), 200)
 
 @app.route('/spotify-track-metadata', methods=['GET', 'POST'])
