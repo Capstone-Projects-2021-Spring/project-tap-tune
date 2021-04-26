@@ -51,7 +51,7 @@ tbody tr.active {
 
 .canvas-controls {
     position: absolute; 
-    top:1.2rem; 
+    bottom:1.5rem; 
     right:2.7rem;
     z-index: 9;
 }
