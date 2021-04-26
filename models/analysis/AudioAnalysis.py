@@ -459,7 +459,7 @@ class rhythmAnalysis:
         index = 0
 
         try:
-            user_pattern_harm = change_tempo(self.user_input, 60)
+            user_pattern_harm = get_pattern(change_tempo(self.user_input, 60))
         except ZeroDivisionError as error:
             print(error)
 
@@ -509,7 +509,7 @@ class rhythmAnalysis:
         # for track in db_results:
         index = 0
         try:
-            user_pattern_perc = change_tempo(self.user_input, 60)
+            user_pattern_perc = get_pattern(change_tempo(self.user_input, 60))
         except ZeroDivisionError as error:
             print(error)
 
