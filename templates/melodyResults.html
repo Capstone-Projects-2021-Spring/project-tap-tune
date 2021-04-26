@@ -52,6 +52,15 @@
         </div>
 
 
+<!--            {%if melPreview%}
+          <div class="videoWrapper">
+            <iframe src="{{melPreview}}" style="border-radius: 10px;" width="100%" height="150px" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            </div>
+          {%else%}
+          <div class="image">
+            <img class="img-fluid" src="https://i.ytimg.com/vi/le0BLAEO93g/maxresdefault.jpg"  alt="" />
+            </div>
+          {%endif%}-->
           <div class="videoWrapper">
 
             {%if melPreview%}
@@ -85,9 +94,11 @@
             {{artist}}
         </h4>
         <div id="module" class="container mb-3">
+          {%if lyrics != 'Not Found'%}
           <p id = "resultsMainSearchLyrics" class="overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="max-width: 800px; max-height: 200px;">
         {{lyrics}}
           </p>
+          {%endif%}
 <!--          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>-->
         </div>
       </div>
@@ -106,7 +117,7 @@
           </thead>
           <tbody id = "resultsSecondaryTableBody">
             {% for stuff in melResults %}
-              {%if stuff.title != title %}
+              {%if stuff.title != title and stuff.artists != artist %}
             <tr>
                 <td>{{stuff.title}}</td>
                 <td>{{stuff.artists}}</td>
