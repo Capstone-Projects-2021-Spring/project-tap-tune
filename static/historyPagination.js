@@ -87,15 +87,15 @@ $( document ).ready(function() {
         //page_span.innerHTML = page + "/" + numPages();
 
         if (page == 1) {
-            btn_prev.style.visibility = "hidden";
+            btn_prev.disabled = true;
         } else {
-            btn_prev.style.visibility = "visible";
+            btn_prev.disabled = false;
         }
 
         if (page == numPages()) {
-            btn_next.style.visibility = "hidden";
+            btn_next.disabled = true;
         } else {
-            btn_next.style.visibility = "visible";
+            btn_next.disabled = false;
         }
     }
 
@@ -114,15 +114,15 @@ $( document ).ready(function() {
         //page_span.innerHTML = pageTwo + "/" + numPages();
 
         if (pageTwo == 1) {
-            btn_prevTwo.style.visibility = "hidden";
+            btn_prevTwo.disabled = true;
         } else {
-            btn_prevTwo.style.visibility = "visible";
+            btn_prevTwo.disabled = false;
         }
 
         if (pageTwo == numPagesTwo()) {
-            btn_nextTwo.style.visibility = "hidden";
+            btn_nextTwo.disabled = true;
         } else {
-            btn_nextTwo.style.visibility = "visible";
+            btn_nextTwo.disabled = false;
         }
     }
 

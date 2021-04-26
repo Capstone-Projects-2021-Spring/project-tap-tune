@@ -53,12 +53,12 @@
                         <div class="row">
                             <div class="col">
                                 <h3 class="masthead-subheading text-uppercase font-weight-heavy mb-1">Song History</h3>
-                                <div class="col border-left">
+                                <div class="divider-custom2 p-0">
+                                    <div class="divider-custom2-line"></div>
+                                </div>
+                                <div class="col ml-0 pl-0 pt-1 pb-1">
                                     <button id="prevPageList" type="button" class="btn btn-secondary">Prev Page</button>
                                     <button id="nextPageList" type="button" class="btn btn-secondary">Next Page</button>
-                                    <br>
-                                    <br>
-                                    {#                                    <button id="removeSelectedSongs" type="button" class="btn btn-third">Remove From Favorites</button>#}
                                 </div>
                                 <div id="pageContainer">
                                     <ul class="timeline">
@@ -195,34 +195,14 @@
                                 <div class="divider-custom2 p-0">
                                     <div class="divider-custom2-line"></div>
                                 </div>
-                                <div class="col border-left">
+                                <div class="col ml-0 pl-0 pt-1 pb-1">
                                     <button id="prevPageListTwo" type="button" class="btn btn-secondary">Prev Page</button>
                                     <button id="nextPageListTwo" type="button" class="btn btn-secondary">Next Page</button>
-                                    <br>
                                 </div>
                                 <div id="pageContainerTwo">
                                         {%for song in user_fav_songs%}
                                             <div class="row" data-track="{{song.title}},{{song.artist}},{{song.id}}" id="songRowTwo">
-<<<<<<< HEAD
-                                                <div class="col-xs-1">
-                                                        <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-4 pt-3"
-                                                               unchecked>
-                                                </div>
-                                                <div class="col pt-0 mt-0">
-                                                    <a id="songFavoritedTitle{{loop.index}}" href="#">{{song.title}}</a>
-                                                    <a href="#" class="float-right">{{song.favorited_on.strftime('%x')}}</a>
-                                                    <p>
-                                                        <span id="songFavoritedTitle{{loop.index}}">
-                                                            Artist: {{song.artist}}
-                                                        </span><br>
-                                                        Genre: {{song.genre}}
-                                                    </p>
-                                                    <a id="songDeleteFav" data-title="{{song.title}}" data-artist="{{song.artist}}" data-song-id="{{ song.id }}" href="#" style="color: black">
-                                                        <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
-                                                    </a>
-                                                </div>
-=======
-                                                <li>
+                                                <div>
                                                     <div class="col-xs-1">
                                                             <input type="checkbox" id="songFavoritedCheckbox" data-track="{{song.title}},{{song.artist}},{{song.id}}" name="scales" class="mt-2 pt-3"
                                                                    unchecked>
@@ -240,8 +220,7 @@
                                                             <i id="songDeleteFavIcon" class="fa fa-trash fa-lg"></i>
                                                         </a>
                                                     </div>
-                                                </li>
->>>>>>> b994b1571497a6b9f629b8511ec208945106c2c8
+                                                </div>
                                             </div>
                                         {%endfor%}
                                 </div>

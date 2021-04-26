@@ -5,7 +5,7 @@
   <style type="text/css">
     .important { color: #336699; }
   </style>
-  <style type="styles/melody.css"></style>
+  <link rel="stylesheet" href="{{url_for('static', filename='styles/result.css')}}">
 {% endblock %}
 {% block content %}
 <div class="recording-bg h-100">
@@ -84,11 +84,11 @@
         <h4 id = "resultsMainSearchArtist" class="masthead-subheading text-uppercase font-weight-light mb-1">
             {{artist}}
         </h4>
-        <div id="module" class="container mb-3">
-          <p id = "resultsMainSearchLyrics" class="overflow-auto p-3 mb-3 mb-md-0 mr-md-3 bg-light" style="max-width: 800px; max-height: 200px;">
-        {{lyrics}}
-          </p>
-<!--          <a role="button" class="collapsed" data-toggle="collapse" href="#resultsMainSearchLyrics" aria-expanded="false" aria-controls="resultsMainSearchLyrics"></a>-->
+        <div class="overflow-auto p-3 mb-3 mb-md-0 md-3 bg-light" style="width: 100%; height:490px;">
+          <h5 class="font-weight-bold">Lyrics</h5>
+          <span id = "selectedResultLyrics">
+            {{lyrics}}
+          </span>
         </div>
       </div>
       <div class="col mb">
@@ -153,4 +153,9 @@
   </div>
   {%endif%}
 </div>
+{% endblock %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='melodyResults.js') }}"></script>
 {% endblock %}
